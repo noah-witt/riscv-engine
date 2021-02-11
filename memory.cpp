@@ -30,6 +30,7 @@ class MemoryRange {
          */
         long getOffset(unsigned long external) {
             long offset = external-this->start;
+            if(offset<0) offset=-1*offset;
             return offset;
         }
         /**
@@ -40,6 +41,14 @@ class MemoryRange {
             unsigned long b = this->start+(((this->growDown)?1:-1)*this->maxSize);
             this->maxLower  = (a<b)?a:b;
             this->maxUpper  = (a<b)?b:a;
+        }
+
+        /**
+         * determines if it is safe to read a specified byte
+         * @returns true if it is safe, false otherwise
+         */
+        bool safeToRead(unsigned long offset) {
+            return offset<size;
         }
     public:
         /**
@@ -82,13 +91,108 @@ class MemoryRange {
         bool contains(unsigned long location) {
             return location>=maxLower&&location<=maxUpper;
         }
-        //TODO: Read
-        //TODO: ensure reads only read allocated space or return zero.
-        //TODO: prevent overruns.
+        //TODO: write
+        //TODO: prevent write overruns.
+        //TODO: handle midpoint reads
+
+        //WRITE methods
+
+        /**
+         * write a single byte
+         * @returns true if the write worked.
+         * @param location is the memory location to write to
+         * @param value is the value to be stored in memory.
+         */
+        bool writeByte(unsigned long location, char value) {
+            if(!(contains(location))) throw "segfault"; //attempted to write to a location that is not allowed.
+            unsigned long offset= getOffset(location);
+            while(!safeToRead(offset)) {
+                //we must expand the memory space until the address is writeable.
+                if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
+                //expanded store
+            }
+            //it is safe to write 
+            store[offset]= value; //write the byte.
+            return true;
+        }
+        //TODO: Write 64bit
+        //TODO: Write 32bit.
+
+        //READ methods.
+
+        /**
+         * read a single byte, return zero if it is not allocated yet.
+         * @returns the value at the specified memory location
+         * @param start is the memory location to be read.
+         */
+        char readByte(unsigned long start) {
+            if(!(contains(start))) throw "segfault"; //do not read the data if it is a bad read.
+            unsigned long startByte= getOffset(start);
+            if(safeToRead(startByte)) return store[startByte];
+            return 0;
+        }
+
+        /**
+         * read in a 32 bit long value
+         * @returns the specified value
+         * @param start the memory location to read from
+         */
+        u_int32_t read4byte(unsigned long start) {
+            if(!(contains(start)&&contains(start+3))) throw "segfault"; //do not read the data if it is a bad read.
+            //is the byte to look at in the store.
+            unsigned long startByte= getOffset(start);
+            if(!safeToRead(startByte)) return 0; //handle the case where the whole thing is out of memory, so just dump a 0.
+            while(!safeToRead(startByte)||!safeToRead(startByte+3)){
+                //we must expand the address space.
+                //this case should not be touched because we should never read back uninitalized address space... 
+                if(!expand()) throw "partial read of uninitialized memory space. unable to expand memory space. unmanageable."; //can not grow, just segfault and go on.
+                //expanded successfully.
+            }
+            //memory location validated as safe to read
+            u_int32_t temp = ((u_int32_t *) store)[startByte/4]; 
+        }
+
+        /**
+         * read in a 64 bit long value
+         *  @returns the specified value
+         *  @param start the memory location to read from
+         */
+        u_int64_t read8byte(unsigned long start) {
+            if(!(contains(start)&&contains(start+7))) throw "segfault"; //do not read the data if it is a bad read.
+            //is the byte to look at in the store.
+            unsigned long startByte= getOffset(start);
+            if(!safeToRead(startByte)) return 0; //handle the case where the whole thing is out of memory, so just dump a 0.
+            while(!safeToRead(startByte)||!safeToRead(startByte+7)){
+                //we must expand the address space.
+                //this case should not be touched because we should never read back uninitalized address space... 
+                if(!expand()) throw "partial read of uninitialized memory space. unable to expand memory space. unmanageable."; //can not grow, just segfault and go on.
+                //expanded successfully.
+            }
+            //memory location validated as safe to read
+            u_int64_t temp = ((u_int64_t *) store)[startByte/8]; 
+        }
         
 };
+
+/**
+ * Represents the memory mapped area
+ */
+class MemoryMapArea {
+    //TODO init
+    //TODO destruct
+    //TODO create
+    //TODO read/write
+};
+
 class Memory {
     private:
         const unsigned long maxMemory = 524288000; // 500MB of memory 500*1024^2. long because memory locations can be beyond 4096 bytes.
+        MemoryRange low;
+        MemoryRange upper;
+    public:
+        //TODO init
+        //TODO destruct
+        //TODO read
+        //TODO write
 
 };
