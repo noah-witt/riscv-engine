@@ -3,7 +3,7 @@ class MemoryRange {
     private:
         const unsigned long initSize = 1048576; //1MB starting size.
         const unsigned long sizeIncr = 10485760; //10MB, increase by 10 MB for every subsequent increase in size.
-        char * store;
+        unsigned char * store;
         unsigned long size;
         unsigned long start;
         unsigned long maxSize;
@@ -21,7 +21,7 @@ class MemoryRange {
             unsigned long newSize = this->size+this->sizeIncr;
             if(newSize>this->maxSize) newSize = this->maxSize;
             //new size is now the ideal store size
-            this->store =(char *) realloc(this->store, newSize); //reallocate to a larger block.
+            this->store =(unsigned char *) realloc(this->store, newSize); //reallocate to a larger block.
             this->size = newSize;
             return true;
         }
@@ -57,7 +57,7 @@ class MemoryRange {
         MemoryRange(unsigned long start, bool growDown, unsigned long maxSize) {
             this->start  = start;
             this->growDown=growDown;
-            this->store=(char *)malloc(this->initSize);
+            this->store=(unsigned char *)malloc(this->initSize);
             this->size=this->initSize;
             this->fixedSize=false;
             this->maxSize = maxSize;
