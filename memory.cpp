@@ -1,4 +1,10 @@
 #include <stdlib.h> 
+#include <vector>
+/**
+ * Stores and manages a memory range
+ * handles writes and reads
+ * is used by higher level objects to actually implement storage
+ */
 class MemoryRange {
     private:
         const unsigned long initSize = 1048576; //1MB starting size.
@@ -27,6 +33,8 @@ class MemoryRange {
         }
         /**
          * returns the offset in to the store from the external location
+         * @param external is the addres
+         * @returns the offset in to this store.
          */
         unsigned long getOffset(unsigned long external) {
             long offset = external-this->start;
@@ -53,6 +61,9 @@ class MemoryRange {
     public:
         /**
          * Construct memory location 
+         * @param start is the address that this allocation starts at
+         * @param growDown controls the direction that the allocation expands toward. true is down
+         * @param maxsize is the maximum numbeer of bytes this object can grow to store.
          */
         MemoryRange(unsigned long start, bool growDown, unsigned long maxSize) {
             this->start  = start;
@@ -65,6 +76,9 @@ class MemoryRange {
         }
         /**
          * Create an allocation of a fixed specific size.
+         * this range then will initialize the whole allocation at the start.
+         * @param start is the starting byte location
+         * @param end is the ending byte location
          */
         MemoryRange(unsigned long start, unsigned long end) {
             unsigned long lower = (start<end)?start:end;
@@ -210,19 +224,33 @@ class MemoryRange {
 
 /**
  * Represents the memory mapped area
+ * these virtual devices register memory mapped i/o with the Memory subsystem. 
+ * virtual devices get to interact with the memory subsystem.
+ * 
+ * memory mapped ranges must be of a static size, so most devices should just accept a pointer to the location where the actual data is.
+ * for example a display should take a pointer to a string that it will display.
  */
-class MemoryMapArea {
+class MemoryMapArea: public MemoryRange {
     //TODO init
     //TODO destruct
     //TODO create
     //TODO read/write
 };
 
+
+/**
+ * Has two banks of memory, the upper and lower range. The stack area is the upper area and grows down. The heap area is the lower area and grows up
+ * this allows large areas of memory to be allocated, but not initalized on the underlying system.
+ * 
+ * Memory mapped i/o is bound to some high value beyond the allocation.
+ * Memory mapped i/o contains some data area that the device reads. 
+ */
 class Memory {
     private:
         const unsigned long maxMemory = 524288000; // 500MB of memory 500*1024^2. long because memory locations can be beyond 4096 bytes.
         MemoryRange low;
         MemoryRange upper;
+        std::vector<MemoryMapArea> io;
     public:
         //TODO init
         //TODO destruct
