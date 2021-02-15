@@ -28,7 +28,7 @@ class MemoryRange {
         /**
          * returns the offset in to the store from the external location
          */
-        long getOffset(unsigned long external) {
+        unsigned long getOffset(unsigned long external) {
             long offset = external-this->start;
             if(offset<0) offset=-1*offset;
             return offset;
@@ -74,7 +74,7 @@ class MemoryRange {
             this->fixedSize=true;
             this->growDown=false;
             this->maxSize=upper-lower;
-            this->store=(char *)malloc(upper-lower);
+            this->store=(unsigned char *)malloc(upper-lower);
             calculateMaxUpperAndLower();
         }
         /**
@@ -91,9 +91,6 @@ class MemoryRange {
         bool contains(unsigned long location) {
             return location>=maxLower&&location<=maxUpper;
         }
-        //TODO: write
-        //TODO: prevent write overruns.
-        //TODO: handle midpoint reads
 
         //WRITE methods
 
@@ -103,7 +100,7 @@ class MemoryRange {
          * @param location is the memory location to write to
          * @param value is the value to be stored in memory.
          */
-        bool writeByte(unsigned long location, char value) {
+        bool writeByte(unsigned long location,unsigned char value) {
             if(!(contains(location))) throw "segfault"; //attempted to write to a location that is not allowed.
             unsigned long offset= getOffset(location);
             while(!safeToRead(offset)) {
@@ -115,8 +112,45 @@ class MemoryRange {
             store[offset]= value; //write the byte.
             return true;
         }
-        //TODO: Write 64bit
-        //TODO: Write 32bit.
+
+        /**
+         * write a four bytes
+         * @returns true if the write worked.
+         * @param location is the memory location to write to
+         * @param value is the value to be stored in memory.
+         */
+        bool write4byte(unsigned long location,u_int32_t value) {
+            if(!(contains(location)&&contains(start+3))) throw "segfault"; //attempted to write to a location that is not allowed.
+            unsigned long offset= getOffset(location);
+            while(!safeToRead(offset)||!safeToRead(offset+3)) {
+                //we must expand the memory space until the address is writeable.
+                if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
+                //expanded store
+            }
+            //it is safe to write 
+           ((u_int32_t *) store)[offset/4] = value;
+            return true;
+        }
+        
+        /**
+         * write a eight bytes
+         * @returns true if the write worked.
+         * @param location is the memory location to write to
+         * @param value is the value to be stored in memory.
+         */
+        bool write4byte(unsigned long location,u_int64_t value) {
+            if(!(contains(location)&&contains(start+7))) throw "segfault"; //attempted to write to a location that is not allowed.
+            unsigned long offset= getOffset(location);
+            while(!safeToRead(offset)||!safeToRead(offset+7)) {
+                //we must expand the memory space until the address is writeable.
+                if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
+                //expanded store
+            }
+            //it is safe to write 
+           ((u_int64_t *) store)[offset/8] = value;
+            return true;
+        }
+
 
         //READ methods.
 
@@ -125,7 +159,7 @@ class MemoryRange {
          * @returns the value at the specified memory location
          * @param start is the memory location to be read.
          */
-        char readByte(unsigned long start) {
+        unsigned char readByte(unsigned long start) {
             if(!(contains(start))) throw "segfault"; //do not read the data if it is a bad read.
             unsigned long startByte= getOffset(start);
             if(safeToRead(startByte)) return store[startByte];
@@ -193,6 +227,8 @@ class Memory {
         //TODO init
         //TODO destruct
         //TODO read
+        //TODO manage reads across segments
         //TODO write
+        //TODO manage writes across segments
 
 };
