@@ -249,8 +249,17 @@ class MemoryMapArea: public MemoryRange {
 class Memory {
     private:
         MemoryRange * low;
+        int lowerMax;
         MemoryRange * upper;
         std::vector<MemoryMapArea> * io;
+
+        /**
+         * Validates if it contains a specified value.
+         * @returns true if it contains the specified locations and it is safe to procede.
+         */
+        bool contains(unsigned long address, unsigned char size) {
+            //TODO implementation
+        }
     public:
 
         /**
@@ -258,6 +267,7 @@ class Memory {
          */
         Memory() {
                 unsigned long lowSize = (MAXMEMORY)/2;
+                lowerMax = lowSize;
                 unsigned long upperSize = MAXMEMORY-lowSize;
                 low = new MemoryRange(0, false, lowSize);
                 upper = new MemoryRange(MAXMEMORY, true, upperSize);
