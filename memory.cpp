@@ -1,5 +1,6 @@
 #include <stdlib.h> 
 #include <vector>
+#define MAXMEMORY 524288000UL // 500MB of memory 500*1024^2. long because memory locations can be beyond 4096 bytes.
 /**
  * Stores and manages a memory range
  * handles writes and reads
@@ -231,7 +232,7 @@ class MemoryRange {
  * for example a display should take a pointer to a string that it will display.
  */
 class MemoryMapArea: public MemoryRange {
-    //TODO init
+    //TODO construct
     //TODO destruct
     //TODO create
     //TODO read/write
@@ -247,16 +248,34 @@ class MemoryMapArea: public MemoryRange {
  */
 class Memory {
     private:
-        const unsigned long maxMemory = 524288000; // 500MB of memory 500*1024^2. long because memory locations can be beyond 4096 bytes.
-        MemoryRange low;
-        MemoryRange upper;
-        std::vector<MemoryMapArea> io;
+        MemoryRange * low;
+        MemoryRange * upper;
+        std::vector<MemoryMapArea> * io;
     public:
-        //TODO init
-        //TODO destruct
+
+        /**
+         * Create the memory system with bounds that grow aproproately
+         */
+        Memory() {
+                unsigned long lowSize = (MAXMEMORY)/2;
+                unsigned long upperSize = MAXMEMORY-lowSize;
+                low = new MemoryRange(0, false, lowSize);
+                upper = new MemoryRange(MAXMEMORY, true, upperSize);
+                io = new std::vector<MemoryMapArea>();
+        }
+
+        /**
+         * Free my pointers
+         */
+        ~Memory() {
+            free(low);
+            free(upper);
+            free(io);
+        }
         //TODO read
         //TODO manage reads across segments
         //TODO write
         //TODO manage writes across segments
+        //TODO register memory mapped io
 
 };
