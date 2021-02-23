@@ -1,6 +1,16 @@
 #include <stdlib.h> 
 #include <vector>
 #define MAXMEMORY 524288000UL // 500MB of memory 500*1024^2. long because memory locations can be beyond 4096 bytes.
+
+/**
+ * returned by the memory read operations
+ */
+template<typename T>
+struct readResult {
+    T payload;
+    bool valid; //true if it was a valid read.
+};
+
 /**
  * Stores and manages a memory range
  * handles writes and reads
@@ -129,43 +139,25 @@ class MemoryRange {
         }
 
         /**
-         * write a four bytes
+         * write the specified type
          * @returns true if the write worked.
          * @param location is the memory location to write to
          * @param value is the value to be stored in memory.
          */
-        bool write4byte(unsigned long location,u_int32_t value) {
-            if(!(contains(location)&&contains(start+3))) throw "segfault"; //attempted to write to a location that is not allowed.
+        template<typename T>
+        bool write(unsigned long location,T value) {
+            unsigned int typeSize = sizeof(T);
+            if(!(contains(location)&&contains(start+typeSize))) throw "segfault"; //attempted to write to a location that is not allowed.
             unsigned long offset= getOffset(location);
-            while(!safeToRead(offset)||!safeToRead(offset+3)) {
+            while(!safeToRead(offset)||!safeToRead(offset+typeSize)) {
                 //we must expand the memory space until the address is writeable.
                 if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
                 //expanded store
             }
             //it is safe to write 
-           ((u_int32_t *) store)[offset/4] = value;
+            ((T)(store[offset])) = value;
             return true;
         }
-        
-        /**
-         * write a eight bytes
-         * @returns true if the write worked.
-         * @param location is the memory location to write to
-         * @param value is the value to be stored in memory.
-         */
-        bool write4byte(unsigned long location,u_int64_t value) {
-            if(!(contains(location)&&contains(start+7))) throw "segfault"; //attempted to write to a location that is not allowed.
-            unsigned long offset= getOffset(location);
-            while(!safeToRead(offset)||!safeToRead(offset+7)) {
-                //we must expand the memory space until the address is writeable.
-                if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
-                //expanded store
-            }
-            //it is safe to write 
-           ((u_int64_t *) store)[offset/8] = value;
-            return true;
-        }
-
 
         //READ methods.
 
@@ -173,6 +165,7 @@ class MemoryRange {
          * read a single byte, return zero if it is not allocated yet.
          * @returns the value at the specified memory location
          * @param start is the memory location to be read.
+         * @param T the type to be read.
          */
         unsigned char readByte(unsigned long start) {
             if(!(contains(start))) throw "segfault"; //do not read the data if it is a bad read.
@@ -180,45 +173,28 @@ class MemoryRange {
             if(safeToRead(startByte)) return store[startByte];
             return 0;
         }
-
+        
         /**
-         * read in a 32 bit long value
-         * @returns the specified value
+         * @returns the specified type
          * @param start the memory location to read from
+         * @param T the type to be read.
          */
-        u_int32_t read4byte(unsigned long start) {
-            if(!(contains(start)&&contains(start+3))) throw "segfault"; //do not read the data if it is a bad read.
+        template<typename T>
+        T read(unsigned long start) {
+            unsigned int typeSize = sizeof(T);
+            if(!(contains(start)&&contains(start+typeSize))) throw "segfault"; //do not read the data if it is a bad read.
             //is the byte to look at in the store.
             unsigned long startByte= getOffset(start);
             if(!safeToRead(startByte)) return 0; //handle the case where the whole thing is out of memory, so just dump a 0.
-            while(!safeToRead(startByte)||!safeToRead(startByte+3)){
+            while(!safeToRead(startByte)||!safeToRead(startByte+typeSize)){
                 //we must expand the address space.
                 //this case should not be touched because we should never read back uninitalized address space... 
                 if(!expand()) throw "partial read of uninitialized memory space. unable to expand memory space. unmanageable."; //can not grow, just segfault and go on.
                 //expanded successfully.
             }
             //memory location validated as safe to read
-            u_int32_t temp = ((u_int32_t *) store)[startByte/4]; 
-        }
-
-        /**
-         * read in a 64 bit long value
-         *  @returns the specified value
-         *  @param start the memory location to read from
-         */
-        u_int64_t read8byte(unsigned long start) {
-            if(!(contains(start)&&contains(start+7))) throw "segfault"; //do not read the data if it is a bad read.
-            //is the byte to look at in the store.
-            unsigned long startByte= getOffset(start);
-            if(!safeToRead(startByte)) return 0; //handle the case where the whole thing is out of memory, so just dump a 0.
-            while(!safeToRead(startByte)||!safeToRead(startByte+7)){
-                //we must expand the address space.
-                //this case should not be touched because we should never read back uninitalized address space... 
-                if(!expand()) throw "partial read of uninitialized memory space. unable to expand memory space. unmanageable."; //can not grow, just segfault and go on.
-                //expanded successfully.
-            }
-            //memory location validated as safe to read
-            u_int64_t temp = ((u_int64_t *) store)[startByte/8]; 
+            T* temp = (T *)&(store[startByte]) 
+            return temp;
         }
         
 };
@@ -248,8 +224,9 @@ class MemoryMapArea: public MemoryRange {
  */
 class Memory {
     private:
+        unsigned long size;
         MemoryRange * low;
-        int lowerMax;
+        unsigned long lowerMax;
         MemoryRange * upper;
         std::vector<MemoryMapArea> * io;
 
@@ -258,7 +235,17 @@ class Memory {
          * @returns true if it contains the specified locations and it is safe to procede.
          */
         bool contains(unsigned long address, unsigned char size) {
-            //TODO implementation
+            return address+size<=this->size;
+        }
+
+        /**
+         * @returns a pointer to the memory range that should be read or null if it can not be read.
+         */
+        MemoryRange * getRange(unsigned long address) {
+            if(address<=lowerMax) return low;
+            if(address<=size) return upper;
+            //TODO memory mapped region.
+            return nullptr;
         }
     public:
 
@@ -272,6 +259,7 @@ class Memory {
                 low = new MemoryRange(0, false, lowSize);
                 upper = new MemoryRange(MAXMEMORY, true, upperSize);
                 io = new std::vector<MemoryMapArea>();
+                size = MAXMEMORY;
         }
 
         /**
@@ -282,8 +270,65 @@ class Memory {
             free(upper);
             free(io);
         }
-        //TODO read
-        //TODO manage reads across segments
+
+        /**
+         * read a single byte
+         * @returns a reedResult struct which contains the data or 0 if it is out of range and sets a flag.
+         * @param address the address to the memory
+         */
+        readResult<unsigned char> readByte(unsigned long address) {
+            //TODO handle reads from memory mapped io.
+            readResult<unsigned char> result;
+            if(address<=lowerMax) {
+                result.payload = low->readByte(address);
+                result.valid = true;
+                return result;
+            }
+            if(address<=size) {
+                result.payload = upper->readByte(address);
+                result.valid = true;
+                return result;
+            }
+            //return zero for spurious reads.
+            result.payload = 0;
+            result.valid = false;
+            return result;
+        }
+
+        /**
+         * Read
+         * @returns a readResult struct with the data
+         * handles reads across regions.
+         * @param address the address to the memory
+         * @param T the type to be read.
+         */
+        template<typename T>
+        readResult<T> read(unsigned long address) {
+            unsigned int typeSize = sizeof(T);
+            MemoryRange *startRegion = getRange(address);
+            MemoryRange *endRegion = getRange(address+typeSize);
+            if(startRegion==endRegion) {
+                readResult<T> result;
+                result.payload = startRegion->read<T>(address);
+                result.valid = true;
+                return result;
+            }
+
+            //handle when there is a split
+            T * workSpace = malloc(typeSize);   //workspace is where we will construct the area byte by byte.
+            bool valid = true;  //is set to false if any of the byte reads are invalid.
+            //construct it byte by byte.
+            for(unsigned int i=0;i<typeSize; i++) {
+                readResult<t> temp = readByte(address); //the byte we are adding to the loop
+                ((unsigned char *)workSpace)[i] = temp.payload;
+                if(!temp.valid) valid=false;
+            }
+            readResult<t> result;
+            result.payload = *workSpace;
+            result.valid = valid;
+            free(workSpace);    //IMPORTANT! used malloc here must be freed.
+            return result;
+        }
         //TODO write
         //TODO manage writes across segments
         //TODO register memory mapped io
