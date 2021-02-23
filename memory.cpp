@@ -193,7 +193,7 @@ class MemoryRange {
                 //expanded successfully.
             }
             //memory location validated as safe to read
-            T* temp = (T *)&(store[startByte]) 
+            T* temp = (T *)(&(store[startByte]));
             return temp;
         }
         
@@ -319,11 +319,11 @@ class Memory {
             bool valid = true;  //is set to false if any of the byte reads are invalid.
             //construct it byte by byte.
             for(unsigned int i=0;i<typeSize; i++) {
-                readResult<t> temp = readByte(address); //the byte we are adding to the loop
+                readResult<T> temp = readByte(address); //the byte we are adding to the loop
                 ((unsigned char *)workSpace)[i] = temp.payload;
                 if(!temp.valid) valid=false;
             }
-            readResult<t> result;
+            readResult<T> result;
             result.payload = *workSpace;
             result.valid = valid;
             free(workSpace);    //IMPORTANT! used malloc here must be freed.
