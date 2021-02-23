@@ -147,9 +147,9 @@ class MemoryRange {
         template<typename T>
         bool write(unsigned long location,T value) {
             unsigned int typeSize = sizeof(T);
-            if(!(contains(location)&&contains(start+typeSize))) throw "segfault"; //attempted to write to a location that is not allowed.
+            if(!(contains(location)&&contains(start+typeSize-1))) throw "segfault"; //attempted to write to a location that is not allowed.
             unsigned long offset= getOffset(location);
-            while(!safeToRead(offset)||!safeToRead(offset+typeSize)) {
+            while(!safeToRead(offset)||!safeToRead(offset+typeSize-1)) {
                 //we must expand the memory space until the address is writeable.
                 if(!expand()) throw "out of memory"; //this case should never be hit. it should be managed by the memory class.
                 //expanded store
@@ -182,11 +182,11 @@ class MemoryRange {
         template<typename T>
         T read(unsigned long start) {
             unsigned int typeSize = sizeof(T);
-            if(!(contains(start)&&contains(start+typeSize))) throw "segfault"; //do not read the data if it is a bad read.
+            if(!(contains(start)&&contains(start+typeSize-1))) throw "segfault"; //do not read the data if it is a bad read.
             //is the byte to look at in the store.
             unsigned long startByte= getOffset(start);
             if(!safeToRead(startByte)) return 0; //handle the case where the whole thing is out of memory, so just dump a 0.
-            while(!safeToRead(startByte)||!safeToRead(startByte+typeSize)){
+            while(!safeToRead(startByte)||!safeToRead(startByte+typeSize-1)){
                 //we must expand the address space.
                 //this case should not be touched because we should never read back uninitalized address space... 
                 if(!expand()) throw "partial read of uninitialized memory space. unable to expand memory space. unmanageable."; //can not grow, just segfault and go on.
@@ -306,7 +306,7 @@ class Memory {
         readResult<T> read(unsigned long address) {
             unsigned int typeSize = sizeof(T);
             MemoryRange *startRegion = getRange(address);
-            MemoryRange *endRegion = getRange(address+typeSize);
+            MemoryRange *endRegion = getRange(address+typeSize-1);
             if(startRegion==endRegion) {
                 readResult<T> result;
                 result.payload = startRegion->read<T>(address);
@@ -329,8 +329,52 @@ class Memory {
             free(workSpace);    //IMPORTANT! used malloc here must be freed.
             return result;
         }
-        //TODO write
-        //TODO manage writes across segments
+        
+        /**
+         * write a single byte
+         * @returns true if it worked.
+         * @param address the address to the memory
+         * @param value the value to write.
+         */
+        bool writeByte(unsigned long address, unsigned char value) {
+            //TODO handle writes from memory mapped io.
+            if(address<=lowerMax) {
+                return low->writeByte(address, value);
+            }
+            if(address<=size) {
+                return upper->writeByte(address, value);
+            }
+            //return false for spurious writes.
+            return false;
+        }
+        
+        /**
+         * write
+         * @returns true if it worked.
+         * handles writes across regions.
+         * @param address the address to the memory
+         * @param T the type to be written.
+         * @param value the value to write.
+         */
+        template<typename T>
+        bool write(unsigned long address, T value) {
+            unsigned int typeSize = sizeof(T);
+            MemoryRange *startRegion = getRange(address);
+            MemoryRange *endRegion = getRange(address+typeSize-1);
+            if(startRegion==endRegion) {
+                return startRegion->write<T>(address, value);
+            }
+
+            //handle when there is a split
+            bool valid = true;  //is set to false if any of the byte writes are invalid.
+            //construct it byte by byte.
+            for(unsigned int i=0;i<typeSize; i++) {
+                bool temp = writeByte(address, value);
+                if(!temp) valid=false;
+            }
+            return valid;
+        }
+        
         //TODO register memory mapped io
 
 };
