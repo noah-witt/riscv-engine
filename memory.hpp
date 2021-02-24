@@ -1,3 +1,4 @@
+#pragma once
 /**
  * returned by the memory read operations
 */
@@ -16,8 +17,6 @@ struct readResult {
  */
 class Memory {
     public:
-    Memory();
-    ~Memory();
 
     /**
     * read a single byte
