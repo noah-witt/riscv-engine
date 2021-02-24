@@ -13,10 +13,11 @@ BOOST_AUTO_TEST_CASE(write_random_int_test) {
 
 BOOST_AUTO_TEST_CASE(write_random_int_test) {
 	//handle int writes and reads.
-	for(int i =0; i< 100000; i++) {
+	for(int i =0; i< 1; i++) {
 		Memory a = Memory();
 		int num = rand();
 		unsigned long address = rand()%524288000UL;
+		printf("%p\t%X\n", address, num);
 		a.writeByte(address,num);
 		//a.write<int>(address, num);
 		//BOOST_CHECK_EQUAL(num, a.read<int>(address));

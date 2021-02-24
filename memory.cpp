@@ -1,4 +1,5 @@
 #include <stdlib.h> 
+#include <stdio.h>
 #include <vector>
 #include "memory.hpp"
 
@@ -73,7 +74,8 @@ bool MemoryRange::contains(unsigned long location) {
  * @param value is the value to be stored in memory.
  */
 bool MemoryRange::writeByte(unsigned long location,unsigned char value) {
-    if(!(contains(location))) throw "segfault"; //attempted to write to a location that is not allowed.
+    printf("loc:\t%p;\nmaxL:\t%p; \nmaxU:\t%p;\n", location, maxLower, maxUpper);
+    if(!(contains(location))) throw "segfault "; //attempted to write to a location that is not allowed.
     unsigned long offset= getOffset(location);
     while(!safeToRead(offset)) {
         //we must expand the memory space until the address is writeable.
@@ -155,6 +157,7 @@ bool Memory::contains(unsigned long address, unsigned char size) {
  * @returns a pointer to the memory range that should be read or null if it can not be read.
  */
 MemoryRange * Memory::getRange(unsigned long address) {
+    printf("getRange\na:\t%p\nlower:\t%p;\nSize:\t%p;\n", address, low, size);
     if(address<=lowerMax) return low;
     if(address<=size) return upper;
     //TODO memory mapped region.
@@ -165,13 +168,13 @@ MemoryRange * Memory::getRange(unsigned long address) {
  * Create the memory system with bounds that grow aproproately
  */
 Memory::Memory () {
-    unsigned long lowSize = (MAXMEMORY)/2;
+    unsigned long lowSize = (MAXMEMORY)/2UL;
     lowerMax = lowSize;
     unsigned long upperSize = MAXMEMORY-lowSize;
-        low = new MemoryRange(0, false, lowSize);
-        upper = new MemoryRange(MAXMEMORY, true, upperSize);
-        io = new std::vector<MemoryMapArea>();
-        size = MAXMEMORY;
+    low = new MemoryRange(0, false, lowSize);
+    upper = new MemoryRange(MAXMEMORY, true, upperSize);
+    io = new std::vector<MemoryMapArea>();
+    size = MAXMEMORY;
 }
 
 /**
@@ -250,14 +253,10 @@ readResult<T> Memory::read(unsigned long address) {
  */
 bool Memory::writeByte(unsigned long address, unsigned char value) {
     //TODO handle writes from memory mapped io.
-    if(address<=lowerMax) {
-        return low->writeByte(address, value);
-    }
-    if(address<=size) {
-        return upper->writeByte(address, value);
-    }
-    //return false for spurious writes.
-    return false;
+
+    MemoryRange *region = getRange(address);
+    if(region==nullptr) return false;
+    return region->writeByte(address, value);
 }
 
 /**
