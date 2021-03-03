@@ -25,6 +25,7 @@ unsigned long MemoryRange::getOffset(unsigned long external) {
 void MemoryRange::calculateMaxUpperAndLower() {
     unsigned long a = this->start;
     unsigned long b = this->start+(((this->growDown)?1:-1)*this->maxSize);
+    printf("calculateMaxUpperAndLower\n-------------\na:%p; b:%p\n", a, b);
     this->maxLower  = (a<b)?a:b;
     this->maxUpper  = (a<b)?b:a;
 }
@@ -74,7 +75,7 @@ bool MemoryRange::contains(unsigned long location) {
  * @param value is the value to be stored in memory.
  */
 bool MemoryRange::writeByte(unsigned long location,unsigned char value) {
-    printf("loc:\t%p;\nmaxL:\t%p; \nmaxU:\t%p;\n", location, maxLower, maxUpper);
+    printf("WriteByte\n---------------\nloc:\t%p;\nmaxL:\t%p; \nmaxU:\t%p;\n", location, maxLower, maxUpper);
     if(!(contains(location))) throw "segfault "; //attempted to write to a location that is not allowed.
     unsigned long offset= getOffset(location);
     while(!safeToRead(offset)) {
@@ -157,9 +158,15 @@ bool Memory::contains(unsigned long address, unsigned char size) {
  * @returns a pointer to the memory range that should be read or null if it can not be read.
  */
 MemoryRange * Memory::getRange(unsigned long address) {
-    printf("getRange\na:\t%p\nlower:\t%p;\nSize:\t%p;\n", address, low, size);
-    if(address<=lowerMax) return low;
-    if(address<=size) return upper;
+    printf("getRange\n---------------\na:\t%p\nlower:\t%p;\nSize:\t%p;\n", address, lowerMax, size);
+    if(address<=lowerMax) {
+        printf("Lower\n");
+        return low;
+    }
+    if(address<=size) {
+        printf("Upper\n");
+        return low;
+    }
     //TODO memory mapped region.
     return nullptr;
 }
