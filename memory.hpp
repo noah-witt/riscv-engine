@@ -3,6 +3,7 @@
 #define MAXMEMORY 524288000UL //The max memory of a pool.
 #define PAGESIZE 1048576UL //1MB starting size. MAXMEMORY must be divisable by PAGESIZE
 #define RANGECOUNT = MAXMEMORY/MemoryRangeSize //the number of memory ranges.
+#define MEMOPOUTOFRANGE "MEMORY OUT OF RANGE OPERATION ERROR"
 
 /**
  * returned by the memory read operations
@@ -92,7 +93,7 @@ public:
 
 class Memory {
 private:
-    page * pages;
+    page ** pages;
 
 
     /**
@@ -103,6 +104,14 @@ private:
      * @return false if it is not safe.
      */
     bool preparePage(unsigned long pageId);
+
+    /**
+     * @brief Get the Page object
+     * @throws MEMOPOUTOFRANGE error if the memory page is invalid
+     * @param address the address
+     * @return page* the page for the address
+     */
+    page * getPage(unsigned long address);
 public:
     Memory();
     ~Memory();

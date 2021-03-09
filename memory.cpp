@@ -59,3 +59,88 @@ bool page::write(unsigned long address, T data) {
     *((T *)((this->data)+getOffset(address))) = data; //write to the location specified by the data pointer offset.
     return true;
 }
+
+
+
+bool Memory::preparePage(unsigned long pageId){
+    //guard make sure pageId is valid.
+    if(pageId>=0&&pageId<(MAXMEMORY/PAGESIZE)) return false;
+    page * p = (this->pages[pageId]);
+    if(p==nullptr) {
+        this->pages[pageId] = new page(pageId*PAGESIZE);
+        //p = (this->pages+pageId);
+    }
+    //p we now know is setup validly.
+    return true;
+}
+
+page * Memory::getPage(unsigned long address) {
+    unsigned long pageId = address/PAGESIZE;
+    if(!preparePage(pageId)) throw MEMOPOUTOFRANGE;
+    //page should be readable and ready to write
+    return this->pages[pageId];
+}
+
+Memory::Memory() {
+    unsigned long pageCount = MAXMEMORY/PAGESIZE;
+    this->pages = (page **)malloc(pageCount*sizeof(page *)); //create a pointer to a series of pages.
+    for(int i=0; i<pageCount; i++) {
+        this->pages[i] = nullptr;
+    }
+}
+
+Memory::~Memory() {
+    unsigned long pageCount = MAXMEMORY/PAGESIZE;
+    for(int i=0; i<pageCount; i++) {
+        if(this->pages[i]!=nullptr) {
+            this->pages[i]->~page();
+            free(this->pages[i]);
+        }
+    }
+    free(this->pages);
+}
+
+readResult<unsigned char> Memory::readByte(unsigned long address) {
+    try {
+
+        page * p = getPage(address);
+        return p->readByte(address);
+    } catch(int e) {
+        readResult<unsigned char> result;
+        result.valid = false;
+        result.payload = nullptr;
+        return result;
+    }
+}
+
+template<typename T>
+readResult<T> Memory::read(unsigned long address) {
+    try {
+
+        page * p = getPage(address);
+        page * p2 = getPage(address+sizeof(T)-1);
+        if(p!=p2) {
+            //handle when it is reading across pages.
+            unsigned char target[sizeof(T)]; 
+            bool valid = true;
+            for(int i=0; i<sizeof(T); i++) {
+                page * at = getPage(address+i);
+                readResult<unsigned char> temp = at->readByte(address+i);
+                target[i] = temp.payload;
+                if(!temp.valid) valid = false;
+            }
+            readResult<T> result;
+            result.valid = valid;
+            result.payload = (T)target;
+            return result;
+        }
+        return p->read<T>(address);
+    } catch(int e) {
+        readResult<T> result;
+        result.valid = false;
+        result.payload = nullptr;
+        return result;
+    }
+}
+
+//TODO write methods
