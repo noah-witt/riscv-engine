@@ -48,6 +48,16 @@ BOOST_AUTO_TEST_CASE(verify_bounds_checking) {
 	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY/2).valid, true);
 }
 
+BOOST_AUTO_TEST_CASE(verify_op_on_split) {
+	Memory a = Memory();
+	a.write<int>(PAGESIZE-(sizeof(int))+1, 1234567891);
+	BOOST_CHECK_EQUAL(a.read<int>(PAGESIZE-(sizeof(int))+2).valid, true);
+	BOOST_CHECK_EQUAL(a.read<int>(PAGESIZE-(sizeof(int))+2).payload, 1234567891);
+	a.write<long>((2*PAGESIZE)-(sizeof(int))+1, 1234567891234567);
+	BOOST_CHECK_EQUAL(a.read<long>((2*PAGESIZE)-(sizeof(int))+1).payload, 1234567891234567);
+	BOOST_CHECK_EQUAL(a.read<long>((2*PAGESIZE)-(sizeof(int))+1).valid, true);
+}
+
 BOOST_AUTO_TEST_CASE(write_full_int_test) {
 	//fully write the first 3 pages and then the last 3 pages.
 	Memory a = Memory();
