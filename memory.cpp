@@ -1,6 +1,10 @@
 #include "memory.hpp"
 #include <stdlib.h>
 
+inline bool page::safeToRead(unsigned long address) {
+    return PAGESIZE>address-this->address;
+}
+
 unsigned long page::getOffset(unsigned long address) {
    return  address-this->address;
 }
@@ -64,7 +68,7 @@ bool page::write(unsigned long address, T data) {
 
 bool Memory::preparePage(unsigned long pageId){
     //guard make sure pageId is valid.
-    if(pageId>=0&&pageId<(MAXMEMORY/PAGESIZE)) return false;
+    if(pageId>(MAXMEMORY/PAGESIZE)) return false;
     page * p = (this->pages[pageId]);
     if(p==nullptr) {
         this->pages[pageId] = new page(pageId*PAGESIZE);
@@ -141,6 +145,40 @@ readResult<T> Memory::read(unsigned long address) {
         result.payload = nullptr;
         return result;
     }
+    //should not be possible.
 }
 
-//TODO write methods
+bool Memory::writeByte(unsigned long address, unsigned char data) {
+    try {
+
+        page * p = getPage(address);
+        return p->writeByte(address, data);
+    } catch(int e) {
+        return false;
+    }
+    //should not be possible
+}
+
+template<typename T>
+bool Memory::write(unsigned long address, T data) {
+    try {
+
+        page * p = getPage(address);
+        page * p2 = getPage(address+sizeof(T)-1);
+        unsigned char * list = &data;
+        if(p!=p2) {
+            //handle when it is writing across pages.
+            bool valid = true;
+            for(int i=0; i<sizeof(T); i++) {
+                page * at = getPage(address+i);
+                bool temp = at->writeByte(address+i, list[i]);
+                if(!temp) valid = false;
+            }
+            return valid;
+        }
+        return p->write<T>(address, data);
+    } catch(int e) {
+        return false;
+    }
+    //should not be possible.
+}
