@@ -2,6 +2,7 @@
 //#include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include "../memory.hpp"
+#include "../memory.t.hpp"
 
 
 BOOST_AUTO_TEST_CASE(first_write_test) {

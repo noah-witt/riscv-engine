@@ -12,6 +12,7 @@ template<typename T>
 struct readResult {
     T *payload;
     bool valid; //true if it was a valid read.
+    bool needsFree=false;
 };
 
 /**
@@ -125,7 +126,7 @@ public:
 
     /**
      * @brief read data from self
-     * 
+     * if needsFree is set it needs to be freed to prevent a memory leak.
      * @tparam  the Type T
      * @param address  the address to read
      * @return readResult<T>  stores the read result and some metadata.
