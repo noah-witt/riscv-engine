@@ -6,10 +6,10 @@ readResult<T> page::read(unsigned long address) {
     if((!safeToRead(address))||(!safeToRead(address+sizeof(T)-1))) {
         //not safe to read.
         result.valid = false;
-        result.payload = nullptr;
+        result.payload = 0x0;
         return result;
     }
-    result.payload  = (T *)((this->data)+getOffset(address));
+    result.payload  = *((T *)((this->data)+getOffset(address)));
     result.valid = true;
     return result;
 }
@@ -32,24 +32,24 @@ readResult<T> Memory::read(unsigned long address) {
         page * p2 = getPage(address+sizeof(T)-1);
         if(p!=p2) {
             //handle when it is reading across pages.
-            unsigned char * target = (unsigned char *) malloc(sizeof(T)); 
+            unsigned char target[sizeof(T)]; 
             bool valid = true;
             for(int i=0; i<sizeof(T); i++) {
                 page * at = getPage(address+i);
                 readResult<unsigned char> temp = at->readByte(address+i);
-                target[i] = *(temp.payload);
+                target[i] = temp.payload;
                 if(!temp.valid) valid = false;
             }
             readResult<T> result;
             result.valid = valid;
-            result.payload = (T *)(target);
+            result.payload = *((T *)(target));
             return result;
         }
         return p->read<T>(address);
     } catch(int e) {
         readResult<T> result;
         result.valid = false;
-        result.payload = nullptr;
+        result.payload = 0x0;
         return result;
     }
     //should not be possible.

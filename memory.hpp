@@ -10,9 +10,8 @@
 */
 template<typename T>
 struct readResult {
-    T *payload;
+    T payload;
     bool valid; //true if it was a valid read.
-    bool needsFree=false;
 };
 
 /**

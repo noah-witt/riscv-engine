@@ -23,10 +23,10 @@ readResult<unsigned char> page::readByte(unsigned long address) {
     if(!safeToRead(address)) {
         //not safe to read.
         result.valid = false;
-        result.payload = nullptr;
+        result.payload = 0x0;
         return result;
     }
-    result.payload  = (this->data)+getOffset(address);
+    result.payload  = *((this->data)+getOffset(address));
     result.valid = true;
     return result;
 }
@@ -87,7 +87,7 @@ readResult<unsigned char> Memory::readByte(unsigned long address) {
     } catch(int e) {
         readResult<unsigned char> result;
         result.valid = false;
-        result.payload = nullptr;
+        result.payload = 0x0;
         return result;
     }
 }
