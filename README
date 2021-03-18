@@ -1,0 +1,9 @@
+The engine for the risc-v runtime.
+
+Will likely integrate in to an electron JS app. and will run in the WASM enviroment.
+
+TODO
+    - [X] Memory System
+    - [ ] ALU
+    - [ ] Assembler
+    - [ ] syscall management
