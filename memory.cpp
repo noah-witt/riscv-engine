@@ -1,3 +1,11 @@
+/**
+ * @file memory.cpp
+ * @author Noah Witt (nawitt18@ole.augie.edu)
+ * @brief Provide memory
+ * @version 0.1
+ * @date 2021-08-05
+ * 
+ */
 #include "memory.hpp"
 #include <stdlib.h>
 
