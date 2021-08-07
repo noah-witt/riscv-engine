@@ -2,7 +2,7 @@
 
 #define MAXMEMORY 524288000UL //The max memory of a pool.
 #define PAGESIZE 1048576UL //1MB starting size. MAXMEMORY must be divisable by PAGESIZE
-#define RANGECOUNT = MAXMEMORY/MemoryRangeSize //the number of memory ranges.
+#define RANGECOUNT = MAXMEMORY/PAGESIZE //the number of memory ranges.
 #define MEMOPOUTOFRANGE "MEMORY OUT OF RANGE OPERATION ERROR"
 
 /**

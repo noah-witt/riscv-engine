@@ -7,3 +7,6 @@ TODO
     - [ ] ALU
     - [ ] Assembler
     - [ ] syscall management
+
+
+TODO: setup github CI.
