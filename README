@@ -1,6 +1,6 @@
 The engine for the risc-v runtime.
 
-Will likely integrate in to an electron JS app. and will run in the WASM enviroment.
+Will likely integrate in to an electron JS app. and will run in the WASM environment.
 
 TODO
     - [X] Memory System
@@ -10,3 +10,7 @@ TODO
 
 
 TODO: setup github CI.
+TODO: assembler take source and make a memory map from it 
+
+run the commands from memory
+Unit tests should be used liberally to mitigate bugs at time to stich it all up.

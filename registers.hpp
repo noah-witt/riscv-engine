@@ -25,6 +25,10 @@ class Register {
 
 class zeroRegister: public Register {
     public:
+        zeroRegister();
+        bool writeByte(unsigned char);
+        bool writeShort(unsigned short);
+        bool write(unsigned int);
         bool writeLong(unsigned long);
 };
 

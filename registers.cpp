@@ -98,6 +98,17 @@ zeroRegister::zeroRegister() {
     *this->value =   0x0;
 }
 
+bool zeroRegister::writeByte(unsigned char in) {
+    return false;
+}
+
+bool zeroRegister::writeShort(unsigned short in) {
+    return false;
+}
+
+bool zeroRegister::write(unsigned int in) {
+    return false;
+}
 
 bool zeroRegister::writeLong(unsigned long in) {
     return false;
