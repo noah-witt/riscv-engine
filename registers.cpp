@@ -14,6 +14,9 @@
 #include <unordered_map>
 # define REGISTER_WIDTH_BYTES 8
 # define REGISTERS_END 31
+# define F_REGISTERS_START 100
+# define F_REGISTERS_COUNT 32
+# define PC 200
 
 Register::Register() {
     this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));
@@ -122,7 +125,15 @@ Registers::Registers() {
         //create registers for [1, REGISTERS_END]
         this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
     }
-    // TODO add the FP registers just store with offset
+    this->registers.insert(std::pair<unsigned int, Register>(PC, Register()));
+    for(unsigned int i=F_REGISTERS_START; i<F_REGISTERS_START+F_REGISTERS_COUNT; i++) {
+        this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
+    }
+    /**
+     * We now have registers in the range 0-31.
+     * the program counter is at 200
+     * and fp registers in the range 100-131
+     */
 }
 
 Registers::~Registers() {
