@@ -1,14 +1,13 @@
 /**
- * @file compile.hpp
+ * @file assemble.hpp
  * @author Noah Witt (nawitt18@ole.augie.edu)
  * @version 0.1
  * @date 2021-09-01
  * 
- * @copyright Copyright (c) 2021
- * 
  */
 
 #include <string>
+#include <unordered_map>
 
 
 /**
@@ -19,17 +18,22 @@ class Symbol {
     protected:
         std::string symbol;
         unsigned long referenceLocation;
+        unsigned int size;
     public:
-        Symbol();
+        Symbol(std::string symbol, unsigned long address, unsigned int size);
         ~Symbol();
         unsigned long getAddress();
+        unsigned int getSize();
         std::string getSymbol();
         bool matchesSymbol(std::string symbol);
 };
 
 class SymbolTable {
     protected:
-        // TODO some sort of list structure
+        std::unordered_map<std::string, Symbol> table;
     public:
-        //TODO insert add etc
+        bool insert(std::string symbol, unsigned int address);
+        Symbol remove(std::string symbol);
+        Symbol find(std::string symbol);
+        //TODO get address 
 };

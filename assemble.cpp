@@ -1,5 +1,5 @@
 /**
- * @file compile.cpp
+ * @file assemble.cpp
  * @author Noah Witt (nawitt18@ole.augie.edu)
  * @brief compile RISC-V assembly
  * @version 0.1
