@@ -8,6 +8,31 @@
  * This is a basic two step compiler. First it identifies symbols
  */
 
+#include <assemble.hpp>
+
+Symbol::Symbol(std::string symbol, unsigned int size) {
+    this->symbol = symbol;
+    this->size = size;
+    this->fixed = false;
+    this->referenceLocation = NULL;
+}
+
+Symbol::Symbol(std::string symbol, unsigned long address, unsigned int size) {
+    this->symbol = symbol;
+    this->size = size;
+    this->fixed = true;
+    this->referenceLocation = address;
+}
+
+Symbol::~Symbol() {
+    // TODO implement
+}
+
+bool Symbol::getFixed() {
+    return this->fixed
+}
+
+
 // TODO symbol table
 // TODO generate symbol table
 // TODO use symbols compile

@@ -17,3 +17,6 @@ Unit tests should be used liberally to mitigate bugs at time to stich it all up.
 
 
 the basic structure of this software should load a RISC-V assembly string, compile it, load it in to memory and start executing. Unit tests should be used to liberally ensure that code is well tested. A user interface will need to be provided to allow users to interact with the software in a constructive way.
+
+# SCOPE
+Scope of this project will include an assembler, and the ability to execute code. Some UI on top of that functionality will be required. A basic text editor and some way to control and visualize the execution. 
