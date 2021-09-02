@@ -9,6 +9,7 @@
  */
 
 #include <assemble.hpp>
+#include <string>
 
 Symbol::Symbol(std::string symbol, unsigned int size) {
     this->symbol = symbol;
@@ -29,7 +30,23 @@ Symbol::~Symbol() {
 }
 
 bool Symbol::getFixed() {
-    return this->fixed
+    return this->fixed;
+}
+
+unsigned int Symbol::getSize() {
+    return this->size;
+}
+
+std::string Symbol::getSymbol() {
+    return this->symbol;
+}
+
+bool Symbol::matchesSymbol(std:: string s) {
+    return this->symbol == s;
+}
+
+unsigned long Symbol::getAddress() {
+    return this->referenceLocation;
 }
 
 
