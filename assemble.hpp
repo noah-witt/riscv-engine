@@ -32,7 +32,14 @@ class Symbol {
 
 struct SymbolTableFindResult {
     bool found;
-    Symbol symbol;
+    Symbol * symbol = nullptr;
+};
+
+enum class Operations: ulong{
+    ADD,
+    ADDI,
+    SUB,
+    SUBI,
 };
 
 class SymbolTable {
@@ -77,13 +84,14 @@ class Instruction {
     protected:
         std::string value;
         SymbolTable* sym;
+        ulong address;
     public:
         /**
          * @brief Construct a new Instruction object
          * 
          * @param value the instruction string line
          */
-        Instruction(std::string value, SymbolTable* sym);
+        Instruction(std::string value, SymbolTable* sym, ulong address);
         /**
          * @brief a register with the value
          * @note Free the register after your done with it.
