@@ -19,34 +19,26 @@ class Symbol {
         std::string symbol;
         unsigned long referenceLocation;
         unsigned int size;
-        /**
-         * Fixed is true if the memory location does not change, it is fixed
-         */
-        bool fixed;
     public:
-        Symbol(std::string symbol, unsigned int size);
+        Symbol();
         Symbol(std::string symbol, unsigned long address, unsigned int size);
         ~Symbol();
         unsigned long getAddress();
         unsigned int getSize();
-        bool getFixed();
         std::string getSymbol();
         bool matchesSymbol(std::string symbol);
+        void setRef(unsigned long address);
+};
+
+struct SymbolTableFindResult {
+    bool found;
+    Symbol symbol;
 };
 
 class SymbolTable {
     protected:
         std::unordered_map<std::string, Symbol> table;
     public:
-        /**
-         * @brief insert a symbol with a assigned location
-         * 
-         * @param symbol the name
-         * @param size the size
-         * @return true it worked
-         * @return false it failed
-         */
-        bool insert(std::string symbol, unsigned int size);
         /**
          * @brief insert a symbol at a fixed location
          * 
@@ -67,10 +59,10 @@ class SymbolTable {
         /**
          * @brief Find a symbol
          * 
-         * @param symbol the name of the symbol
+         * @param symbol the name of the symbol or a NULL
          * @return Symbol the object 
          */
-        Symbol find(std::string symbol);
+        SymbolTableFindResult find(std::string symbol);
         /**
          * @brief Layout the memory of this symbol table
          * 
@@ -84,17 +76,33 @@ class SymbolTable {
 class Instruction {
     protected:
         std::string value;
+        SymbolTable* sym;
     public:
         /**
          * @brief Construct a new Instruction object
          * 
          * @param value the instruction string line
          */
-        Instruction(std::string value);
+        Instruction(std::string value, SymbolTable* sym);
         /**
          * @brief a register with the value
          * @note Free the register after your done with it.
          * @returns Register with the value
+         * an odd construct returning a register because it is just a place to put bytes.
          */
         Register getInstruction();
+};
+
+class Program {
+    protected:
+        std::string value;
+        SymbolTable sym;
+    public:
+        Program(std::string value);
+        /**
+         * load a program to memory.
+         * @param mem the memory
+         */
+        void toMemory(Memory* mem);
+        // TODO some sort of operation to load a command in to memory.
 };
