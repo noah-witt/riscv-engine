@@ -7,8 +7,33 @@
  */
 
 #include <string>
+#include <cstring>
+#include <vector>
+#include <list>
 #include <unordered_map>
 #include "registers.hpp"
+
+class AssembleConstants {
+    public:
+        static char registerNameSeperator;
+        static std::string registerNames[];
+        static uint registerCount;
+        static std::list<std::list<std::string>> getNamesAsList();
+};
+
+enum class SymbolOrRegisterType {
+    UNSET,
+    SYMBOL,
+    REGISTER,
+};
+
+struct SymbolOrRegister {
+    SymbolOrRegisterType t;
+    std::string val;
+    Symbol * symbol = nullptr;
+    Register * reg = nullptr; 
+    uint registerId;
+};
 
 /**
  * @brief represents a symbol
@@ -35,7 +60,7 @@ struct SymbolTableFindResult {
     Symbol * symbol = nullptr;
 };
 
-enum class Operations: ulong{
+enum class Operations: uint16_t{
     ADD,
     ADDI,
     SUB,

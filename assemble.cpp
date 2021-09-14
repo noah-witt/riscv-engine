@@ -14,6 +14,26 @@
 #include <vector>
 
 
+char AssembleConstants::registerNameSeperator = ';';
+uint AssembleConstants::registerCount = 64;
+// BIG list of registers registers with two names are seperated by a ';'
+std::string AssembleConstants::registerNames[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0;fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "fs0", "fs1", "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "Fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
+
+std::list<std::list<std::string>> AssembleConstants::getNamesAsList() {
+    std::list<std::list<std::string>> result;
+    for(uint i=0; i<AssembleConstants::registerCount; i++) {
+        std::string sep;
+        sep+=AssembleConstants::registerNameSeperator;
+        std::vector<std::string> in;
+        in.push_back(sep);
+        std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
+        std::list<std::string> reg;
+        for(std::vector<std::string>::iterator i=split.begin(); i < split.end(); i++) {
+            reg.push_back(*i);
+        }
+        result.push_back(reg);
+    }
+}
 
 Symbol::Symbol(std::string symbol, unsigned long address, unsigned int size) {
     this->symbol = symbol;
@@ -83,10 +103,9 @@ Register Instruction::getInstruction() {
     delinators.push_back(",");
     delinators.push_back(" ");
     Operations op;
-    std::vector<Symbol *> syms;
+    std::vector<SymbolOrRegister> syms;
     std::vector<std::string> split = splitStringRemoveEmpty(this->value, delinators);
     // NOW MAKE SURE THE SYMBOLS.
-    // TODO FIX
     std::vector<std::string>::iterator it = split.begin();
     for(;it<split.end();it++) {
         if (it == split.begin()) {
@@ -105,19 +124,81 @@ Register Instruction::getInstruction() {
             }
             // FIXME add more.
         } else {
-            // TODO IDENTIFY IF REGISTER OR MEMORY SYMBOL NAME.
+            std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
+            std::list<std::list<std::string>>::iterator opts = names.begin();
+            for(uint reg=0; reg < names.size(); reg++) {
+                for(std::list<std::string>::iterator str = opts->begin(); str != opts->end(); str++) {
+                    if(*str == *it) {
+                        SymbolOrRegister symR;
+                        symR.val = *it;
+                        symR.t = SymbolOrRegisterType::REGISTER;
+                        symR.registerId = reg;
+                        syms.push_back(symR);
+                    }
+                }
+                opts++;
+            }
+            // RISCV is pure load store so only some instructions need this.
             SymbolTableFindResult findResult = this->sym->find(*it);
             if (findResult.found && findResult.symbol != nullptr) {
-                syms.push_back(findResult.symbol);
+                SymbolOrRegister symR;
+                symR.symbol = findResult.symbol;
+                symR.t = SymbolOrRegisterType::SYMBOL;
+                symR.val = *it;
+                syms.push_back(symR);
+                continue;
             } else {
                 throw "INVALID SYMBOL";
             }
         }
     }
     Register result = Register();
-    // TODO record the instruction in to this "register"
+    if(op == Operations::ADD) {
+        // TODO process this put it in the register and then return the register value.
+        // syms[0] is dest
+        // syms[1] is op
+        // syms[2] is op2
+        // TODO fix bit pattern
+        uint16_t op = 0;
+        uint16_t dest = syms.at(0).registerId;
+        uint16_t op0 = syms.at(1).registerId;
+        uint16_t op1 = syms.at(2).registerId;
+        result.writeInstruction(op, dest, op0, op1);
+        return result;
+    }
+    if(op == Operations::ADDI) {
+        uint16_t op = 1;
+        uint16_t dest = syms.at(0).registerId;
+        uint16_t op0 = syms.at(1).registerId;
+        uint16_t op1 = syms.at(2).registerId;
+        result.writeInstruction(op, dest, op0, op1);
+        return result;
+    }
+    if(op == Operations::SUB) {
+        uint16_t op = 2;
+        uint16_t dest = syms.at(0).registerId;
+        uint16_t op0 = syms.at(1).registerId;
+        uint16_t op1 = syms.at(2).registerId;
+        result.writeInstruction(op, dest, op0, op1);
+        return result;
+    }
+    if(op == Operations::SUBI) {
+        uint16_t op = 3;
+        uint16_t dest = syms.at(0).registerId;
+        uint16_t op0 = syms.at(1).registerId;
+        uint16_t op1 = syms.at(2).registerId;
+        result.writeInstruction(op, dest, op0, op1);
+        return result;
+    }
+    // TODO add more commands
+
     return result;
 }
+
+// FIXME implement step 1
+// STEP 1 is identifying symbols and getting addressed for them
+// We will do this by figuring out when the `symName:` part is refering to and then recording the address of that command.
+// once we have that address it will be usable in load/store ops.
 
 Program::Program(std::string value) {
     this->value = value;

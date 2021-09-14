@@ -95,6 +95,30 @@ bool Register::writeLong(unsigned long in) {
     return true;
 }
 
+void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
+    uint64_t * val = this->value;
+    uint16_t * at = (uint16_t* ) val;
+    // step through as a 16 bit pointer and set every part.
+    *at = a;
+    at++;
+    *at = b;
+    at++;
+    *at = c;
+    at++;
+    *at =d;
+}
+
+void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c)  {
+    this->writeInstruction(a, b, c, 0x0);
+}
+
+void Register::writeInstruction(uint16_t a, uint16_t b)  {
+    this->writeInstruction(a, b, 0x0);
+}
+
+void Register::writeInstruction(uint16_t a)  {
+    this->writeInstruction(a, 0x0);
+}
 
 zeroRegister::zeroRegister() {
     this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));

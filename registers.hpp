@@ -2,6 +2,7 @@
 
 #include "memory.hpp"
 #include <unordered_map>
+#include <cstdint>
 
 /**
  * @brief a basic register
@@ -21,6 +22,10 @@ class Register {
         bool writeShort(unsigned short);
         bool write(unsigned int);
         bool writeLong(unsigned long);
+        void writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
+        void writeInstruction (uint16_t a, uint16_t b, uint16_t c);
+        void writeInstruction(uint16_t a, uint16_t b);
+        void writeInstruction(uint16_t a);
 };
 
 class zeroRegister: public Register {
