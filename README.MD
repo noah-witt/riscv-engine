@@ -20,3 +20,6 @@ the basic structure of this software should load a RISC-V assembly string, compi
 
 # SCOPE
 Scope of this project will include an assembler, and the ability to execute code. Some UI on top of that functionality will be required. A basic text editor and some way to control and visualize the execution. 
+
+#  Implementation differences
+ - Bit patterns are not the same as on real hardware.

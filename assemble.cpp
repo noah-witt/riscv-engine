@@ -159,38 +159,37 @@ Register Instruction::getInstruction() {
         // syms[1] is op
         // syms[2] is op2
         // TODO fix bit pattern
-        uint16_t op = 0;
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction(op, dest, op0, op1);
+        result.writeInstruction((uint16_t) op, dest, op0, op1);
         return result;
     }
     if(op == Operations::ADDI) {
-        uint16_t op = 1;
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction(op, dest, op0, op1);
+        result.writeInstruction((uint16_t)op, dest, op0, op1);
         return result;
     }
     if(op == Operations::SUB) {
-        uint16_t op = 2;
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction(op, dest, op0, op1);
+        result.writeInstruction((uint16_t)op, dest, op0, op1);
         return result;
     }
     if(op == Operations::SUBI) {
-        uint16_t op = 3;
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction(op, dest, op0, op1);
+        result.writeInstruction((uint16_t)op, dest, op0, op1);
         return result;
     }
     // TODO add more commands
+    // LOAD OPS will need to be special. 
+    // LOAD/store will likely work with 32 bits?
+    // LOAD/store OP CODE, REGISTER ID, LOCATION 32 bits
 
     return result;
 }
@@ -199,6 +198,9 @@ Register Instruction::getInstruction() {
 // STEP 1 is identifying symbols and getting addressed for them
 // We will do this by figuring out when the `symName:` part is refering to and then recording the address of that command.
 // once we have that address it will be usable in load/store ops.
+// xyz: add a, b, c
+// xyz: .dword
+// xyz: .sword
 
 Program::Program(std::string value) {
     this->value = value;
@@ -207,6 +209,8 @@ Program::Program(std::string value) {
 
 void Program::toMemory(Memory* mem) {
     // TODO PASS 1 load locations.
+        // PSUDO OPS that write a value
+        // ref to point in code.
     // TODO generate an Instruction from each line
     // TODO step through and write for each command.
     mem->write<unsigned long>(0, 0x0);

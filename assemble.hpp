@@ -65,6 +65,8 @@ enum class Operations: uint16_t{
     ADDI,
     SUB,
     SUBI,
+    // TODO LOAD Operations
+    // FIX ME more ops
 };
 
 class SymbolTable {

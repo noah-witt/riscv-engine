@@ -158,6 +158,7 @@ Registers::Registers() {
      * the program counter is at 200
      * and fp registers in the range 100-131
      */
+    // FIXME convert to the range 0-64 to align with our special assembled code.
 }
 
 Registers::~Registers() {
