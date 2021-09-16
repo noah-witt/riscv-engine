@@ -221,6 +221,7 @@ Program::Program(std::string value) {
 }
 
 void Program::firstStep() {
+    // TODO free the old symbol table and setup a new one
     uint64_t current_pointer = 0;
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back("\n");
@@ -228,19 +229,33 @@ void Program::firstStep() {
     std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
     for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
         // IDENFIY IF THERE IS A SYMBOL DEC
-        
-        // IDENFIFY IF THERE IS A COMMAND
-        // IDENFITY IF THERE IS A COMMANd TO CREATE A WORD.
-        // create the symbols and assign them addresses
+        std::vector<std::string> lineDelinator = std::vector<std::string>();
+        lineDelinator.push_back(" ");
+        std::vector<std::string> parts = splitStringRemoveEmpty(*line, lineDelinator);
+        for(std::vector<std::string>::iterator part = parts.begin(); part<parts.end(); part++) {
+            if(strEndsIn(*part, ":")) {
+                std::string name = part->substr(0, part->size()-1);
+                this->sym.insert(name, current_pointer, 64);
+                continue;
+            } 
+            if(! part->empty()) {
+                // TODO be a little smarter than just checking if it isnt empty
+                current_pointer+=64;
+                break;
+            }
+        }
     }
 }
 
 void Program::toMemory(Memory* mem) {
-    // TODO PASS 1 load locations.
-        // PSUDO OPS that write a value
-        // ref to point in code.
-    // TODO generate an Instruction from each line
-    // TODO step through and write for each command.
+    this->firstStep();
+    std::vector<std::string> delinators = std::vector<std::string>();
+    delinators.push_back("\n");
+    delinators.push_back("\r");
+    std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
+    for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
+        // this is each line.
+    }
     mem->write<unsigned long>(0, 0x0);
 }
 

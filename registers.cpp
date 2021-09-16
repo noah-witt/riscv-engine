@@ -13,9 +13,7 @@
 #include <stdlib.h>
 #include <unordered_map>
 # define REGISTER_WIDTH_BYTES 8
-# define REGISTERS_END 31
-# define F_REGISTERS_START 100
-# define F_REGISTERS_COUNT 32
+# define REGISTERS_END 64
 # define PC 200
 
 Register::Register() {
@@ -150,15 +148,10 @@ Registers::Registers() {
         this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
     }
     this->registers.insert(std::pair<unsigned int, Register>(PC, Register()));
-    for(unsigned int i=F_REGISTERS_START; i<F_REGISTERS_START+F_REGISTERS_COUNT; i++) {
-        this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
-    }
     /**
-     * We now have registers in the range 0-31.
+     * We now have registers in the range 0-64.
      * the program counter is at 200
-     * and fp registers in the range 100-131
      */
-    // FIXME convert to the range 0-64 to align with our special assembled code.
 }
 
 Registers::~Registers() {

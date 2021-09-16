@@ -1,6 +1,5 @@
 #include <util.hpp>
 #include <vector>
-#include <string>
 
 findDelineatorResult findDelineator(std::string s, std::vector<std::string> delineator) {
     ulong first = std::string::npos;
@@ -42,4 +41,11 @@ std::vector<std::string> splitStringRemoveEmpty(std::string input, std::vector<s
         }
         it++;
     }
+}
+
+bool strEndsIn(std::string const &str, std::string const &end) {
+    if (str.length() >= end.length()) {
+        return (0 == str.compare(str.length() - end.length(), end.length(), end));
+    }
+    return false;
 }

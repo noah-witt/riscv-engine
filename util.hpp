@@ -32,3 +32,6 @@ std::vector<std::string> splitString(std::string input, std::vector<std::string>
  * @return std::vector<std::string> the split string.
  */
 std::vector<std::string> splitStringRemoveEmpty(std::string input, std::vector<std::string> delineator);
+
+
+bool strEndsIn(std::string const &str, std::string const &end);
