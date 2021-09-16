@@ -284,7 +284,7 @@ void Program::toMemory(Memory* mem) {
         Instruction instruction = Instruction(operation, &this->sym, (ulong)current_pointer);
         try {
             Register reg = instruction.getInstruction();
-            mem->fromRegister(current_pointer, reg);
+            mem->write<unsigned long>(current_pointer, reg.readLong().payload);
             current_pointer+=64;
         } catch (std::exception e) {
             // TODO some sort of logging to record this.

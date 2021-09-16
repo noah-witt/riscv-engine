@@ -13,7 +13,9 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
-#include "registers.hpp"
+#include "./registers.hpp"
+#include "./memory.h"
+#include "./memory.t.hpp"
 
 class AssembleConstants {
     public:
@@ -27,14 +29,6 @@ enum class SymbolOrRegisterType {
     UNSET,
     SYMBOL,
     REGISTER,
-};
-
-struct SymbolOrRegister {
-    SymbolOrRegisterType t;
-    std::string val;
-    Symbol * symbol = nullptr;
-    Register * reg = nullptr; 
-    uint registerId;
 };
 
 /**
@@ -55,6 +49,14 @@ class Symbol {
         std::string getSymbol();
         bool matchesSymbol(std::string symbol);
         void setRef(unsigned long address);
+};
+
+struct SymbolOrRegister {
+    SymbolOrRegisterType t;
+    std::string val;
+    Symbol * symbol = nullptr;
+    Register * reg = nullptr; 
+    uint registerId;
 };
 
 struct SymbolTableFindResult {

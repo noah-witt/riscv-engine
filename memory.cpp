@@ -111,11 +111,3 @@ bool Memory::writeByte(unsigned long address, unsigned char data) {
     }
     //should not be possible
 }
-
-void Memory::fromRegister(unsigned long address, Register &reg) {
-    this->write<unsigned long>(address, reg.readLong().payload);
-}
-
-void Memory::toRegister(unsigned long address, Register &reg) {
-    reg.writeLong(this->read<unsigned long>(address).payload);
-}
