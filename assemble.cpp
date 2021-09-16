@@ -98,6 +98,7 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
 
 Register Instruction::getInstruction() {
     // TODO identify labels
+    // TODO identify phsudo ops like .dword etc.
     // First step is to split the instruction in to its constituent parts.
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back(",");
@@ -198,13 +199,40 @@ Register Instruction::getInstruction() {
 // STEP 1 is identifying symbols and getting addressed for them
 // We will do this by figuring out when the `symName:` part is refering to and then recording the address of that command.
 // once we have that address it will be usable in load/store ops.
+// Blank lines and lines with only `xyz:` should be ingored, and the symbol reference should be set to the current address
 // xyz: add a, b, c
 // xyz: .dword
 // xyz: .sword
 
+/** FIXME ref after. So we need to build the symbol table first.
+ * start current address pointer at 0
+ * for each line {
+ *  blank skip
+ *  reference to location set symbol to current address and strip symbol dec
+ *  interpret command and store register in to memory.
+ *  if stored increment the current address pointer by 64 bits.
+ * }
+ * 
+ */
+
 Program::Program(std::string value) {
     this->value = value;
     this->sym = SymbolTable();
+}
+
+void Program::firstStep() {
+    uint64_t current_pointer = 0;
+    std::vector<std::string> delinators = std::vector<std::string>();
+    delinators.push_back("\n");
+    delinators.push_back("\r");
+    std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
+    for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
+        // IDENFIY IF THERE IS A SYMBOL DEC
+        
+        // IDENFIFY IF THERE IS A COMMAND
+        // IDENFITY IF THERE IS A COMMANd TO CREATE A WORD.
+        // create the symbols and assign them addresses
+    }
 }
 
 void Program::toMemory(Memory* mem) {

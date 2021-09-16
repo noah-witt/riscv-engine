@@ -132,6 +132,7 @@ class Program {
     protected:
         std::string value;
         SymbolTable sym;
+        void firstStep();
     public:
         Program(std::string value);
         /**
