@@ -6,8 +6,9 @@
  * @date 2021-08-05
  * 
  */
-#include "memory.hpp"
+#include "./memory.hpp"
 #include <stdlib.h>
+#include "./registers.hpp"
 
 inline bool page::safeToRead(unsigned long address) {
     return PAGESIZE>address-this->address;
@@ -109,4 +110,12 @@ bool Memory::writeByte(unsigned long address, unsigned char data) {
         return false;
     }
     //should not be possible
+}
+
+void Memory::fromRegister(unsigned long address, Register &reg) {
+    this->write<unsigned long>(address, reg.readLong().payload);
+}
+
+void Memory::toRegister(unsigned long address, Register &reg) {
+    reg.writeLong(this->read<unsigned long>(address).payload);
 }

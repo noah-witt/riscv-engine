@@ -1,4 +1,6 @@
-#include "memory.hpp"
+#pragma once
+
+#include "./memory.hpp"
 
 template<typename T>
 readResult<T> page::read(unsigned long address) {

@@ -8,8 +8,9 @@
  * This is a basic two step compiler. First it identifies symbols
  */
 
-#include <util.hpp>
-#include <assemble.hpp>
+
+#include "./util.hpp"
+#include "./assemble.hpp"
 #include <string>
 #include <vector>
 
@@ -237,7 +238,8 @@ void Program::firstStep() {
                 std::string name = part->substr(0, part->size()-1);
                 this->sym.insert(name, current_pointer, 64);
                 continue;
-            } 
+            }
+            trim(*part);
             if(! part->empty()) {
                 // TODO be a little smarter than just checking if it isnt empty
                 current_pointer+=64;
@@ -249,14 +251,47 @@ void Program::firstStep() {
 
 void Program::toMemory(Memory* mem) {
     this->firstStep();
+    uint64_t current_pointer = 0;
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back("\n");
     delinators.push_back("\r");
     std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
     for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
         // this is each line.
+        // TODO Process each line dropping the :
+        std::vector<std::string> partDelinators = std::vector<std::string>();
+        partDelinators.push_back(":");
+        std::vector<std::string> parts = splitStringRemoveEmpty(*line, partDelinators);
+        std::string operation;
+        if(parts.size()>2) {
+            // There should not be more than one of these in a line.
+            throw std::exception();
+        }
+        if(parts.size()==2) {
+            // discard the first part.
+            operation = parts[1];
+        }
+        if(parts.size()==1) {
+            operation = parts[0];
+        }
+        //remove leading and trailing whitespace.
+        trim(operation);
+        if(operation.empty()){
+            // just continue to the next line.
+            continue;
+        }
+        // now we have a command to pass to the instruction register generator.
+        Instruction instruction = Instruction(operation, &this->sym, (ulong)current_pointer);
+        try {
+            Register reg = instruction.getInstruction();
+            mem->fromRegister(current_pointer, reg);
+            current_pointer+=64;
+        } catch (std::exception e) {
+            // TODO some sort of logging to record this.
+            // It probably is nothing though because it could just be a non command.
+        }
     }
-    mem->write<unsigned long>(0, 0x0);
+    // the memory image should be written.
 }
 
 

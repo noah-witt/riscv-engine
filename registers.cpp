@@ -8,8 +8,8 @@
  * 
  */
 
-#include "registers.hpp"
-#include "memory.hpp"
+#include "./registers.hpp"
+#include "./memory.hpp"
 #include <stdlib.h>
 #include <unordered_map>
 # define REGISTER_WIDTH_BYTES 8

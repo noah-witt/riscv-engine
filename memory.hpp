@@ -1,5 +1,6 @@
 #pragma once
 
+#include "./registers.hpp"
 #define MAXMEMORY 524288000UL //The max memory of a pool.
 #define PAGESIZE 1048576UL //1MB starting size. MAXMEMORY must be divisable by PAGESIZE
 #define RANGECOUNT = MAXMEMORY/PAGESIZE //the number of memory ranges.
@@ -13,6 +14,8 @@ struct readResult {
     T payload;
     bool valid; //true if it was a valid read.
 };
+
+struct ulongReadResult: readResult<unsigned long>{};
 
 /**
  * @brief represents a page of memory.
@@ -152,4 +155,7 @@ public:
      */
     template<typename T>
     bool write(unsigned long address, T data);
+
+    void fromRegister(unsigned long address, Register &reg);
+    void toRegister(unsigned long address, Register &reg);
 };

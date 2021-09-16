@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <vector>
 
@@ -13,7 +15,7 @@ struct findDelineatorResult {
  * @param delineator the delinators
  * @return findDelineatorResult the result
  */
-findDelineatorResult findDelineator(std::string s, std::vector<std::string> delineator);
+findDelineatorResult findDelineator(std::string const &s, std::vector<std::string> const &delineator);
 
 /**
  * @brief split a string based on the given delinators
@@ -22,7 +24,7 @@ findDelineatorResult findDelineator(std::string s, std::vector<std::string> deli
  * @param delineator the list of delinators
  * @return std::vector<std::string> the split string.
  */
-std::vector<std::string> splitString(std::string input, std::vector<std::string> delineator);
+std::vector<std::string> splitString(std::string const &input, std::vector<std::string> const &delineator);
 
 /**
  * @brief similar to splitString but also removes the empty strings
@@ -31,7 +33,11 @@ std::vector<std::string> splitString(std::string input, std::vector<std::string>
  * @param delineator the list of delinators
  * @return std::vector<std::string> the split string.
  */
-std::vector<std::string> splitStringRemoveEmpty(std::string input, std::vector<std::string> delineator);
+std::vector<std::string> splitStringRemoveEmpty(std::string const &input, std::vector<std::string> const &delineator);
 
 
 bool strEndsIn(std::string const &str, std::string const &end);
+
+static inline std::string &ltrim(std::string &s);
+static inline std::string &rtrim(std::string &s);
+static inline std::string &trim(std::string &s);
