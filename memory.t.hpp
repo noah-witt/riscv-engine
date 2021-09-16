@@ -29,7 +29,6 @@ bool page::write(unsigned long address, T data) {
 template<typename T>
 readResult<T> Memory::read(unsigned long address) {
     try {
-
         page * p = getPage(address);
         page * p2 = getPage(address+sizeof(T)-1);
         if(p!=p2) {

@@ -34,6 +34,7 @@ std::list<std::list<std::string>> AssembleConstants::getNamesAsList() {
         }
         result.push_back(reg);
     }
+    return result;
 }
 
 Symbol::Symbol(std::string symbol, unsigned long address, unsigned int size) {
@@ -45,7 +46,7 @@ Symbol::Symbol(std::string symbol, unsigned long address, unsigned int size) {
 Symbol::Symbol() {
     this->symbol = "";
     this->size = 0;
-    this->referenceLocation = NULL;
+    this->referenceLocation = 0;
 }
 
 Symbol::~Symbol() {
@@ -73,6 +74,15 @@ void Symbol::setRef(unsigned long address) {
     this->referenceLocation = address;
 }
 
+bool SymbolTable::insert(std::string symbol, unsigned long address, unsigned int size) {
+    std::unordered_map<std::string, Symbol>::iterator found = this->table.find(symbol);
+    if(found != this->table.end()) {
+        return false;
+    }
+    this->table.insert(std::pair<std::string, Symbol>(symbol, Symbol(symbol, address, size)));
+    return true;
+}
+
 SymbolTableFindResult SymbolTable::find(std::string symbol) {
     SymbolTableFindResult result;
     result.found = false;
@@ -86,8 +96,7 @@ SymbolTableFindResult SymbolTable::find(std::string symbol) {
 
 Symbol SymbolTable::remove(std::string symbol){
     std::unordered_map<std::string, Symbol>::iterator item = this->table.find(symbol);
-    // TODO check that iterator is not point to end
-    // TODO return the element.
+    return item->second;
 }
 
 Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {

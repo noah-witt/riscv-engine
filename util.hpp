@@ -38,6 +38,6 @@ std::vector<std::string> splitStringRemoveEmpty(std::string const &input, std::v
 
 bool strEndsIn(std::string const &str, std::string const &end);
 
-static inline std::string &ltrim(std::string &s);
-static inline std::string &rtrim(std::string &s);
-static inline std::string &trim(std::string &s);
+std::string &ltrim(std::string &s);
+std::string &rtrim(std::string &s);
+std::string &trim(std::string &s);
