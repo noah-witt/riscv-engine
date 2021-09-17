@@ -47,7 +47,7 @@ readResult<T> Memory::read(unsigned long address) {
             return result;
         }
         return p->read<T>(address);
-    } catch(int e) {
+    } catch(std::exception e) {
         readResult<T> result;
         result.valid = false;
         result.payload = 0x0;
