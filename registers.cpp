@@ -106,6 +106,10 @@ void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d) 
     *at =d;
 }
 
+uint16_t * Register::readInstruction() {
+    return (uint16_t *) this->value;
+}
+
 void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c)  {
     this->writeInstruction(a, b, c, 0x0);
 }

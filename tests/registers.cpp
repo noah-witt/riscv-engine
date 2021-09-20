@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE memory_test
+#define BOOST_TEST_MODULE register_test
 //#include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include "../memory.hpp"

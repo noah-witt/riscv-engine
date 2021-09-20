@@ -13,6 +13,10 @@
 #include "./assemble.hpp"
 #include <string>
 #include <vector>
+#include <iostream>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/expressions.hpp>
 
 
 char AssembleConstants::registerNameSeperator = ';';
@@ -29,7 +33,7 @@ std::list<std::list<std::string>> AssembleConstants::getNamesAsList() {
         in.push_back(sep);
         std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
         std::list<std::string> reg;
-        for(std::vector<std::string>::iterator i=split.begin(); i < split.end(); i++) {
+        for(std::vector<std::string>::iterator i=split.begin(); i != split.end(); i++) {
             reg.push_back(*i);
         }
         result.push_back(reg);
@@ -107,6 +111,7 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
 }
 
 Register Instruction::getInstruction() {
+    BOOST_LOG_TRIVIAL(debug) << "at get instruction";
     // TODO identify labels
     // TODO identify phsudo ops like .dword etc.
     // First step is to split the instruction in to its constituent parts.
@@ -115,10 +120,12 @@ Register Instruction::getInstruction() {
     delinators.push_back(" ");
     Operations op;
     std::vector<SymbolOrRegister> syms;
+    BOOST_LOG_TRIVIAL(debug) << "prcessing line " << this->value;
     std::vector<std::string> split = splitStringRemoveEmpty(this->value, delinators);
     // NOW MAKE SURE THE SYMBOLS.
     std::vector<std::string>::iterator it = split.begin();
     for(;it<split.end();it++) {
+        BOOST_LOG_TRIVIAL(debug) << "processing part of line " << *it;
         if (it == split.begin()) {
             // the command
             if(*it == "ADD") {
@@ -137,21 +144,29 @@ Register Instruction::getInstruction() {
         } else {
             std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
             std::list<std::list<std::string>>::iterator opts = names.begin();
+            bool regNameFound = false;
             for(uint reg=0; reg < names.size(); reg++) {
-                for(std::list<std::string>::iterator str = opts->begin(); str != opts->end(); str++) {
+                if(opts==names.end()) {
+                    throw "OPTS BEYOND END";
+                }
+                for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
+                    BOOST_LOG_TRIVIAL(debug) << "compare if register " << *str << " == " << *it;
                     if(*str == *it) {
                         SymbolOrRegister symR;
                         symR.val = *it;
                         symR.t = SymbolOrRegisterType::REGISTER;
                         symR.registerId = reg;
                         syms.push_back(symR);
+                        regNameFound = true;
                     }
                 }
                 opts++;
             }
             // RISCV is pure load store so only some instructions need this.
             SymbolTableFindResult findResult = this->sym->find(*it);
-            if (findResult.found && findResult.symbol != nullptr) {
+            if (regNameFound) {
+                continue;
+            } else if (findResult.found && findResult.symbol != nullptr) {
                 SymbolOrRegister symR;
                 symR.symbol = findResult.symbol;
                 symR.t = SymbolOrRegisterType::SYMBOL;
@@ -163,6 +178,7 @@ Register Instruction::getInstruction() {
             }
         }
     }
+    BOOST_LOG_TRIVIAL(debug) << "get instruction process each part";
     Register result = Register();
     if(op == Operations::ADD) {
         // TODO process this put it in the register and then return the register value.
@@ -170,6 +186,8 @@ Register Instruction::getInstruction() {
         // syms[1] is op
         // syms[2] is op2
         // TODO fix bit pattern
+        BOOST_LOG_TRIVIAL(debug) << "generating add instruction";
+        BOOST_LOG_TRIVIAL(debug) << "syms " << syms.size();
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
@@ -237,7 +255,9 @@ void Program::firstStep() {
     delinators.push_back("\n");
     delinators.push_back("\r");
     std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
-    for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
+
+    // SOME ISSUE HERE processing each line.
+    for(std::vector<std::string>::iterator line = lines.begin(); line!=lines.end(); line++) {
         // IDENFIY IF THERE IS A SYMBOL DEC
         std::vector<std::string> lineDelinator = std::vector<std::string>();
         lineDelinator.push_back(" ");
@@ -265,7 +285,7 @@ void Program::toMemory(Memory* mem) {
     delinators.push_back("\n");
     delinators.push_back("\r");
     std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
-    for(std::vector<std::string>::iterator line = lines.begin(); line<lines.end(); line++) {
+    for(std::vector<std::string>::iterator line = lines.begin(); line!=lines.end(); line++) {
         // this is each line.
         // TODO Process each line dropping the :
         std::vector<std::string> partDelinators = std::vector<std::string>();
@@ -298,6 +318,7 @@ void Program::toMemory(Memory* mem) {
         } catch (std::exception e) {
             // TODO some sort of logging to record this.
             // It probably is nothing though because it could just be a non command.
+            throw e; //FIXME remove this line
         }
     }
     // the memory image should be written.

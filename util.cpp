@@ -4,6 +4,10 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <iostream>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/expressions.hpp>
 
 findDelineatorResult findDelineator(std::string const &s, std::vector<std::string> const &delineator) {
     ulong first = std::string::npos;
@@ -34,6 +38,8 @@ std::vector<std::string> splitString(std::string const &input, std::vector<std::
         result.push_back(token);
         inputLocal.erase(0, pos.pos + pos.delineator.length());
     }
+    // add the end
+    result.push_back(inputLocal);
     return result;
 }
 
