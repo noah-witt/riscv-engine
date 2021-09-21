@@ -128,6 +128,9 @@ Register Instruction::getInstruction() {
         BOOST_LOG_TRIVIAL(debug) << "processing part of line " << *it;
         if (it == split.begin()) {
             // the command
+            if(*it == "NOP") {
+                op = Operations::NOP;
+            }
             if(*it == "ADD") {
                 op = Operations::ADD;
             }
@@ -145,6 +148,8 @@ Register Instruction::getInstruction() {
             std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
             std::list<std::list<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;
+            // FIXME identify memory refs 123(sp)
+            // FIXME identify symbol names.
             for(uint reg=0; reg < names.size(); reg++) {
                 if(opts==names.end()) {
                     throw "OPTS BEYOND END";
@@ -179,39 +184,26 @@ Register Instruction::getInstruction() {
     }
     BOOST_LOG_TRIVIAL(debug) << "get instruction process each part";
     Register result = Register();
-    if(op == Operations::ADD) {
-        // TODO process this put it in the register and then return the register value.
-        // syms[0] is dest
-        // syms[1] is op
-        // syms[2] is op2
-        // TODO fix bit pattern
-        BOOST_LOG_TRIVIAL(debug) << "generating add instruction";
-        BOOST_LOG_TRIVIAL(debug) << "syms " << syms.size();
+    // 3 register param options.
+    if(op>=Operations::ADD && op <=Operations::XOR) {
+        // these operations get stored like this (uint16) op, (uint16) op, (uint16) reg1, (uint16) reg2, (uint16) reg3.
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
         result.writeInstruction((uint16_t) op, dest, op0, op1);
         return result;
     }
-    if(op == Operations::ADDI) {
-        uint16_t dest = syms.at(0).registerId;
-        uint16_t op0 = syms.at(1).registerId;
-        uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction((uint16_t)op, dest, op0, op1);
-        return result;
-    }
-    if(op == Operations::SUB) {
-        uint16_t dest = syms.at(0).registerId;
-        uint16_t op0 = syms.at(1).registerId;
-        uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction((uint16_t)op, dest, op0, op1);
-        return result;
-    }
-    if(op == Operations::SUBI) {
-        uint16_t dest = syms.at(0).registerId;
-        uint16_t op0 = syms.at(1).registerId;
-        uint16_t op1 = syms.at(2).registerId;
-        result.writeInstruction((uint16_t)op, dest, op0, op1);
+    /**
+     * TODO memory operations
+     * memory operations have three parts. a register, an access mode and an address. 
+     * for memory ops we split it in to three parts. (uint16) op, (uint8) register, (uint8) mode, (uint32) address.
+     * the mode dictates if we reference off of stackpointer for example.
+     * 
+     * 
+     */
+    if(op==Operations::NOP) {
+        // NO OP is translated to the add x0, x0, x0 instruction.
+        result.writeInstruction((uint16_t) Operations::ADD, 0, 0, 0);
         return result;
     }
     // TODO add more commands

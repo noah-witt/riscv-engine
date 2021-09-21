@@ -65,12 +65,31 @@ struct SymbolTableFindResult {
 };
 
 enum class Operations: uint16_t{
+    // three register operations
     ADD,
-    ADDI,
     SUB,
+    MUL,
+    DIV,
+    REM,
+    AND,
+    OR,
+    XOR,
+    //two register, then immediate ops
+    ADDI,
     SUBI,
+    // two register operations
+    // These 
+
     // TODO LOAD Operations
     // FIX ME more ops
+
+    // Special cases
+    // I.E. instructions that are converted to others
+    NOP,
+    MV,
+    NOT,
+    NEG,
+    NEGW,
 };
 
 class SymbolTable {
