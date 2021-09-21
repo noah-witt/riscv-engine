@@ -40,4 +40,4 @@ BOOST_AUTO_TEST_CASE(one_command_test) {
     BOOST_ASSERT(mem.read<unsigned long>(128).payload == 0);
     BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);
 }
-// TODO more tests 
+

@@ -150,7 +150,6 @@ Register Instruction::getInstruction() {
                     throw "OPTS BEYOND END";
                 }
                 for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
-                    BOOST_LOG_TRIVIAL(debug) << "compare if register " << *str << " == " << *it;
                     if(*str == *it) {
                         SymbolOrRegister symR;
                         symR.val = *it;
@@ -270,6 +269,8 @@ void Program::firstStep() {
             }
             trim(*part);
             if(! part->empty()) {
+                // FIXME identify .dword, .sword etc
+
                 // TODO be a little smarter than just checking if it isnt empty
                 current_pointer+=64;
                 break;

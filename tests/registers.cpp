@@ -62,12 +62,13 @@ BOOST_AUTO_TEST_CASE(lower_order_byte_test) {
     BOOST_ASSERT(0xef == a.readByte().payload);
 }
 
-BOOST_AUTO_TEST_CASE(zero_reg_test) {
-    Register a = zeroRegister();
-    BOOST_ASSERT(0 == a.readLong().payload);
-    BOOST_ASSERT(0x0 == a.read().payload);
-    BOOST_ASSERT(0x0 == a.readShort().payload);
-    BOOST_ASSERT(0x0 == a.readByte().payload);
-    BOOST_ASSERT(!a.write(0x1123));
-    BOOST_ASSERT(0x0 == a.readLong().payload);
-}
+/*BOOST_AUTO_TEST_CASE(zero_reg_test) {
+*    Register a = zeroRegister();
+*    BOOST_ASSERT(0 == a.readLong().payload);
+*    BOOST_ASSERT(0x0 == a.read().payload);
+*    BOOST_ASSERT(0x0 == a.readShort().payload);
+*    BOOST_ASSERT(0x0 == a.readByte().payload);
+*    BOOST_ASSERT(!a.write(0x1123));
+*    BOOST_ASSERT(0x0 == a.readLong().payload);
+*}
+*/
