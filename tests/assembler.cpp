@@ -36,6 +36,8 @@ BOOST_AUTO_TEST_CASE(one_command_test) {
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 0);
     program.toMemory(&mem);
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 1970350607106048);
-    BOOST_ASSERT(mem.read<unsigned long>(1).payload == 1970350607106048);
-    BOOST_ASSERT(mem.read<unsigned long>(2).payload == 1970350607106048);
+    BOOST_ASSERT(mem.read<unsigned long>(64).payload == 1970350607106048);
+    BOOST_ASSERT(mem.read<unsigned long>(128).payload == 0);
+    BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);
 }
+// TODO more tests 
