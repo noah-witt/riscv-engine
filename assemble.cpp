@@ -145,6 +145,7 @@ Register Instruction::getInstruction() {
             }
             // FIXME add more.
         } else if(it->find('(') != std::string::npos && it->find(')') != std::string::npos) {
+            // FIXME untested
             //identify memory refs 123(sp) or -64(sp) or other register name
             std::vector<std::string> openAndClose;
             openAndClose.push_back("(");
@@ -154,7 +155,9 @@ Register Instruction::getInstruction() {
                 BOOST_LOG_TRIVIAL(debug) << "not continuing due to fail to process " << *it;
                 continue;
             }
+            // get the offset part
             uint32_t offset = std::stoi(itemParts[0]);
+            // get the register part.
             int regOffsetFrom = -1;
             std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
             std::list<std::list<std::string>>::iterator opts = names.begin();
@@ -180,8 +183,15 @@ Register Instruction::getInstruction() {
             symR.registerId = regOffsetFrom;
             symR.location_offset = offset;
             syms.push_back(symR);
-        } else {
+        } else if(isNumber(*it)) {
             // FIXME immediate value
+            // FIXME UNTESTED
+            uint32_t immediate = std::stoi(*it);
+            SymbolOrRegister symR;
+            symR.t = SymbolOrRegisterType::IMMEDIATE_VALUE;
+            symR.immediate_value = immediate;
+            syms.push_back(symR);
+        } else {
             std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
             std::list<std::list<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;

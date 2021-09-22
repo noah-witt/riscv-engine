@@ -41,3 +41,12 @@ bool strEndsIn(std::string const &str, std::string const &end);
 std::string &ltrim(std::string &s);
 std::string &rtrim(std::string &s);
 std::string &trim(std::string &s);
+
+/**
+ * @brief validates if a string is only comprised of a numbers and -.
+ * 
+ * @param s the string.
+ * @return true it is a number.
+ * @return false it is not a number.
+ */
+bool isNumber(const std::string& s);

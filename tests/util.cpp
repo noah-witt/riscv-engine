@@ -45,3 +45,10 @@ BOOST_AUTO_TEST_CASE(split_string_remove_empty_test) {
     BOOST_ASSERT(result.at(4) == "e123");
     BOOST_ASSERT(result.at(5) == "f123");
 }
+
+BOOST_AUTO_TEST_CASE(isNumber_test) {
+    BOOST_ASSERT(isNumber("-123") == true);
+    BOOST_ASSERT(isNumber("123") == true);
+    BOOST_ASSERT(isNumber("s-s") == false);
+    BOOST_ASSERT(isNumber("asd") == false);
+}
