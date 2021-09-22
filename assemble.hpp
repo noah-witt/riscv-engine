@@ -29,6 +29,8 @@ enum class SymbolOrRegisterType {
     UNSET,
     SYMBOL,
     REGISTER,
+    LOCATION_OFFSET,
+    IMMEDIATE_VALUE,
 };
 
 /**
@@ -57,6 +59,8 @@ struct SymbolOrRegister {
     Symbol * symbol = nullptr;
     Register * reg = nullptr; 
     uint registerId;
+    uint32_t location_offset;
+    uint32_t immediate_value;
 };
 
 struct SymbolTableFindResult {

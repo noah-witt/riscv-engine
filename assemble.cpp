@@ -144,12 +144,47 @@ Register Instruction::getInstruction() {
                 op = Operations::SUBI;
             }
             // FIXME add more.
-        } else {
+        } else if(it->find('(') != std::string::npos && it->find(')') != std::string::npos) {
+            //identify memory refs 123(sp) or -64(sp) or other register name
+            std::vector<std::string> openAndClose;
+            openAndClose.push_back("(");
+            openAndClose.push_back(")");
+            std::vector<std::string> itemParts = splitStringRemoveEmpty(*it, openAndClose);
+            if(itemParts.size()!=2) {
+                BOOST_LOG_TRIVIAL(debug) << "not continuing due to fail to process " << *it;
+                continue;
+            }
+            uint32_t offset = std::stoi(itemParts[0]);
+            int regOffsetFrom = -1;
             std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
             std::list<std::list<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;
-            // FIXME identify memory refs 123(sp)
-            // FIXME identify symbol names.
+            for(uint reg=0; reg < names.size(); reg++) {
+                if(opts==names.end()) {
+                    throw "OPTS BEYOND END";
+                }
+                for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
+                    if(*str == *it) {
+                        regOffsetFrom = reg;
+                        regNameFound = true;
+                    }
+                }
+                opts++;
+            }
+            if(regOffsetFrom<0) {
+                BOOST_LOG_TRIVIAL(debug) << "register name not found";
+                continue;
+            }
+            SymbolOrRegister symR;
+            symR.t = SymbolOrRegisterType::LOCATION_OFFSET;
+            symR.registerId = regOffsetFrom;
+            symR.location_offset = offset;
+            syms.push_back(symR);
+        } else {
+            // FIXME immediate value
+            std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
+            std::list<std::list<std::string>>::iterator opts = names.begin();
+            bool regNameFound = false;
             for(uint reg=0; reg < names.size(); reg++) {
                 if(opts==names.end()) {
                     throw "OPTS BEYOND END";
@@ -196,7 +231,7 @@ Register Instruction::getInstruction() {
     /**
      * TODO memory operations
      * memory operations have three parts. a register, an access mode and an address. 
-     * for memory ops we split it in to three parts. (uint16) op, (uint8) register, (uint8) mode, (uint32) address.
+     * for memory ops we split it in to three parts. (uint16) op, (uint8) register, (uint8) register to offset from, (uint32) address.
      * the mode dictates if we reference off of stackpointer for example.
      * 
      * 
