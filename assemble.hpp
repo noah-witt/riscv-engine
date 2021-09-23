@@ -129,12 +129,19 @@ enum class Operations: uint16_t{
     SH,
     SW,
     SD,
+    JAL,
 
     // two register operations
-    // These 
 
-    // TODO LOAD Operations
-    // FIX ME more ops
+
+    //one register and offset
+    LWU,
+    LD,
+    SD,
+
+    // one register and immediate
+    LUI,
+    AUIPC,
 
     // Special cases
     // I.E. instructions that are converted to others
