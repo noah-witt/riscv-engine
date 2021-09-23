@@ -102,8 +102,6 @@ enum class Operations: uint16_t{
     ADDI,
     SUBI,
     SLTI,
-    SRLI,
-    SRAI,
     SLLI,
     SRLI,
     SRAI,
