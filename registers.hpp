@@ -26,6 +26,7 @@ class Register {
         void writeInstruction (uint16_t a, uint16_t b, uint16_t c);
         void writeInstruction(uint16_t a, uint16_t b);
         void writeInstruction(uint16_t a);
+        void writeInstructionOffset(uint16_t a, uint8_t offsetFrom, uint32_t offset);
         uint16_t* readInstruction();
 };
 

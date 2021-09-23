@@ -230,7 +230,7 @@ Register Instruction::getInstruction() {
     BOOST_LOG_TRIVIAL(debug) << "get instruction process each part";
     Register result = Register();
     // 3 register param options.
-    if(op>=Operations::ADD && op <=Operations::XOR) {
+    if(op>=Operations::ADD && op <=Operations::REMUW) {
         // these operations get stored like this (uint16) op, (uint16) op, (uint16) reg1, (uint16) reg2, (uint16) reg3.
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
@@ -238,14 +238,29 @@ Register Instruction::getInstruction() {
         result.writeInstruction((uint16_t) op, dest, op0, op1);
         return result;
     }
+    // 2 reg and then immediate
+    if(op>=Operations::ADDI && op <= Operations::BGEU) {
+        // TODO change to 32 bit im value.
+        uint16_t dest = syms.at(0).registerId;
+        uint16_t op0 = syms.at(1).registerId;
+        uint16_t im = syms.at(2).immediate_value;
+        result.writeInstruction((uint16_t) op, dest, op0, im);
+        return result;
+    }
     /**
-     * TODO memory operations
+     * memory operations
      * memory operations have three parts. a register, an access mode and an address. 
      * for memory ops we split it in to three parts. (uint16) op, (uint8) register, (uint8) register to offset from, (uint32) address.
      * the mode dictates if we reference off of stackpointer for example.
-     * 
-     * 
      */
+    if(op>=Operations::LB && op<=Operations::SD) {
+        uint8_t dest = syms.at(0).registerId;
+        uint8_t offsetFrom = syms.at(1).registerId;
+        uint32_t offset = syms.at(1).location_offset;
+        result.writeInstructionOffset((uint16_t) op, offsetFrom, offset);
+        return result.
+    }
+    // 1 reg and then offset from register.
     if(op==Operations::NOP) {
         // NO OP is translated to the add x0, x0, x0 instruction.
         result.writeInstruction((uint16_t) Operations::ADD, 0, 0, 0);
@@ -253,9 +268,8 @@ Register Instruction::getInstruction() {
     }
     // TODO add more commands
     // LOAD OPS will need to be special. 
-    // LOAD/store will likely work with 32 bits?
-    // LOAD/store OP CODE, REGISTER ID, LOCATION 32 bits
-
+    
+    throw "OP NOT IMPLEMENTED";
     return result;
 }
 

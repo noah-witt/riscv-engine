@@ -106,6 +106,16 @@ void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d) 
     *at =d;
 }
 
+void Register::writeInstructionOffset(uint16_t cmd, uint8_t offsetFrom, uint32_t offset) {
+    uint64_t * val = this->value;
+    uint16_t * cmd_target = (uint16_t* ) val;
+    *cmd_target = cmd;
+    uint8_t * offsetFrom_target = (uint8_t *)(cmd_target+1);
+    *offsetFrom_target = offsetFrom;
+    uint32_t * offset_target = (uint32_t *)(offsetFrom_target+1);
+    *offset_target = offset;
+}
+
 uint16_t * Register::readInstruction() {
     return (uint16_t *) this->value;
 }
