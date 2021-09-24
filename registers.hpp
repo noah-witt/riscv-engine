@@ -2,7 +2,11 @@
 
 #include "./memory.hpp"
 #include <unordered_map>
+#include <array>
 #include <cstdint>
+# define REGISTER_WIDTH_BYTES 8
+# define REGISTERS_END 64
+# define PC 200
 
 /**
  * @brief a basic register
@@ -10,39 +14,36 @@
  */
 class Register {
     protected:
+        bool isMutable;
         unsigned long *value;
     public:
         Register();
         ~Register();
-        readResult<unsigned char> readByte();
-        readResult<unsigned short> readShort();
-        readResult<unsigned int> read();
-        readResult<unsigned long> readLong();
-        bool writeByte(unsigned char);
-        bool writeShort(unsigned short);
-        bool write(unsigned int);
-        bool writeLong(unsigned long);
-        void writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d);
-        void writeInstruction (uint16_t a, uint16_t b, uint16_t c);
-        void writeInstruction(uint16_t a, uint16_t b);
-        void writeInstruction(uint16_t a);
-        void writeInstructionOffset(uint16_t a, uint16_t offsetFrom, uint32_t offset);
-        uint16_t* readInstruction();
+        
+        template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
+        void writeInstruction(const a& va, const b& vb, const c& vc, const d& vd);
+
+
+        template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
+        std::array<void*,4> readInstruction();
 
         template<typename resultType, int startOffsetBytes = 0>
-        resultType customRead();
+        resultType* read();
 
         template<typename inputType, int startOffsetBytes = 0>
-        void customWrite(inputType in);
+        void write(const inputType& in);
+
+        template<typename inputType>
+        void writeLower(const inputType& in);
+
+        template<typename resultType>
+        resultType* readLower();
 };
 
 class zeroRegister: public Register {
     public:
         zeroRegister();
-        bool writeByte(unsigned char);
-        bool writeShort(unsigned short);
-        bool write(unsigned int);
-        bool writeLong(unsigned long);
+
 };
 
 class Registers {

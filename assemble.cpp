@@ -11,6 +11,7 @@
 
 #include "./util.hpp"
 #include "./assemble.hpp"
+#include "./registers.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -138,7 +139,9 @@ Register Instruction::getInstruction() {
         }
         if (it == split.begin()) {
             // trim and uppercase the string.
-            std::string cmd = boost::to_upper(trim(*it));
+            std::string cmd = std::string(*it);
+            trim(cmd);
+            boost::to_upper(cmd);
             // the command
 
             //special cases
@@ -437,10 +440,11 @@ Register Instruction::getInstruction() {
     // 2 reg and then immediate
     if(op>=Operations::ADDI && op <= Operations::BGEU) {
         // TODO change to 32 bit im value.
-        uint16_t dest = syms.at(0).registerId;
-        uint16_t op0 = syms.at(1).registerId;
+        uint8_t dest = syms.at(0).registerId;
+        uint8_t op0 = syms.at(1).registerId;
         uint32_t im = syms.at(2).immediate_value;
-        result.writeInstructionOffset((uint16_t) op, dest, op0, im);
+        // TODO FIX ME too many bits
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, op0, im);
         return result;
     }
     /**
@@ -454,21 +458,21 @@ Register Instruction::getInstruction() {
         uint8_t dest = syms.at(0).registerId;
         uint8_t offsetFrom = syms.at(1).registerId;
         uint32_t offset = syms.at(1).location_offset;
-        result.writeInstructionOffset((uint16_t) op, offsetFrom, offset);
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, offsetFrom, offset);
         return result;
     }
 
     // special operations
     if(op==Operations::NOP) {
         // NO OP is translated to the add x0, x0, x0 instruction.
-        result.writeInstruction((uint16_t) Operations::ADD, 0, 0, 0);
+        result.writeInstruction<uint16_t, uint16_t, uint16_t, uint16_t>((uint16_t) Operations::ADD, 0, 0, 0);
         return result;
     }
 
     if(op==Operations::MV) {
         uint16_t a = syms.at(0).registerId;
         uint16_t b = syms.at(1).registerId;
-        result.writeInstructionOffset((uint16_t) Operations::ADDI, a, b, 0);
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) Operations::ADDI, a, b, 0);
         return result;
     }
     // TODO fix more special.
@@ -571,7 +575,7 @@ void Program::toMemory(Memory* mem) {
         Instruction instruction = Instruction(operation, &this->sym, (ulong)current_pointer);
         try {
             Register reg = instruction.getInstruction();
-            mem->write<unsigned long>(current_pointer, reg.readLong().payload);
+            mem->write<unsigned long>(current_pointer, *reg.read<unsigned long>());
             current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
         } catch (std::exception e) {
             // TODO some sort of logging to record this.

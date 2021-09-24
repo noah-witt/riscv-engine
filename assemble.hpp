@@ -130,9 +130,6 @@ enum class Operations: uint16_t{
     SW,
     SD,
     JAL,
-    LWU,
-    LD,
-    SD,
 
     // one register and immediate
     LUI,

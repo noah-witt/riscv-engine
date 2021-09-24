@@ -9,162 +9,27 @@
  */
 
 #include "./registers.hpp"
+#include "./registers.t.hpp"
 #include "./memory.hpp"
 #include <stdlib.h>
 #include <unordered_map>
-# define REGISTER_WIDTH_BYTES 8
-# define REGISTERS_END 64
-# define PC 200
+#include <type_traits>
+#include <array>
 
 Register::Register() {
     this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));
+    this->isMutable = true;
 }
 
 Register::~Register() {
     free(this->value);
 }
 
-readResult<unsigned char> Register::readByte() {
-    readResult<unsigned char> result;
-    try {
-        result.payload = (unsigned char)*(this->value);
-        result.valid = true;
-        return result;
-    } catch(int e) {
-        result.valid = false;
-        result.payload = 0x0;
-    }
-    return result;
-}
-
-readResult<unsigned short> Register::readShort() {
-    readResult<unsigned short> result;
-    try {
-        result.payload = (unsigned short)*(this->value);
-        result.valid = true;
-        return result;
-    } catch(int e) {
-        result.valid = false;
-        result.payload = 0x0;
-    }
-    return result;
-}
-
-readResult<unsigned int> Register::read() {
-    readResult<unsigned int> result;
-    try {
-        result.payload = (unsigned int)*(this->value);
-        result.valid = true;
-        return result;
-    } catch(int e) {
-        result.valid = false;
-        result.payload = 0x0;
-    }
-    return result;
-}
-
-readResult<unsigned long> Register::readLong() {
-    readResult<unsigned long> result;
-    try {
-        result.payload = (unsigned long)*(this->value);
-        result.valid = true;
-        return result;
-    } catch(int e) {
-        result.valid = false;
-        result.payload = 0x0;
-    }
-    return result;
-}
-
-bool Register::writeByte(unsigned char in) {
-    return this->writeLong((unsigned long) in);
-}
-
-bool Register::writeShort(unsigned short in) {
-    return this->writeLong((unsigned long) in);
-}
-
-bool Register::write(unsigned int in) {
-    return this->writeLong((unsigned int) in);
-}
-
-bool Register::writeLong(unsigned long in) {
-    *this->value = in;
-    return true;
-}
-
-void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
-    uint64_t * val = this->value;
-    uint16_t * at = (uint16_t* ) val;
-    // step through as a 16 bit pointer and set every part.
-    *at = a;
-    at++;
-    *at = b;
-    at++;
-    *at = c;
-    at++;
-    *at =d;
-}
-
-void Register::writeInstructionOffset(uint16_t cmd, uint16_t offsetFrom, uint32_t offset) {
-    uint64_t * val = this->value;
-    uint16_t * cmd_target = (uint16_t* ) val;
-    *cmd_target = cmd;
-    uint16_t * offsetFrom_target = (uint16_t *)(cmd_target+1);
-    *offsetFrom_target = offsetFrom;
-    uint32_t * offset_target = (uint32_t *)(offsetFrom_target+1);
-    *offset_target = offset;
-}
-
-uint16_t * Register::readInstruction() {
-    return (uint16_t *) this->value;
-}
-
-void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c)  {
-    this->writeInstruction(a, b, c, 0x0);
-}
-
-void Register::writeInstruction(uint16_t a, uint16_t b)  {
-    this->writeInstruction(a, b, 0x0);
-}
-
-void Register::writeInstruction(uint16_t a)  {
-    this->writeInstruction(a, 0x0);
-}
-
-template<typename resultType, int startOffsetBytes>
-resultType Register::customRead() {
-    uint8_t * byteptr = (uint8_t *) this->value;
-    byteptr+=startOffsetBytes;
-    return *((resultType *)byteptr);
-}
-
-template<typename inputType, int startOffsetBytes>
-void Register::customWrite(inputType input) {
-    uint8_t * byteptr = (uint8_t *) this->value;
-    byteptr+=startOffsetBytes;
-    *((resultType *)byteptr) = inputType;
-}
 
 zeroRegister::zeroRegister() {
     this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));
     *this->value =   0x0;
-}
-
-bool zeroRegister::writeByte(unsigned char in) {
-    return false;
-}
-
-bool zeroRegister::writeShort(unsigned short in) {
-    return false;
-}
-
-bool zeroRegister::write(unsigned int in) {
-    return false;
-}
-
-bool zeroRegister::writeLong(unsigned long in) {
-    return false;
+    this->isMutable = false;
 }
 
 
