@@ -130,11 +130,6 @@ enum class Operations: uint16_t{
     SW,
     SD,
     JAL,
-
-    // two register operations
-
-
-    //one register and offset
     LWU,
     LD,
     SD,
@@ -142,6 +137,8 @@ enum class Operations: uint16_t{
     // one register and immediate
     LUI,
     AUIPC,
+
+    // two register operations
 
     // Special cases
     // I.E. instructions that are converted to others

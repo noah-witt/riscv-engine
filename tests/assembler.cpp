@@ -30,12 +30,28 @@ BOOST_AUTO_TEST_CASE(INSTRUCTION_TEST) {
     BOOST_ASSERT(instruction.readInstruction()[3] == 7);
 }
 
-BOOST_AUTO_TEST_CASE(one_command_test) {
+BOOST_AUTO_TEST_CASE(command_test_one) {
     Program program = Program("ADD t0, t1, t2 \nADD t0, t1, t2");
     Memory mem;
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 0);
     program.toMemory(&mem);
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 1970350607106048);
+    BOOST_ASSERT(mem.read<unsigned long>(64).payload == 1970350607106048);
+    BOOST_ASSERT(mem.read<unsigned long>(128).payload == 0);
+    BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);
+}
+
+BOOST_AUTO_TEST_CASE(command_test_two) {
+    Program program = Program("ADDI t0, t1, 127 \nADD t0, t1, t2");
+    Memory mem;
+    BOOST_ASSERT(mem.read<unsigned long>(0).payload == 0);
+    program.toMemory(&mem);
+    readResult<unsigned long> addiReadResult = mem.read<unsigned long>(0); // read the addi command.
+    Register addi;
+    addi.writeLong(addiReadResult.payload);
+    BOOST_ASSERT(addi.customRead<uint16_t,0>() == (uint16_t)Operations::ADDI);
+    BOOST_ASSERT(addi.customRead<uint16_t,2>() == 5);
+    BOOST_ASSERT(addi.customRead<uint16_t,4>() == 7);
     BOOST_ASSERT(mem.read<unsigned long>(64).payload == 1970350607106048);
     BOOST_ASSERT(mem.read<unsigned long>(128).payload == 0);
     BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);

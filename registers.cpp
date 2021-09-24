@@ -106,11 +106,11 @@ void Register::writeInstruction(uint16_t a, uint16_t b, uint16_t c, uint16_t d) 
     *at =d;
 }
 
-void Register::writeInstructionOffset(uint16_t cmd, uint8_t offsetFrom, uint32_t offset) {
+void Register::writeInstructionOffset(uint16_t cmd, uint16_t offsetFrom, uint32_t offset) {
     uint64_t * val = this->value;
     uint16_t * cmd_target = (uint16_t* ) val;
     *cmd_target = cmd;
-    uint8_t * offsetFrom_target = (uint8_t *)(cmd_target+1);
+    uint16_t * offsetFrom_target = (uint16_t *)(cmd_target+1);
     *offsetFrom_target = offsetFrom;
     uint32_t * offset_target = (uint32_t *)(offsetFrom_target+1);
     *offset_target = offset;
@@ -130,6 +130,20 @@ void Register::writeInstruction(uint16_t a, uint16_t b)  {
 
 void Register::writeInstruction(uint16_t a)  {
     this->writeInstruction(a, 0x0);
+}
+
+template<typename resultType, int startOffsetBytes>
+resultType Register::customRead() {
+    uint8_t * byteptr = (uint8_t *) this->value;
+    byteptr+=startOffsetBytes;
+    return *((resultType *)byteptr);
+}
+
+template<typename inputType, int startOffsetBytes>
+void Register::customWrite(inputType input) {
+    uint8_t * byteptr = (uint8_t *) this->value;
+    byteptr+=startOffsetBytes;
+    *((resultType *)byteptr) = inputType;
 }
 
 zeroRegister::zeroRegister() {

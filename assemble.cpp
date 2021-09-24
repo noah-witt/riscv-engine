@@ -17,6 +17,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 char AssembleConstants::registerNameSeperator = ';';
@@ -113,7 +114,7 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
 Register Instruction::getInstruction() {
     BOOST_LOG_TRIVIAL(debug) << "at get instruction";
     // TODO identify labels
-    // TODO identify phsudo ops like .dword etc.
+    // TODO identify pseudo ops like .dword etc.
     // First step is to split the instruction in to its constituent parts.
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back(",");
@@ -126,23 +127,218 @@ Register Instruction::getInstruction() {
     std::vector<std::string>::iterator it = split.begin();
     for(;it<split.end();it++) {
         BOOST_LOG_TRIVIAL(debug) << "processing part of line " << *it;
+        if (it->at(0) == '.') {
+            // FIXME handle things that start with .
+            if(it != split.begin()) {
+                // dot not at the first line.
+                throw "key that begins with . other than at first of a line for pseudo op.";
+            }
+            // we know this is the first line now we can do our logic.
+            break; // the whole line is handled here if it starts with ..
+        }
         if (it == split.begin()) {
+            // trim and uppercase the string.
+            std::string cmd = boost::to_upper(trim(*it));
             // the command
-            if(*it == "NOP") {
+
+            //special cases
+            if(cmd == "NOP") {
                 op = Operations::NOP;
             }
-            if(*it == "ADD") {
+            // TODO finish special cases
+
+            // three register operations
+            if(cmd == "ADD") {
                 op = Operations::ADD;
             }
-            if(*it == "ADDI") {
-                op = Operations::ADDI;
-            }
-            if(*it == "SUB") {
+            if(cmd == "SUB") {
                 op = Operations::SUB;
             }
-            if(*it == "SUBI") {
+            if(cmd == "MUL") {
+                op = Operations::MUL;
+            }
+            if(cmd == "MULH") {
+                op = Operations::MULH;
+            }
+            if(cmd == "MULHSU") {
+                op = Operations::MULHSU;
+            }
+            if(cmd == "MULHU") {
+                op = Operations::MULHU;
+            }
+            if(cmd == "DIV") {
+                op = Operations::DIV;
+            }
+            if(cmd == "DIVU") {
+                op = Operations::DIVU;
+            }
+            if(cmd == "REM") {
+                op = Operations::REM;
+            }
+            if(cmd == "REMU") {
+                op = Operations::REMU;
+            }
+            if(cmd == "AND") {
+                op = Operations::AND;
+            }
+            if(cmd == "OR") {
+                op = Operations::OR;
+            }
+            if(cmd == "XOR") {
+                op = Operations::XOR;
+            }
+            if(cmd == "SLL") {
+                op = Operations::SLL;
+            }
+            if(cmd == "SLT") {
+                op = Operations::SLT;
+            }
+            if(cmd == "SLTU") {
+                op = Operations::SLTU;
+            }
+            if(cmd == "SRL") {
+                op = Operations::SRL;
+            }
+            if(cmd == "SRA") {
+                op = Operations::SRA;
+            }
+            if(cmd == "ADDW") {
+                op = Operations::ADDW;
+            }
+            if(cmd == "SUBW") {
+                op = Operations::SUBW;
+            }
+            if(cmd == "SLLW") {
+                op = Operations::SLLW;
+            }
+            if(cmd == "SRLW") {
+                op = Operations::SRLW;
+            }
+            if(cmd == "SRAW") {
+                op = Operations::SRAW;
+            }
+            if(cmd == "MULW") {
+                op = Operations::MULW;
+            }
+            if(cmd == "DIVW") {
+                op = Operations::DIVW;
+            }
+            if(cmd == "DIVUW") {
+                op = Operations::DIVUW;
+            }
+            if(cmd == "REMW") {
+                op = Operations::REMW;
+            }
+            if(cmd == "REMUW") {
+                op = Operations::REMUW;
+            }
+
+            // two register, then immediate ops section
+            if(cmd == "ADDI") {
+                op = Operations::ADDI;
+            }
+            if(cmd == "SUBI") {
                 op = Operations::SUBI;
             }
+            if(cmd == "SLTI") {
+                op = Operations::SLTI;
+            }
+            if(cmd == "SLLI") {
+                op = Operations::SLLI;
+            }
+            if(cmd == "SRLI") {
+                op = Operations::SRLI;
+            }
+            if(cmd == "SRAI") {
+                op = Operations::SRAI;
+            }
+            if(cmd == "ADDIW") {
+                op = Operations::ADDIW;
+            }
+            if(cmd == "SLLIW") {
+                op = Operations::SLLIW;
+            }
+            if(cmd == "SRAI") {
+                op = Operations::SRAI;
+            }
+            if(cmd == "ADDIW") {
+                op = Operations::ADDIW;
+            }
+            if(cmd == "SLLIW") {
+                op = Operations::SRAI;
+            }
+            if(cmd == "SRLIW") {
+                op = Operations::SRLIW;
+            }
+            if(cmd == "SRAIW") {
+                op = Operations::SRAIW;
+            }
+            if(cmd == "SRAIW") {
+                op = Operations::SRAIW;
+            }
+            //two reg and immediate still but offset from pc.
+            if(cmd == "JALR") {
+                op = Operations::JALR;
+            }
+            if(cmd == "BEQ") {
+                op = Operations::BEQ;
+            }
+            if(cmd == "BNE") {
+                op = Operations::BNE;
+            }
+            if(cmd == "BLT") {
+                op = Operations::BLT;
+            }
+            if(cmd == "BGE") {
+                op = Operations::BGE;
+            }
+            if(cmd == "BLTU") {
+                op = Operations::BLTU;
+            }
+            if(cmd == "BGEU") {
+                op = Operations::BGEU;
+            }
+
+            // one register then offset location
+            if(cmd == "LB") {
+                op = Operations::LB;
+            }
+            if(cmd == "LH") {
+                op = Operations::LH;
+            }
+            if(cmd == "LW") {
+                op = Operations::LW;
+            }
+            if(cmd == "LWU") {
+                op = Operations::LWU;
+            }
+            if(cmd == "LD") {
+                op = Operations::LD;
+            }
+            if(cmd == "LBU") {
+                op = Operations::LBU;
+            }
+            if(cmd == "LHU") {
+                op = Operations::LHU;
+            }
+            if(cmd == "SB") {
+                op = Operations::SB;
+            }
+            if(cmd == "SH") {
+                op = Operations::SW;
+            }
+            if(cmd == "SD") {
+                op = Operations::SD;
+            }
+
+            // one register than immediate
+            if(cmd == "LUI") {
+                op = Operations::LUI;
+            }
+            if(cmd == "AUIPC") {
+                op = Operations::AUIPC;
+            }
+
             // FIXME add more.
         } else if(it->find('(') != std::string::npos && it->find(')') != std::string::npos) {
             // FIXME untested
@@ -211,7 +407,7 @@ Register Instruction::getInstruction() {
                 }
                 opts++;
             }
-            // RISCV is pure load store so only some instructions need this.
+            // RISC-V is pure load store so only some instructions need this.
             SymbolTableFindResult findResult = this->sym->find(*it);
             if (regNameFound) {
                 continue;
@@ -243,8 +439,8 @@ Register Instruction::getInstruction() {
         // TODO change to 32 bit im value.
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
-        uint16_t im = syms.at(2).immediate_value;
-        result.writeInstruction((uint16_t) op, dest, op0, im);
+        uint32_t im = syms.at(2).immediate_value;
+        result.writeInstructionOffset((uint16_t) op, dest, op0, im);
         return result;
     }
     /**
@@ -253,21 +449,29 @@ Register Instruction::getInstruction() {
      * for memory ops we split it in to three parts. (uint16) op, (uint8) register, (uint8) register to offset from, (uint32) address.
      * the mode dictates if we reference off of stackpointer for example.
      */
+    // 1 reg then offset location
     if(op>=Operations::LB && op<=Operations::SD) {
         uint8_t dest = syms.at(0).registerId;
         uint8_t offsetFrom = syms.at(1).registerId;
         uint32_t offset = syms.at(1).location_offset;
         result.writeInstructionOffset((uint16_t) op, offsetFrom, offset);
-        return result.
+        return result;
     }
-    // 1 reg and then offset from register.
+
+    // special operations
     if(op==Operations::NOP) {
         // NO OP is translated to the add x0, x0, x0 instruction.
         result.writeInstruction((uint16_t) Operations::ADD, 0, 0, 0);
         return result;
     }
-    // TODO add more commands
-    // LOAD OPS will need to be special. 
+
+    if(op==Operations::MV) {
+        uint16_t a = syms.at(0).registerId;
+        uint16_t b = syms.at(1).registerId;
+        result.writeInstructionOffset((uint16_t) Operations::ADDI, a, b, 0);
+        return result;
+    }
+    // TODO fix more special.
     
     throw "OP NOT IMPLEMENTED";
     return result;
@@ -308,7 +512,7 @@ void Program::firstStep() {
 
     // SOME ISSUE HERE processing each line.
     for(std::vector<std::string>::iterator line = lines.begin(); line!=lines.end(); line++) {
-        // IDENFIY IF THERE IS A SYMBOL DEC
+        // IDENTIFY IF THERE IS A SYMBOL DEC
         std::vector<std::string> lineDelinator = std::vector<std::string>();
         lineDelinator.push_back(" ");
         std::vector<std::string> parts = splitStringRemoveEmpty(*line, lineDelinator);
@@ -322,7 +526,7 @@ void Program::firstStep() {
             if(! part->empty()) {
                 // FIXME identify .dword, .sword etc
 
-                // TODO be a little smarter than just checking if it isnt empty
+                // TODO be a little smarter than just checking if it isn't empty
                 current_pointer+=64;
                 break;
             }
@@ -351,6 +555,8 @@ void Program::toMemory(Memory* mem) {
         if(parts.size()==2) {
             // discard the first part.
             operation = parts[1];
+            // FIXME make sure this matches the map...
+            // by comparing the current key and the current pointer address.
         }
         if(parts.size()==1) {
             operation = parts[0];
@@ -366,7 +572,7 @@ void Program::toMemory(Memory* mem) {
         try {
             Register reg = instruction.getInstruction();
             mem->write<unsigned long>(current_pointer, reg.readLong().payload);
-            current_pointer+=64;
+            current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
         } catch (std::exception e) {
             // TODO some sort of logging to record this.
             // It probably is nothing though because it could just be a non command.
