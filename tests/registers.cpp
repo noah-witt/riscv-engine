@@ -20,10 +20,10 @@ BOOST_AUTO_TEST_CASE(byte_write_test) {
 
 BOOST_AUTO_TEST_CASE(short_write_test) {
 	Register a = Register();
-	a.write<ushort>(0xaab);
+	a.writeLower<unsigned short>(0xaab);
     BOOST_ASSERT(0xaab == *a.readLower<unsigned short>());
     BOOST_ASSERT(0xaac != *a.readLower<unsigned short>());
-    a.write<ushort>(0xaad);
+    a.write<unsigned short>(0xaad);
     BOOST_ASSERT(0xb != *a.readLower<unsigned short>());
     BOOST_ASSERT(0xaad == *a.readLower<unsigned short>());
 }

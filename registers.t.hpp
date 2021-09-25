@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./registers.hpp"
+#include <boost/log/trivial.hpp>
 
 template<typename a, typename b, typename c, typename d>
 void Register::writeInstruction(const a& va, const b& vb, const c& vc, const d& vd) {
@@ -66,6 +67,7 @@ void Register::writeLower(const inputType& in) {
 
 template<typename resultType>
 resultType* Register::readLower() {
+    BOOST_LOG_TRIVIAL(debug) << REGISTER_WIDTH_BYTES-sizeof(resultType);
     return this->read<resultType, REGISTER_WIDTH_BYTES-sizeof(resultType)>();
 }
 
