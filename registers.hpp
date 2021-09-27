@@ -27,17 +27,17 @@ class Register {
         template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
         std::array<void*,4> readInstruction();
 
-        template<typename resultType, int startOffsetBytes = 0>
-        resultType* read();
+        template<typename resultType, int startOffsetBytes = 0, bool neg = false>
+        resultType read();
 
-        template<typename inputType, int startOffsetBytes = 0>
+        template<typename inputType, int startOffsetBytes = 0, bool neg = false>
         void write(const inputType& in);
 
         template<typename inputType>
         void writeLower(const inputType& in);
 
         template<typename resultType>
-        resultType* readLower();
+        resultType readLower();
 };
 
 class zeroRegister: public Register {
@@ -53,5 +53,5 @@ class Registers {
     public:
         Registers();
         ~Registers();
-        Register getRegister(unsigned int);
+        Register *getRegister(unsigned int);
 };

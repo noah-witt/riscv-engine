@@ -17,18 +17,17 @@
 #include <array>
 
 Register::Register() {
-    this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));
+    this->value = (unsigned long *)calloc(1, sizeof(unsigned long));
     this->isMutable = true;
 }
 
 Register::~Register() {
-    free(this->value);
+    // free(this->value);
 }
 
 
 zeroRegister::zeroRegister() {
-    this->value = (unsigned long *)calloc(REGISTER_WIDTH_BYTES, sizeof(unsigned char));
-    *this->value =   0x0;
+    this->value = (unsigned long *)calloc(1, sizeof(unsigned long));
     this->isMutable = false;
 }
 
@@ -55,7 +54,7 @@ Registers::~Registers() {
     this->registers.~unordered_map();
 }
 
-Register Registers::getRegister(unsigned int x) {
+Register *Registers::getRegister(unsigned int x) {
     std::unordered_map<unsigned int, Register>::iterator items = this->registers.find(x);
-    return items->second;
+    return &(items->second);
 }

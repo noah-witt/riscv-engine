@@ -42,21 +42,21 @@ std::array<void*,4> Register::readInstruction() {
     return result;
 }
 
-template<typename resultType, int startOffsetBytes>
-resultType * Register::read() {
+template<typename resultType, int startOffsetBytes, bool neg>
+resultType Register::read() {
     uint8_t * byteptr = (uint8_t *) this->value;
-    byteptr+=startOffsetBytes;
-    return (resultType *)byteptr;
+    byteptr+=(neg?-1:1)*startOffsetBytes;
+    return *((resultType*)byteptr);
 }
 
-template<typename inputType, int startOffsetBytes>
+template<typename inputType, int startOffsetBytes, bool neg>
 void Register::write(const inputType& in) {
     if(! this->isMutable) {
         // this is an immutable register.
         return;
     }
     uint8_t * byteptr = (uint8_t *) this->value;
-    byteptr+=startOffsetBytes;
+    byteptr+=(neg?-1:1)*startOffsetBytes;
     *((inputType *)byteptr) = in;
 }
 
@@ -66,12 +66,18 @@ void Register::writeLower(const inputType& in) {
 }
 
 template<typename resultType>
-resultType* Register::readLower() {
-    BOOST_LOG_TRIVIAL(debug) << REGISTER_WIDTH_BYTES-sizeof(resultType);
+resultType Register::readLower() {
+    BOOST_LOG_TRIVIAL(debug) << REGISTER_WIDTH_BYTES-sizeof(resultType); //FIXME remove
     return this->read<resultType, REGISTER_WIDTH_BYTES-sizeof(resultType)>();
 }
 
+// some manual instantiations to correct some linking issues.
 template void Register::writeInstruction<unsigned short, unsigned char, unsigned char, unsigned int>(unsigned short const&, unsigned char const&, unsigned char const&, unsigned int const&);
 template void Register::writeInstruction<unsigned short, unsigned short, unsigned short, unsigned short>(unsigned short const&, unsigned short const&, unsigned short const&, unsigned short const&);
-template unsigned long* Register::read<unsigned long, 0>();
-template void Register::write<unsigned long, 0>(unsigned long const&);
+template unsigned long Register::read<unsigned long>();
+template void Register::write<unsigned long>(unsigned long const&);
+
+template std::array<void*, 4ul> Register::readInstruction<unsigned short, void, void, void>();
+template std::array<void*, 4ul> Register::readInstruction<unsigned short, unsigned short, unsigned short, unsigned short>();
+template int Register::read<int, 0, false>();
+template void Register::write<int, 0, false>(int const&);

@@ -575,7 +575,7 @@ void Program::toMemory(Memory* mem) {
         Instruction instruction = Instruction(operation, &this->sym, (ulong)current_pointer);
         try {
             Register reg = instruction.getInstruction();
-            mem->write<unsigned long>(current_pointer, *reg.read<unsigned long>());
+            mem->write<unsigned long>(current_pointer, reg.read<unsigned long>());
             current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
         } catch (std::exception e) {
             // TODO some sort of logging to record this.
