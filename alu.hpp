@@ -3,11 +3,14 @@
 #include "memory.h"
 
 class alu {
-    public:
+    protected:
         Registers reg;
         Memory mem;
+    public:
         alu();
         alu(Memory mem);
+        Memory *getMem();
+        Registers *getReg();
         void step();
         void loop();
 };

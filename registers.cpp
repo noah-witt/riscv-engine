@@ -22,7 +22,7 @@ Register::Register() {
 }
 
 Register::~Register() {
-    // free(this->value);
+    //free(this->value);
 }
 
 
@@ -35,8 +35,9 @@ zeroRegister::zeroRegister() {
 Registers::Registers() {
     this->registers = std::unordered_map<unsigned int, Register>();
     this->registers.insert(std::pair<unsigned int, Register>(0, zeroRegister()));
-    for(unsigned int i=1; i<=REGISTERS_END; i++) {
+    for(int i=1; i<=REGISTERS_END; i+=1) {
         //create registers for [1, REGISTERS_END]
+        BOOST_LOG_TRIVIAL(debug) << "creating register groupings "<<i;
         this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
     }
     this->registers.insert(std::pair<unsigned int, Register>(PC, Register()));
@@ -44,13 +45,10 @@ Registers::Registers() {
      * We now have registers in the range 0-64.
      * the program counter is at 200
      */
+    BOOST_LOG_TRIVIAL(debug) << "done creating registers";
 }
 
 Registers::~Registers() {
-    std::unordered_map<unsigned int, Register>::iterator it = this->registers.begin();
-    while(it != this->registers.end()) {
-        it->second.~Register();
-    }
     this->registers.~unordered_map();
 }
 

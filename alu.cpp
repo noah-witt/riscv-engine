@@ -9,6 +9,14 @@ alu::alu() {
     this->mem = Memory();
 }
 
+Memory *alu::getMem() {
+    return &this->mem;
+}
+
+Registers *alu::getReg() {
+    return &this->reg;
+}
+
 void alu::step() {
     unsigned long pc = this->reg.getRegister(PC)->read<unsigned long>();
     Register operation;
