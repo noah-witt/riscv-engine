@@ -33,12 +33,19 @@ std::list<std::list<std::string>> AssembleConstants::getNamesAsList() {
         sep+=AssembleConstants::registerNameSeperator;
         std::vector<std::string> in;
         in.push_back(sep);
+        BOOST_LOG_TRIVIAL(debug) << "generating list "<<sep<<" "<<i<< " "<<AssembleConstants::registerNames[i];
         std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
         std::list<std::string> reg;
-        for(std::vector<std::string>::iterator i=split.begin(); i != split.end(); i++) {
-            reg.push_back(*i);
+        for(std::vector<std::string>::iterator part=split.begin(); part != split.end(); part++) {
+            reg.push_back(*(part.base()));
         }
         result.push_back(reg);
+        // FIXME this is what is preventing the issue.
+        // works at 39
+        // fails at 40
+        if(i>39) {
+            return result;
+        }
     }
     return result;
 }
@@ -112,7 +119,7 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
     // TODO DETECT AND LOAD SYMBOLS.
 }
 
-Register Instruction::getInstruction() {
+generatedInstruction Instruction::getInstruction() {
     BOOST_LOG_TRIVIAL(debug) << "at get instruction";
     // TODO identify labels
     // TODO identify pseudo ops like .dword etc.
@@ -395,11 +402,9 @@ Register Instruction::getInstruction() {
             std::list<std::list<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;
             for(uint reg=0; reg < names.size(); reg++) {
-                if(opts==names.end()) {
-                    throw "OPTS BEYOND END";
-                }
                 for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
                     if(*str == *it) {
+                        BOOST_LOG_TRIVIAL(debug) << "identified as register "<<reg;
                         SymbolOrRegister symR;
                         symR.val = *it;
                         symR.t = SymbolOrRegisterType::REGISTER;
@@ -435,7 +440,9 @@ Register Instruction::getInstruction() {
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
         result.writeInstruction((uint16_t) op, dest, op0, op1);
-        return result;
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
     }
     // 2 reg and then immediate
     if(op>=Operations::ADDI && op <= Operations::BGEU) {
@@ -445,7 +452,9 @@ Register Instruction::getInstruction() {
         uint32_t im = syms.at(2).immediate_value;
         // TODO FIX ME too many bits
         result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, op0, im);
-        return result;
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
     }
     /**
      * memory operations
@@ -459,26 +468,31 @@ Register Instruction::getInstruction() {
         uint8_t offsetFrom = syms.at(1).registerId;
         uint32_t offset = syms.at(1).location_offset;
         result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, offsetFrom, offset);
-        return result;
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
     }
 
     // special operations
     if(op==Operations::NOP) {
         // NO OP is translated to the add x0, x0, x0 instruction.
         result.writeInstruction<uint16_t, uint16_t, uint16_t, uint16_t>((uint16_t) Operations::ADD, 0, 0, 0);
-        return result;
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
     }
 
     if(op==Operations::MV) {
         uint16_t a = syms.at(0).registerId;
         uint16_t b = syms.at(1).registerId;
         result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) Operations::ADDI, a, b, 0);
-        return result;
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
     }
     // TODO fix more special.
     
     throw "OP NOT IMPLEMENTED";
-    return result;
 }
 
 // FIXME implement step 1
@@ -538,7 +552,7 @@ void Program::firstStep() {
     }
 }
 
-void Program::toMemory(Memory* mem) {
+void Program::toMemory(Memory* memoryInput) {
     this->firstStep();
     uint64_t current_pointer = 0;
     std::vector<std::string> delinators = std::vector<std::string>();
@@ -574,10 +588,15 @@ void Program::toMemory(Memory* mem) {
         // now we have a command to pass to the instruction register generator.
         Instruction instruction = Instruction(operation, &this->sym, (ulong)current_pointer);
         try {
-            Register reg = instruction.getInstruction();
-            mem->write<unsigned long>(current_pointer, reg.read<unsigned long>());
+            BOOST_LOG_TRIVIAL(debug) << "generating instruction";
+            generatedInstruction gen = instruction.getInstruction();
+            BOOST_LOG_TRIVIAL(debug) << "writing instruction to memory at "<<current_pointer;
+            memoryInput->write<unsigned long>(current_pointer, gen.values[0]);
+            BOOST_LOG_TRIVIAL(debug) << "advancing current pointer and continuing";
             current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
         } catch (std::exception e) {
+            BOOST_LOG_TRIVIAL(debug) << "error in to memory "<< e.what();
+            memoryInput->read<int>(0); //FIXME read test FIXME remove
             // TODO some sort of logging to record this.
             // It probably is nothing though because it could just be a non command.
             throw e; //FIXME remove this line

@@ -184,6 +184,10 @@ class SymbolTable {
         bool layout(unsigned long startAddress);
 };
 
+struct generatedInstruction {
+    std::vector<unsigned long> values;
+};
+
 class Instruction {
     protected:
         std::string value;
@@ -199,10 +203,10 @@ class Instruction {
         /**
          * @brief a register with the value
          * @note Free the register after your done with it.
-         * @returns Register with the value
+         * @returns generatedInstruction with the value
          * an odd construct returning a register because it is just a place to put bytes.
          */
-        Register getInstruction();
+        generatedInstruction getInstruction();
 };
 
 class Program {

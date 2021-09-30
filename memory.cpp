@@ -9,21 +9,31 @@
 #include "./memory.hpp"
 #include <stdlib.h>
 #include "./registers.hpp"
+#include <boost/log/trivial.hpp>
 
-inline bool page::safeToRead(unsigned long address) {
-    return PAGESIZE>address-this->address;
+bool page::safeToRead(unsigned long addressInput) {
+    ulong pageStart = this->address;
+    return PAGESIZE>addressInput-pageStart;
 }
 
 unsigned long page::getOffset(unsigned long address) {
    return  address-this->address;
 }
 
+page::page(const page &p) {
+    this->address = p.address;
+    // no data copy
+    this->data = (unsigned char *)calloc(PAGESIZE,sizeof(unsigned char));
+}
+
 page::page(unsigned long address) {
+    BOOST_LOG_TRIVIAL(debug) << "creating page " << this;
     this->address=address;
     this->data = (unsigned char *)calloc(PAGESIZE,sizeof(unsigned char));
 }
 
 page::~page() {
+    BOOST_LOG_TRIVIAL(debug) << "destructing page "<< this;
     free(this->data);
 }
 
@@ -78,6 +88,7 @@ Memory::Memory() {
 }
 
 Memory::~Memory() {
+    BOOST_LOG_TRIVIAL(debug) << "destructing memory "<< this;
     unsigned long pageCount = MAXMEMORY/PAGESIZE;
     for(int i=0; i<pageCount; i++) {
         if(this->pages[i]!=nullptr) {

@@ -22,7 +22,7 @@ struct ulongReadResult: readResult<unsigned long>{};
  */
 class page {
 private:
-    unsigned long address;
+    unsigned long address = 0;
     unsigned char * data;
 
     /**
@@ -48,6 +48,8 @@ public:
      * 
      */
     page(unsigned long address);
+
+    page(const page &p);
 
     /**
      * @brief Destroy the page object

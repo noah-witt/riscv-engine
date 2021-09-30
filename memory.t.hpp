@@ -1,42 +1,44 @@
 #pragma once
 
 #include "./memory.hpp"
+#include <boost/log/trivial.hpp>
 
 template<typename T>
 readResult<T> page::read(unsigned long address) {
     readResult<T> result;
-    if((!safeToRead(address))||(!safeToRead(address+sizeof(T)-1))) {
+    if((!this->safeToRead(address))||(!this->safeToRead(address+sizeof(T)-1))) {
         //not safe to read.
+        BOOST_LOG_TRIVIAL(debug) << "page does not exist";
         result.valid = false;
         result.payload = 0x0;
         return result;
     }
-    result.payload  = *((T *)((this->data)+getOffset(address)));
+    result.payload  = *((T *)((this->data)+this->getOffset(address)));
     result.valid = true;
     return result;
 }
 
 template<typename T>
 bool page::write(unsigned long address, T data) {
-    if((!safeToRead(address))||(!safeToRead(address+sizeof(T)-1))) {
+    if((!this->safeToRead(address))||(!this->safeToRead(address+sizeof(T)-1))) {
         //not safe to write.
         return false;
     }
-    *((T *)((this->data)+getOffset(address))) = data; //write to the location specified by the data pointer offset.
+    *((T *)((this->data)+this->getOffset(address))) = data; //write to the location specified by the data pointer offset.
     return true;
 }
 
 template<typename T>
 readResult<T> Memory::read(unsigned long address) {
     try {
-        page * p = getPage(address);
-        page * p2 = getPage(address+sizeof(T)-1);
+        page * p = this->getPage(address);
+        page * p2 = this->getPage(address+sizeof(T)-1);
         if(p!=p2) {
             //handle when it is reading across pages.
             unsigned char target[sizeof(T)]; 
             bool valid = true;
             for(int i=0; i<sizeof(T); i++) {
-                page * at = getPage(address+i);
+                page * at = this->getPage(address+i);
                 readResult<unsigned char> temp = at->readByte(address+i);
                 target[i] = temp.payload;
                 if(!temp.valid) valid = false;
