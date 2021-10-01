@@ -26,26 +26,23 @@ uint AssembleConstants::registerCount = 64;
 // BIG list of registers registers with two names are seperated by a ';'
 std::string AssembleConstants::registerNames[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0;fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "fs0", "fs1", "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "Fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
 
-std::list<std::list<std::string>> AssembleConstants::getNamesAsList() {
-    std::list<std::list<std::string>> result;
+std::vector<std::vector<std::string>> AssembleConstants::getNamesAsList() {
+    std::vector<std::vector<std::string>> result;
     for(uint i=0; i<AssembleConstants::registerCount; i++) {
         std::string sep;
         sep+=AssembleConstants::registerNameSeperator;
         std::vector<std::string> in;
         in.push_back(sep);
-        BOOST_LOG_TRIVIAL(debug) << "generating list "<<sep<<" "<<i<< " "<<AssembleConstants::registerNames[i];
+        //BOOST_LOG_TRIVIAL(debug) << "generating list "<<sep<<" "<<i<< " "<<AssembleConstants::registerNames[i];
         std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
-        std::list<std::string> reg;
-        for(std::vector<std::string>::iterator part=split.begin(); part != split.end(); part++) {
-            reg.push_back(*(part.base()));
-        }
-        result.push_back(reg);
+        result.push_back(split);
         // FIXME this is what is preventing the issue.
         // works at 39
         // fails at 40
-        if(i>39) {
-            return result;
-        }
+        // it changes sometimes
+        //if(i>10) {
+        //    return result;
+        //}
     }
     return result;
 }
@@ -365,14 +362,14 @@ generatedInstruction Instruction::getInstruction() {
             uint32_t offset = std::stoi(itemParts[0]);
             // get the register part.
             int regOffsetFrom = -1;
-            std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
-            std::list<std::list<std::string>>::iterator opts = names.begin();
+            std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
+            std::vector<std::vector<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;
             for(uint reg=0; reg < names.size(); reg++) {
                 if(opts==names.end()) {
                     throw "OPTS BEYOND END";
                 }
-                for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
+                for(std::vector<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
                     if(*str == *it) {
                         regOffsetFrom = reg;
                         regNameFound = true;
@@ -398,11 +395,11 @@ generatedInstruction Instruction::getInstruction() {
             symR.immediate_value = immediate;
             syms.push_back(symR);
         } else {
-            std::list<std::list<std::string>> names = AssembleConstants::getNamesAsList();
-            std::list<std::list<std::string>>::iterator opts = names.begin();
+            std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
+            std::vector<std::vector<std::string>>::iterator opts = names.begin();
             bool regNameFound = false;
             for(uint reg=0; reg < names.size(); reg++) {
-                for(std::list<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
+                for(std::vector<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
                     if(*str == *it) {
                         BOOST_LOG_TRIVIAL(debug) << "identified as register "<<reg;
                         SymbolOrRegister symR;
@@ -439,6 +436,7 @@ generatedInstruction Instruction::getInstruction() {
         uint16_t dest = syms.at(0).registerId;
         uint16_t op0 = syms.at(1).registerId;
         uint16_t op1 = syms.at(2).registerId;
+        BOOST_LOG_TRIVIAL(debug) << "writing three register op " << (uint16_t)op<<" "<< dest << " " << op0 << " " << op1;
         result.writeInstruction((uint16_t) op, dest, op0, op1);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
@@ -553,6 +551,7 @@ void Program::firstStep() {
 }
 
 void Program::toMemory(Memory* memoryInput) {
+    BOOST_LOG_TRIVIAL(debug) << "at start of to memory";
     this->firstStep();
     uint64_t current_pointer = 0;
     std::vector<std::string> delinators = std::vector<std::string>();
@@ -590,10 +589,12 @@ void Program::toMemory(Memory* memoryInput) {
         try {
             BOOST_LOG_TRIVIAL(debug) << "generating instruction";
             generatedInstruction gen = instruction.getInstruction();
-            BOOST_LOG_TRIVIAL(debug) << "writing instruction to memory at "<<current_pointer;
-            memoryInput->write<unsigned long>(current_pointer, gen.values[0]);
-            BOOST_LOG_TRIVIAL(debug) << "advancing current pointer and continuing";
-            current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
+            for(std::vector<unsigned long>::iterator val = gen.values.begin(); val<gen.values.end(); val++) {
+                BOOST_LOG_TRIVIAL(debug) << "writing instruction to memory at "<<current_pointer<<"; with value: "<< *val <<" in " << memoryInput;
+                memoryInput->write<unsigned long>(current_pointer, *val);
+                BOOST_LOG_TRIVIAL(debug) << "advancing current pointer and continuing";
+                current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
+            }
         } catch (std::exception e) {
             BOOST_LOG_TRIVIAL(debug) << "error in to memory "<< e.what();
             memoryInput->read<int>(0); //FIXME read test FIXME remove

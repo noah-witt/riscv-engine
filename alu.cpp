@@ -19,6 +19,7 @@ Registers *alu::getReg() {
 
 void alu::step() {
     unsigned long pc = this->reg.getRegister(PC)->read<unsigned long>();
+    BOOST_LOG_TRIVIAL(debug) << "stepping with memory " << &this->mem << ", and pc " << pc;
     Register operation;
     operation.write<unsigned long>(this->mem.read<unsigned long>(pc).payload);
     // TODO read at location and then execute
@@ -29,11 +30,14 @@ void alu::step() {
         Register *dest = this->reg.getRegister(*((unsigned int*) ops[1]));
         Register *input1 = this->reg.getRegister(*((unsigned int*) ops[2]));
         Register *input2 = this->reg.getRegister(*((unsigned int*) ops[2]));
+        BOOST_LOG_TRIVIAL(debug) << "operation to process " << *((unsigned int*) ops[0]) << " " << *((unsigned int*) ops[1]) << " " << *((unsigned int*) ops[2]) << " " << *((unsigned int*) ops[3]);
         switch(op) {
             case(Operations::ADD):
+                BOOST_LOG_TRIVIAL(debug) << "add operation";
                 dest->write<int>(input1->read<int>()+input2->read<int>());
                 break;
             case(Operations::SUB):
+                BOOST_LOG_TRIVIAL(debug) << "subtract operation";
                 dest->write<int>(input1->read<int>()-input2->read<int>());
                 break;
             // TODO more calculations.

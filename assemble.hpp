@@ -22,7 +22,7 @@ class AssembleConstants {
         static char registerNameSeperator;
         static std::string registerNames[];
         static uint registerCount;
-        static std::list<std::list<std::string>> getNamesAsList();
+        static std::vector<std::vector<std::string>> getNamesAsList();
 };
 
 enum class SymbolOrRegisterType {

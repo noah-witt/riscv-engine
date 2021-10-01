@@ -20,15 +20,10 @@ unsigned long page::getOffset(unsigned long address) {
    return  address-this->address;
 }
 
-page::page(const page &p) {
-    this->address = p.address;
-    // no data copy
-    this->data = (unsigned char *)calloc(PAGESIZE,sizeof(unsigned char));
-}
 
-page::page(unsigned long address) {
-    BOOST_LOG_TRIVIAL(debug) << "creating page " << this;
-    this->address=address;
+page::page(unsigned long addressInput) {
+    BOOST_LOG_TRIVIAL(debug) << "constructing page " << this << " " << addressInput;
+    this->address=addressInput;
     this->data = (unsigned char *)calloc(PAGESIZE,sizeof(unsigned char));
 }
 
@@ -65,7 +60,9 @@ bool Memory::preparePage(unsigned long pageId){
     if(pageId>(MAXMEMORY/PAGESIZE)) return false;
     page * p = (this->pages[pageId]);
     if(p==nullptr) {
-        this->pages[pageId] = new page(pageId*PAGESIZE);
+        BOOST_LOG_TRIVIAL(debug) << "invoking page allocation and constructor";
+        page * pageptr = new page(pageId*PAGESIZE);
+        this->pages[pageId] = pageptr;
         //p = (this->pages+pageId);
     }
     //p we now know is setup validly.
@@ -80,9 +77,8 @@ page * Memory::getPage(unsigned long address) {
 }
 
 Memory::Memory() {
-    unsigned long pageCount = MAXMEMORY/PAGESIZE;
-    this->pages = (page **)malloc(pageCount*sizeof(page *)); //create a pointer to a series of pages.
-    for(int i=0; i<pageCount; i++) {
+    BOOST_LOG_TRIVIAL(debug) << "constructing memory " << this;
+    for(int i=0; i<RANGECOUNT; i++) {
         this->pages[i] = nullptr;
     }
 }
@@ -96,7 +92,6 @@ Memory::~Memory() {
             free(this->pages[i]);
         }
     }
-    free(this->pages);
 }
 
 readResult<unsigned char> Memory::readByte(unsigned long address) {

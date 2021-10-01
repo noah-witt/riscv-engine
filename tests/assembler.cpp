@@ -22,12 +22,14 @@ BOOST_AUTO_TEST_CASE(symbol_table_test) {
 BOOST_AUTO_TEST_CASE(INSTRUCTION_TEST) {
     SymbolTable s = SymbolTable();
     Instruction i = Instruction("ADD t0, t1, t2", &s, 0);
-    Register instruction = i.getInstruction();
+    Register instruction;
+    instruction.write<unsigned long>(i.getInstruction().values[0]);
     BOOST_LOG_TRIVIAL(debug) << instruction.read<unsigned long>();
-    // BOOST_ASSERT(instruction.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>()[0] == 0);
-    // BOOST_ASSERT(instruction.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>()[1] == 5);
-    // BOOST_ASSERT(instruction.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>()[2] == 6);
-    // BOOST_ASSERT(instruction.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>()[3] == 7);
+    std::array<void *, 4> ops = instruction.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>(); 
+    BOOST_ASSERT(*(uint16_t *)ops[0] == 0);
+    BOOST_ASSERT(*(uint16_t *)ops[1] == 5);
+    BOOST_ASSERT(*(uint16_t *)ops[2] == 6);
+    BOOST_ASSERT(*(uint16_t *)ops[3] == 7);
 }
 
 BOOST_AUTO_TEST_CASE(command_test_one) {

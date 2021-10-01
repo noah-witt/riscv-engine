@@ -8,7 +8,7 @@ readResult<T> page::read(unsigned long address) {
     readResult<T> result;
     if((!this->safeToRead(address))||(!this->safeToRead(address+sizeof(T)-1))) {
         //not safe to read.
-        BOOST_LOG_TRIVIAL(debug) << "page does not exist";
+        BOOST_LOG_TRIVIAL(error) << "read is beyond this pages bounds "<<address;
         result.valid = false;
         result.payload = 0x0;
         return result;

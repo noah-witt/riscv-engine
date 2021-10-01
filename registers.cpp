@@ -37,7 +37,7 @@ Registers::Registers() {
     this->registers.insert(std::pair<unsigned int, Register>(0, zeroRegister()));
     for(int i=1; i<=REGISTERS_END; i+=1) {
         //create registers for [1, REGISTERS_END]
-        BOOST_LOG_TRIVIAL(debug) << "creating register groupings "<<i;
+        //BOOST_LOG_TRIVIAL(debug) << "creating register groupings "<<i;
         this->registers.insert(std::pair<unsigned int, Register>(i, Register()));
     }
     this->registers.insert(std::pair<unsigned int, Register>(PC, Register()));
@@ -54,5 +54,9 @@ Registers::~Registers() {
 
 Register *Registers::getRegister(unsigned int x) {
     std::unordered_map<unsigned int, Register>::iterator items = this->registers.find(x);
+    if(items == this->registers.end()) {
+        BOOST_LOG_TRIVIAL(debug) << "register ID not located input value: "<<x;
+        throw "registerIDinvalid";
+    }
     return &(items->second);
 }
