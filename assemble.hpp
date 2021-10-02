@@ -104,6 +104,7 @@ enum class Operations: uint16_t{
     SLTI,
     SLLI,
     SRLI,
+    XORI,
     SRAI,
     ADDIW,
     SLLIW,
@@ -144,6 +145,10 @@ enum class Operations: uint16_t{
     NOT,
     NEG,
     NEGW,
+
+    //Extra special
+    // things I have just added.
+    HALT,
 };
 
 class SymbolTable {

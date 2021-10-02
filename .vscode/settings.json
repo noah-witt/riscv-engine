@@ -107,6 +107,7 @@
         "SRLIW",
         "SRLW",
         "SUBW",
-        "syscall"
+        "syscall",
+        "XORI"
     ]
 }

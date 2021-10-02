@@ -30,14 +30,12 @@ void alu::step() {
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>();
         Register *dest = this->reg.getRegister(*((uint16_t*) ops[1]));
         Register *input1 = this->reg.getRegister(*((uint16_t*) ops[2]));
-        Register *input2 = this->reg.getRegister(*((uint16_t*) ops[2]));
+        Register *input2 = this->reg.getRegister(*((uint16_t*) ops[3]));
         switch(op) {
             case(Operations::ADD):
-                BOOST_LOG_TRIVIAL(debug) << "add operation";
                 dest->write<int>(input1->read<int>()+input2->read<int>());
                 break;
             case(Operations::SUB):
-                BOOST_LOG_TRIVIAL(debug) << "subtract operation";
                 dest->write<int>(input1->read<int>()-input2->read<int>());
                 break;
             // TODO more calculations.

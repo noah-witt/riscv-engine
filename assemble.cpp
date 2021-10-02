@@ -152,7 +152,22 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "NOP") {
                 op = Operations::NOP;
             }
-            // TODO finish special cases
+            if(cmd=="MV") {
+                op = Operations::MV;
+            }
+            if(cmd=="NOT") {
+                op = Operations::NOT;
+            }
+            if(cmd=="NEG") {
+                op = Operations::NEG;
+            }
+            if(cmd=="NEGW") {
+                op = Operations::NEGW;
+            }
+            if(cmd == "HALT") {
+                op = Operations::HALT;
+            }
+
 
             // three register operations
             if(cmd == "ADD") {
@@ -449,7 +464,7 @@ generatedInstruction Instruction::getInstruction() {
         uint8_t op0 = syms.at(1).registerId;
         uint32_t im = syms.at(2).immediate_value;
         // TODO FIX ME too many bits
-        result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, op0, im);
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, dest, op0, im);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
         return val;
@@ -465,7 +480,7 @@ generatedInstruction Instruction::getInstruction() {
         uint8_t dest = syms.at(0).registerId;
         uint8_t offsetFrom = syms.at(1).registerId;
         uint32_t offset = syms.at(1).location_offset;
-        result.writeInstruction<uint16_t, uint8_t, uint8_t, uint32_t>((uint16_t) op, dest, offsetFrom, offset);
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, dest, offsetFrom, offset);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
         return val;
@@ -489,6 +504,39 @@ generatedInstruction Instruction::getInstruction() {
         return val;
     }
     // TODO fix more special.
+    if(op==Operations::NOT) {
+        uint16_t a = syms.at(0).registerId;
+        uint16_t b = syms.at(1).registerId;
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) Operations::XORI, a, b, -1);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
+
+    if(op==Operations::NEG) {
+        uint16_t a = syms.at(0).registerId;
+        uint16_t b = syms.at(1).registerId;
+        result.writeInstruction<uint16_t, uint16_t, uint16_t, uint16_t>((uint16_t) Operations::SUB, a, 0, b);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
+
+    if(op==Operations::NEGW) {
+        uint16_t a = syms.at(0).registerId;
+        uint16_t b = syms.at(1).registerId;
+        result.writeInstruction<uint16_t, uint16_t, uint16_t, uint16_t>((uint16_t) Operations::SUBW, a, 0, b);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
+
+    if(op==Operations::HALT) {
+        result.writeInstruction<uint16_t, uint16_t, uint16_t, uint16_t>((uint16_t) Operations::HALT, 0, 0, 0);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
     
     throw "OP NOT IMPLEMENTED";
 }
