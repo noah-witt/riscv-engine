@@ -1,6 +1,7 @@
 #pragma once
 #include "registers.hpp"
 #include "memory.h"
+#define INSTRUCTION_LENGTH 64
 
 class alu {
     protected:

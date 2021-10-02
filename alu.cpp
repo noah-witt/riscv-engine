@@ -23,7 +23,7 @@ void alu::step() {
     Register operation;
     operation.write<unsigned long>(this->mem.read<unsigned long>(pc).payload);
     BOOST_LOG_TRIVIAL(debug) << "reg value " << operation.read<unsigned long>();
-    // TODO read at location and then executessssss
+    // TODO read at location and then execute
     Operations op = (Operations)(*((uint16_t *)operation.readInstruction<uint16_t>()[0]));
     // TODO increment pc unless special op.
     if(op>=Operations::ADD && op <=Operations::REMUW) {
@@ -124,10 +124,80 @@ void alu::step() {
         Register *input1 = this->reg.getRegister(*((uint8_t*) ops[2]));
         // store the immediate value in a local register.
         Register input2 = Register();
-        input2.write(*((int32_t*) ops[3]));
+        input2.write<int>(*((int32_t*) ops[3]));
+        // this results in the operating being similar to their non immediate version.
         switch(op) {
             case(Operations::ADDI):
                 dest->write<int>(input1->read<int>()+input2.read<int>());
+                break;
+            case(Operations::SLTI):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::SLLI):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::SRLI):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::XORI):
+                //FIXME implement
+                dest->write<uint>(input1->read<uint>() ^ input2.read<uint>());
+                break;
+            case(Operations::SRAI):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::ADDIW):
+                dest->write<long>(input1->read<long>()+input2.read<int>());
+                break;
+            case(Operations::SLLIW):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::SRLIW):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::SRAIW):
+                //FIXME implement
+                throw "NOT IMPLEMENTED";
+            case(Operations::JALR):
+                // an instruction that performs two operations.
+                dest->write<long>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
+                this->reg.getRegister(PC)->write<ulong>(input1->read<int>()+input2.read<int>());
+                break;
+            case(Operations::BEQ):
+                if(dest->read<unsigned long>()==input1->read<unsigned long>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
+                break;
+            case(Operations::BNE):
+                if(dest->read<unsigned long>()!=input1->read<unsigned long>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
+                break;
+            case(Operations::BLT):
+                if(dest->read<long>()<input1->read<long>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
+                break;
+            case(Operations::BGE):
+                if(dest->read<long>()>=input1->read<long>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
+                break;
+            case(Operations::BLTU):
+                if(dest->read<ulong>()<input1->read<ulong>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
+                break;
+            case(Operations::BGEU):
+                if(dest->read<ulong>()>=input1->read<ulong>()) {
+                    //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                }
                 break;
             //TODO implement these ops.
             default:
@@ -135,7 +205,63 @@ void alu::step() {
                 throw "NOT IMPLEMENTED";
                 break;
         }
+    } else if(op>=Operations::LB && op<=Operations::SD) {
+        // These are memory operatins that have to operate on the memory that is available.
+        // JAL is not a memory operation
+        std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint8_t, uint8_t, int32_t>();
+        Register *target = this->reg.getRegister(*((uint8_t*) ops[1])); //destination or source
+        Register *offsetFrom = this->reg.getRegister(*((uint8_t*) ops[2]));
+        // the memory location is the offsetFromRegister+offset
+        ulong memLocation = offsetFrom->read<long>()+*((int32_t*) ops[3]);
+        switch(op) {
+            // load instructions
+            case(Operations::LB):
+                target->write<char>(this->mem.read<char>(memLocation).payload);
+                break;
+            case(Operations::LH):
+                target->write<short>(this->mem.read<short>(memLocation).payload);
+                break;
+            case(Operations::LW):
+                target->write<int>(this->mem.read<int>(memLocation).payload);
+                break;
+            case(Operations::LWU):
+                target->write<unsigned int>(this->mem.read<unsigned int>(memLocation).payload);
+                break;
+            case(Operations::LD):
+                target->write<long>(this->mem.read<long>(memLocation).payload);
+                break;
+            case(Operations::LBU):
+                target->write<unsigned char>(this->mem.read<unsigned char>(memLocation).payload);
+                break;
+            case(Operations::LHU):
+                target->write<unsigned short>(this->mem.read<unsigned short>(memLocation).payload);
+                break;
+            // store instructions
+            case(Operations::SB):
+                this->mem.write<char>(memLocation, target->read<char>());
+                break;
+            case(Operations::SH):
+                this->mem.write<short>(memLocation, target->read<short>());
+                break;
+            case(Operations::SW):
+                this->mem.write<int>(memLocation, target->read<int>());
+                break;
+            case(Operations::SD):
+                this->mem.write<long>(memLocation, target->read<long>());
+                break;
+            //JAL is in this range but is not a memory operation
+            case(Operations::JAL):
+                target->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
+                long offset = *((int32_t*) ops[3]);
+                //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
+                this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+offset-INSTRUCTION_LENGTH);
+            default:
+                throw "NOT IMPLEMENTED";
+                break;
+        }
     }
-    pc+=64;
+    //TODO  one register and immediate.
+    // TODO more command types
+    pc+=INSTRUCTION_LENGTH;
     this->reg.getRegister(PC)->write<unsigned long>(pc);
 }

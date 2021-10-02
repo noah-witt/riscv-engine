@@ -100,7 +100,6 @@ enum class Operations: uint16_t{
     REMUW,
     //two register, then immediate ops
     ADDI,
-    SUBI,
     SLTI,
     SLLI,
     SRLI,

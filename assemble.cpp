@@ -259,9 +259,6 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "ADDI") {
                 op = Operations::ADDI;
             }
-            if(cmd == "SUBI") {
-                op = Operations::SUBI;
-            }
             if(cmd == "SLTI") {
                 op = Operations::SLTI;
             }
