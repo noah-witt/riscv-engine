@@ -38,9 +38,13 @@ void alu::step() {
             case(Operations::SUB):
                 dest->write<int>(input1->read<int>()-input2->read<int>());
                 break;
+            case(Operations::MUL):
+                dest->write<int>(input1->read<int>()*input2->read<int>());
+                break;
             // TODO more calculations.
             default:
                 //TODO some sort of exception
+                throw "NOT IMPLEMENTED";
                 break;
         }
     }
