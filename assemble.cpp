@@ -295,9 +295,6 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "SRAIW") {
                 op = Operations::SRAIW;
             }
-            if(cmd == "SRAIW") {
-                op = Operations::SRAIW;
-            }
             //two reg and immediate still but offset from pc.
             if(cmd == "JALR") {
                 op = Operations::JALR;
