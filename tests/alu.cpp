@@ -27,8 +27,13 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     BOOST_ASSERT(*(uint16_t*)cmdParts[1]==5);
     BOOST_ASSERT(*(uint16_t*)cmdParts[2]==6);
     BOOST_ASSERT(*(uint16_t*)cmdParts[3]==7);
+    BOOST_ASSERT(a.getReg()->getRegister(PC)->read<unsigned long>()==0);
+    BOOST_ASSERT(a.getReg()->getRegister(6)->read<unsigned long>()==32);
+    BOOST_ASSERT(a.getReg()->getRegister(7)->read<unsigned long>()==5);
+    BOOST_LOG_TRIVIAL(debug) << "reg1 id " <<*(uint16_t*)cmdParts[1];
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(PC)->read<unsigned long>()==64);
+    a.getReg()->getRegister(6)->write<int>(55);
     BOOST_LOG_TRIVIAL(debug) << "value in reg five " << a.getReg()->getRegister(5)->read<int>();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==37);
     BOOST_ASSERT(false==true);
