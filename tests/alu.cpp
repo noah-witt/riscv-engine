@@ -9,7 +9,7 @@
 #include <boost/log/expressions.hpp>
 
 BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
-    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\r");
+    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50");
     alu a;
     Memory *mem = a.getMem();
     program.toMemory(mem);
@@ -40,6 +40,10 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==160);
     BOOST_ASSERT(a.getReg()->getRegister(PC)->read<unsigned long>()==192);
     BOOST_ASSERT(a.step().halt==true);
+    a.step();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==132);
+    a.step();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==-18);
     BOOST_ASSERT(false==true);
 }
 
