@@ -12,6 +12,7 @@
 #include "./util.hpp"
 #include "./assemble.hpp"
 #include "./registers.hpp"
+#include "./registers.t.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -139,6 +140,7 @@ generatedInstruction Instruction::getInstruction() {
                 throw "key that begins with . other than at first of a line for pseudo op.";
             }
             // we know this is the first line now we can do our logic.
+            //TODO implement
             break; // the whole line is handled here if it starts with ..
         }
         if (it == split.begin()) {
@@ -478,6 +480,17 @@ generatedInstruction Instruction::getInstruction() {
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
         return val;
+    }
+
+    // TODO one register and immediate
+    if(op>=Operations::LUI && op<=Operations::AUIPC) {
+        //load an immediate value in a register
+        uint8_t dest = syms.at(0).registerId;
+        int32_t val = syms.at(1).immediate_value;
+        result.writeInstruction<uint16_t, uint8_t, int32_t, uint8_t>((uint16_t) Operations::ADD, dest, val, 0);
+        generatedInstruction gen;
+        gen.values.push_back(result.read<unsigned long>());
+        return gen;
     }
 
     // special operations

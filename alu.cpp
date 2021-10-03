@@ -1,6 +1,7 @@
 #include "./alu.hpp"
 #include "./registers.hpp"
 #include "./assemble.hpp"
+#include "./registers.t.hpp"
 #include "memory"
 #include "algorithm"
 
@@ -17,12 +18,12 @@ Registers *alu::getReg() {
     return &this->reg;
 }
 
-void alu::step() {
+AluStepResult alu::step() {
+    AluStepResult result;
     unsigned long pc = this->reg.getRegister(PC)->read<unsigned long>();
     BOOST_LOG_TRIVIAL(debug) << "stepping with memory " << &this->mem << ", and pc " << pc;
     Register operation;
     operation.write<unsigned long>(this->mem.read<unsigned long>(pc).payload);
-    BOOST_LOG_TRIVIAL(debug) << "reg value " << operation.read<unsigned long>();
     // TODO read at location and then execute
     Operations op = (Operations)(*((uint16_t *)operation.readInstruction<uint16_t>()[0]));
     // TODO increment pc unless special op.
@@ -89,8 +90,10 @@ void alu::step() {
             // 64 bit operations
             case(Operations::ADDW):
                 dest->write<long>(input1->read<long>()+input2->read<long>());
+                break;
             case(Operations::SUBW):
                 dest->write<long>(input1->read<long>()-input2->read<long>());
+                break;
             case(Operations::SLLW):
                 //FIXME implement
                 throw "NOT IMPLEMENTED";
@@ -102,10 +105,13 @@ void alu::step() {
                 throw "NOT IMPLEMENTED";
             case(Operations::MULW):
                 dest->write<long>(input1->read<long>()*input2->read<long>());
+                break;
             case(Operations::DIVW):
                 dest->write<long>(input1->read<long>()/input2->read<long>());
+                break;
             case(Operations::DIVUW):
                 dest->write<ulong>(input1->read<ulong>()/input2->read<ulong>());
+                break;
             case(Operations::REMW):
                 dest->write<long>(input1->read<long>()%input2->read<long>());
                 break;
@@ -250,18 +256,46 @@ void alu::step() {
                 this->mem.write<long>(memLocation, target->read<long>());
                 break;
             //JAL is in this range but is not a memory operation
-            case(Operations::JAL):
+            case(Operations::JAL): {
                 target->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
-                long offset = *((int32_t*) ops[3]);
+                long offsetForInst = *((int32_t*) ops[3]);
                 //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+offset-INSTRUCTION_LENGTH);
+                this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+offsetForInst-INSTRUCTION_LENGTH);
+                break;
+            }
+            default:
+                throw "NOT IMPLEMENTED";
+                break;
+        }
+    } else if(op>=Operations::LUI && op<=Operations::AUIPC) {
+        std::array<void *, 4>  ops = operation.readInstruction<uint16_t, uint8_t, int32_t, uint8_t>();
+        Register *reg = this->reg.getRegister(*((uint8_t*) ops[1]));
+        int immediateVal = *((int32_t*) ops[2]);
+        // the third part is not used for now.
+        switch(op) {
+            case(Operations::LUI):
+                reg->write<long>(immediateVal);
+                break;
+            case(Operations::AUIPC):
+                reg->write<long>(immediateVal+this->reg.getRegister(PC)->read<ulong>());
+                break;
             default:
                 throw "NOT IMPLEMENTED";
                 break;
         }
     }
-    //TODO  one register and immediate.
-    // TODO more command types
+    // custom operations
+    else if(op==Operations::HALT) {
+        // halt operation.
+        result.halt = true;
+    }
+    // TODO add more custom operations.
+    // print etc
+    // request input
+    else {
+        throw "operation section code not implemented";
+    }
     pc+=INSTRUCTION_LENGTH;
     this->reg.getRegister(PC)->write<unsigned long>(pc);
+    return result;
 }
