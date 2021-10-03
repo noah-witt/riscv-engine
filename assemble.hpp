@@ -148,6 +148,7 @@ enum class Operations: uint16_t{
     //Extra special
     // things I have just added.
     HALT,
+    //TODO add floating point operations.
 };
 
 class SymbolTable {

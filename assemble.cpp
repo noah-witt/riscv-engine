@@ -487,7 +487,7 @@ generatedInstruction Instruction::getInstruction() {
         //load an immediate value in a register
         uint8_t dest = syms.at(0).registerId;
         int32_t val = syms.at(1).immediate_value;
-        result.writeInstruction<uint16_t, uint8_t, int32_t, uint8_t>((uint16_t) Operations::ADD, dest, val, 0);
+        result.writeInstruction<uint16_t, uint8_t, int32_t, uint8_t>((uint16_t) op, dest, val, 0);
         generatedInstruction gen;
         gen.values.push_back(result.read<unsigned long>());
         return gen;
