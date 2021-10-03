@@ -9,7 +9,7 @@
 #include <boost/log/expressions.hpp>
 
 BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
-    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50");
+    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200");
     alu a;
     Memory *mem = a.getMem();
     program.toMemory(mem);
@@ -44,10 +44,14 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==132);
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==-18);
+    // LUI instruction that changes register 6 to 150.
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(6)->read<int>()==150);
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==100);
-    BOOST_ASSERT(false==true);
+    a.step();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==300);
+    // eight commands are tested.
+    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
 
