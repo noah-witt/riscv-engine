@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==300);
     ulong loc = a.getReg()->getRegister(PC)->read<unsigned long>();
-    BOOST_LOG_TRIVIAL(debug) << "at mem:  "<<mem->read<int>(loc).payload<< " loc:"<<loc;
+    // check the memory info that is provided.
     BOOST_ASSERT(mem->read<int>(loc).payload==500);
     loc+=64;
     BOOST_ASSERT(mem->read<char>(loc).payload=='a');

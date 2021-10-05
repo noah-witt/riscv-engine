@@ -162,9 +162,22 @@ generatedInstruction Instruction::getInstruction() {
             BOOST_LOG_TRIVIAL(debug) << "trimmed and upper " << opType << " detail: " << opType.length();
             // TODO use return to just return the result with the bit pattern we want.
             //TODO note that this design only allows 64 bit minimum numbers.
-            long val = decodeValue(*(it+1));
             generatedInstruction result;
             Register reg;
+            if(opType==".ASCIZ") {
+                std::vector<std::string> quote;
+                quote.push_back("\"");
+                std::vector<std::string> quotedString = splitStringRemoveEmpty(this->value, quote);
+                for(uint at=0; at<quotedString.at(1).length();at++) {
+                    reg.write<char>(quotedString.at(1).at(at));
+                    result.values.push_back(reg.read<ulong>());
+                }
+                reg.write<char>('\0');
+                result.values.push_back(reg.read<ulong>());
+                return result;
+                // process an asci string.
+            }
+            long val = decodeValue(*(it+1));
             if(opType==".BYTE") {
                 // do things with a byte
                 reg.write<char>((char)val);
@@ -185,22 +198,6 @@ generatedInstruction Instruction::getInstruction() {
                 reg.write<long>((long)val);
                 result.values.push_back(reg.read<ulong>());
                 return result;
-            }
-            BOOST_LOG_TRIVIAL(debug) << " pre ASCI step";
-            if(opType==".ASCIZ") {
-                BOOST_LOG_TRIVIAL(debug) << "ASCI step";
-                std::vector<std::string> quote;
-                quote.push_back("\"");
-                BOOST_LOG_TRIVIAL(debug) << "pre split at quote";
-                std::vector<std::string> quotedString = splitStringRemoveEmpty(this->value, quote);
-                for(uint at=0; at<quotedString.at(1).length();at++) {
-                    reg.write<char>(quotedString.at(1).at(at));
-                    result.values.push_back(reg.read<ulong>());
-                }
-                reg.write<char>('\0');
-                result.values.push_back(reg.read<ulong>());
-                return result;
-                // process an asci string.
             }
             throw "unknown pseudo operation.";
             //TODO this only breaks from the part of the line so we need to set some flag to stop the loop from continuing.
