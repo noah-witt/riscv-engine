@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./memory.hpp"
+#include "string"
 #include <boost/log/trivial.hpp>
 
 template<typename T>
@@ -80,4 +81,15 @@ bool Memory::write(unsigned long address, T data) {
         return false;
     }
     //should not be possible.
+}
+
+template<int MAX_CHARS>
+std::string Memory::stringFromMemory(unsigned long start) {
+    std::string result;
+    for(int i=0;i<MAX_CHARS;i++) {
+        char c = this->read<char>(start+(i*64)).payload;
+        if(c=='\0') break;
+        result+=c;
+    }
+    return result;
 }

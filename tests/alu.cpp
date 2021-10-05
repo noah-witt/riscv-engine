@@ -69,6 +69,8 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     loc+=64;
     BOOST_ASSERT(mem->read<char>(loc).payload=='\0');
     // eight commands are tested.
+    BOOST_ASSERT(mem->stringFromMemory(a.getReg()->getRegister(PC)->read<unsigned long>()+64)=="abc123");
+    BOOST_ASSERT(mem->stringFromMemory<2>(a.getReg()->getRegister(PC)->read<unsigned long>()+64)=="ab");
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
 

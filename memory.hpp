@@ -1,5 +1,6 @@
 #pragma once
 
+#include "string"
 #define MAXMEMORY 524288000UL //The max memory of a pool.
 #define PAGESIZE 1048576UL //1MB starting size. MAXMEMORY must be divisable by PAGESIZE
 #define RANGECOUNT 500 //the number of memory ranges.
@@ -154,4 +155,7 @@ public:
      */
     template<typename T>
     bool write(unsigned long address, T data);
+
+    template<int MAX_CHARS = 100>
+    std::string stringFromMemory(unsigned long start);
 };

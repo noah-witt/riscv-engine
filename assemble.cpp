@@ -159,7 +159,6 @@ generatedInstruction Instruction::getInstruction() {
             std::string opType = std::string(*it);
             trim(opType);
             boost::to_upper(opType);
-            BOOST_LOG_TRIVIAL(debug) << "trimmed and upper " << opType << " detail: " << opType.length();
             // TODO use return to just return the result with the bit pattern we want.
             //TODO note that this design only allows 64 bit minimum numbers.
             generatedInstruction result;
