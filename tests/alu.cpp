@@ -9,7 +9,7 @@
 #include <boost/log/expressions.hpp>
 
 BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
-    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200");
+    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200\n.word 500\n.asciz \"abc123\"");
     alu a;
     Memory *mem = a.getMem();
     program.toMemory(mem);
@@ -51,6 +51,23 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==100);
     a.step();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==300);
+    ulong loc = a.getReg()->getRegister(PC)->read<unsigned long>();
+    BOOST_LOG_TRIVIAL(debug) << "at mem:  "<<mem->read<int>(loc).payload<< " loc:"<<loc;
+    BOOST_ASSERT(mem->read<int>(loc).payload==500);
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='a');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='b');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='c');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='1');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='2');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='3');
+    loc+=64;
+    BOOST_ASSERT(mem->read<char>(loc).payload=='\0');
     // eight commands are tested.
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

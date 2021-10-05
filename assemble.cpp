@@ -117,6 +117,22 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
     // TODO DETECT AND LOAD SYMBOLS.
 }
 
+long decodeValue(const std::string &in) {
+    //first check if it starts with 0x
+    if(in.size()>2 && in.at(0)=='0' && in.at(1)=='x') {
+        in.substr(2);
+        char * p;
+        return std::strtol(in.substr(2).c_str(), &p, 16);
+    }
+    // ascii character
+    if(in.size()==1) {
+        return (long)in.at(0);
+    }
+    //decimal int
+    long result =  std::stol(in);
+    return result;
+}
+
 generatedInstruction Instruction::getInstruction() {
     BOOST_LOG_TRIVIAL(debug) << "at get instruction";
     // TODO identify labels
@@ -140,7 +156,54 @@ generatedInstruction Instruction::getInstruction() {
                 throw "key that begins with . other than at first of a line for pseudo op.";
             }
             // we know this is the first line now we can do our logic.
-            //TODO implement
+            std::string opType = std::string(*it);
+            trim(opType);
+            boost::to_upper(opType);
+            BOOST_LOG_TRIVIAL(debug) << "trimmed and upper " << opType << " detail: " << opType.length();
+            // TODO use return to just return the result with the bit pattern we want.
+            //TODO note that this design only allows 64 bit minimum numbers.
+            long val = decodeValue(*(it+1));
+            generatedInstruction result;
+            Register reg;
+            if(opType==".BYTE") {
+                // do things with a byte
+                reg.write<char>((char)val);
+                result.values.push_back(reg.read<ulong>());
+                return result;
+            }
+            if(opType==".HALF") {
+                reg.write<short>((short)val);
+                result.values.push_back(reg.read<ulong>());
+                return result;
+            }
+            if(opType==".WORD") {
+                reg.write<int>((int)val);
+                result.values.push_back(reg.read<ulong>());
+                return result;
+            }
+            if(opType==".DWORD") {
+                reg.write<long>((long)val);
+                result.values.push_back(reg.read<ulong>());
+                return result;
+            }
+            BOOST_LOG_TRIVIAL(debug) << " pre ASCI step";
+            if(opType==".ASCIZ") {
+                BOOST_LOG_TRIVIAL(debug) << "ASCI step";
+                std::vector<std::string> quote;
+                quote.push_back("\"");
+                BOOST_LOG_TRIVIAL(debug) << "pre split at quote";
+                std::vector<std::string> quotedString = splitStringRemoveEmpty(this->value, quote);
+                for(uint at=0; at<quotedString.at(1).length();at++) {
+                    reg.write<char>(quotedString.at(1).at(at));
+                    result.values.push_back(reg.read<ulong>());
+                }
+                reg.write<char>('\0');
+                result.values.push_back(reg.read<ulong>());
+                return result;
+                // process an asci string.
+            }
+            throw "unknown pseudo operation.";
+            //TODO this only breaks from the part of the line so we need to set some flag to stop the loop from continuing.
             break; // the whole line is handled here if it starts with ..
         }
         if (it == split.begin()) {
@@ -595,9 +658,31 @@ void Program::firstStep() {
             }
             trim(*part);
             if(! part->empty()) {
-                // FIXME identify .dword, .sword etc
-
-                // TODO be a little smarter than just checking if it isn't empty
+                if(*part==".BYTE") {
+                    current_pointer+=64;
+                    break;
+                }
+                if(*part==".HALF") {
+                    current_pointer+=64;
+                    break;
+                }
+                if(*part==".WORD") {
+                    current_pointer+=64;
+                    break;
+                }
+                if(*part==".DWORD") {
+                    current_pointer+=64;
+                    break;
+                }
+                if(*part==".ASCIZ") {
+                    //this command calculates the number of characters between the quote marks and then adds one for the null terminate.
+                    std::vector<std::string> quote;
+                    quote.push_back("\"");
+                    std::vector<std::string> quoteParts = splitStringRemoveEmpty(*line,quote);
+                    int bytes = quoteParts.at(1).size()+1;
+                    current_pointer+=bytes*64;
+                    break;
+                }
                 current_pointer+=64;
                 break;
             }
