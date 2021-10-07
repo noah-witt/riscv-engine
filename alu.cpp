@@ -215,6 +215,7 @@ AluStepResult alu::step() {
         // These are memory operatins that have to operate on the memory that is available.
         // JAL is not a memory operation
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint8_t, uint8_t, int32_t>();
+        BOOST_LOG_TRIVIAL(debug) << "processing memory operation "<<*((uint8_t*) ops[1])<<" "<<*((uint8_t*) ops[2])<<" "<<*((int32_t*) ops[3]);
         Register *target = this->reg.getRegister(*((uint8_t*) ops[1])); //destination or source
         Register *offsetFrom = this->reg.getRegister(*((uint8_t*) ops[2]));
         // the memory location is the offsetFromRegister+offset

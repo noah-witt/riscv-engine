@@ -59,3 +59,17 @@ BOOST_AUTO_TEST_CASE(command_test_two) {
     //BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);
 }
 
+BOOST_AUTO_TEST_CASE(labeled_use_test) {
+    Program program = Program("LD t0, testVal\nhalt\ntestVal: .dword 100");
+    // testVal is at 128
+    Memory mem;
+    program.toMemory(&mem);
+    Register reg;
+    reg.write<ulong>(mem.read<ulong>(0).payload);
+    std::array<void*,4> parts = reg.readInstruction<uint16_t, uint8_t, uint8_t, int32_t>();
+    BOOST_ASSERT((*(uint16_t*)(parts[0]))==(uint16_t)Operations::LD);
+    BOOST_ASSERT((*(uint8_t*)(parts[1]))==5);
+    BOOST_ASSERT((*(uint8_t*)(parts[2]))==0);
+    BOOST_LOG_TRIVIAL(debug) << "step "<<(int)(*(int32_t*)(parts[3]));
+    BOOST_ASSERT((*(int32_t*)(parts[3]))==128);
+}

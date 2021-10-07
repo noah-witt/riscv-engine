@@ -71,6 +71,22 @@ BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     // eight commands are tested.
     BOOST_ASSERT(mem->stringFromMemory(a.getReg()->getRegister(PC)->read<unsigned long>()+64)=="abc123");
     BOOST_ASSERT(mem->stringFromMemory<2>(a.getReg()->getRegister(PC)->read<unsigned long>()+64)=="ab");
-    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
 
+BOOST_AUTO_TEST_CASE(label_use_test) {
+    Program program = Program("LD t0, testVal\nhalt\ntestVal: .dword 100");
+    alu a;
+    Memory *mem = a.getMem();
+    BOOST_LOG_TRIVIAL(error) << "pre to mem";
+    program.toMemory(mem);
+    BOOST_LOG_TRIVIAL(error) << "post to mem";
+    //a.getReg()->getRegister(0);
+    BOOST_LOG_TRIVIAL(debug) << "setting the pc register to 0";
+    //a.getReg()->getRegister(0)->write<unsigned long>(0);
+    //a.getReg()->getRegister(PC)->write<unsigned long>(0);
+    BOOST_LOG_TRIVIAL(debug) << "pre step";
+    a.step();
+    BOOST_LOG_TRIVIAL(debug) << "post step";
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==100);
+    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+}

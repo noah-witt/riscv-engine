@@ -159,8 +159,6 @@ generatedInstruction Instruction::getInstruction() {
             std::string opType = std::string(*it);
             trim(opType);
             boost::to_upper(opType);
-            // TODO use return to just return the result with the bit pattern we want.
-            //TODO note that this design only allows 64 bit minimum numbers.
             generatedInstruction result;
             Register reg;
             if(opType==".ASCIZ") {
@@ -430,6 +428,7 @@ generatedInstruction Instruction::getInstruction() {
             }
             // get the offset part
             uint32_t offset = std::stoi(itemParts[0]);
+            //FIXME allow named things
             // get the register part.
             int regOffsetFrom = -1;
             std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
@@ -491,6 +490,7 @@ generatedInstruction Instruction::getInstruction() {
                 symR.symbol = findResult.symbol;
                 symR.t = SymbolOrRegisterType::SYMBOL;
                 symR.val = *it;
+                symR.location_offset = (uint32_t)findResult.symbol->getAddress();
                 syms.push_back(symR);
                 continue;
             } else {
@@ -533,7 +533,7 @@ generatedInstruction Instruction::getInstruction() {
     // 1 reg then offset location
     if(op>=Operations::LB && op<=Operations::SD) {
         uint8_t dest = syms.at(0).registerId;
-        uint8_t offsetFrom = syms.at(1).registerId;
+        uint8_t offsetFrom = syms.at(1).registerId; // defaults to the zero register
         uint32_t offset = syms.at(1).location_offset;
         result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, dest, offsetFrom, offset);
         generatedInstruction val;
