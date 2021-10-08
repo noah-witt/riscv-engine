@@ -24,8 +24,6 @@ class alu {
         Registers reg;
         Memory mem;
     public:
-        alu();
-        alu(Memory mem);
         Memory *getMem();
         Registers *getReg();
         AluStepResult step();

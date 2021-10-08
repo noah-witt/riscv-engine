@@ -77,16 +77,29 @@ BOOST_AUTO_TEST_CASE(label_use_test) {
     Program program = Program("LD t0, testVal\nhalt\ntestVal: .dword 100");
     alu a;
     Memory *mem = a.getMem();
-    BOOST_LOG_TRIVIAL(error) << "pre to mem";
     program.toMemory(mem);
-    BOOST_LOG_TRIVIAL(error) << "post to mem";
-    //a.getReg()->getRegister(0);
-    BOOST_LOG_TRIVIAL(debug) << "setting the pc register to 0";
-    //a.getReg()->getRegister(0)->write<unsigned long>(0);
-    //a.getReg()->getRegister(PC)->write<unsigned long>(0);
-    BOOST_LOG_TRIVIAL(debug) << "pre step";
+    a.getReg()->getRegister(0);
+    a.getReg()->getRegister(0)->write<unsigned long>(0);
+    a.getReg()->getRegister(PC)->write<unsigned long>(0);
     a.step();
-    BOOST_LOG_TRIVIAL(debug) << "post step";
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==100);
+    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+}
+
+BOOST_AUTO_TEST_CASE(complex_label_test) {
+    Program program = Program("LD t0, offsetSize\n ADDI t0, t0, testVal\n LD t0,0(t0)\n \nhalt\ntestVal: .dword 100 \n .dword 350\noffsetSize: .dword 64");
+    alu a;
+    Memory *mem = a.getMem();
+    program.toMemory(mem);
+    a.getReg()->getRegister(0);
+    a.getReg()->getRegister(0)->write<unsigned long>(0);
+    a.getReg()->getRegister(PC)->write<unsigned long>(0);
+    a.step();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==64);
+    a.step();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==320);
+    a.step();
+    BOOST_LOG_TRIVIAL(debug) << "value in reg 5: " <<a.getReg()->getRegister(5)->read<unsigned long>();
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==350);
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

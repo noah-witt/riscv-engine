@@ -45,7 +45,7 @@ Registers::Registers() {
      * We now have registers in the range 0-64.
      * the program counter is at 200
      */
-    BOOST_LOG_TRIVIAL(debug) << "done creating registers";
+    BOOST_LOG_TRIVIAL(debug) << "done creating registers "<<this;
 }
 
 Registers::~Registers() {
@@ -53,7 +53,6 @@ Registers::~Registers() {
 }
 
 Register *Registers::getRegister(unsigned int x) {
-     BOOST_LOG_TRIVIAL(debug) << "reg count "<<this->registers.size();
     std::unordered_map<unsigned int, Register>::iterator items = this->registers.find(x);
     if(items == this->registers.end()) {
         BOOST_LOG_TRIVIAL(debug) << "register ID not located input value: "<<x;

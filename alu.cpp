@@ -5,11 +5,6 @@
 #include "memory"
 #include "algorithm"
 
-alu::alu() {
-    this->reg = Registers();
-    this->mem = Memory();
-}
-
 Memory *alu::getMem() {
     return &this->mem;
 }

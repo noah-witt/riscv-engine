@@ -439,7 +439,7 @@ generatedInstruction Instruction::getInstruction() {
                     throw "OPTS BEYOND END";
                 }
                 for(std::vector<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
-                    if(*str == *it) {
+                    if(*str == itemParts[1]) {
                         regOffsetFrom = reg;
                         regNameFound = true;
                     }
@@ -447,13 +447,13 @@ generatedInstruction Instruction::getInstruction() {
                 opts++;
             }
             if(regOffsetFrom<0) {
-                BOOST_LOG_TRIVIAL(debug) << "register name not found";
+                BOOST_LOG_TRIVIAL(debug) << "register name not found "<<itemParts[1];
                 continue;
             }
             SymbolOrRegister symR;
             symR.t = SymbolOrRegisterType::LOCATION_OFFSET;
             symR.registerId = regOffsetFrom;
-            symR.location_offset = offset;
+            symR.immediate_value = offset;
             syms.push_back(symR);
         } else if(isNumber(*it)) {
             // FIXME immediate value
@@ -490,7 +490,7 @@ generatedInstruction Instruction::getInstruction() {
                 symR.symbol = findResult.symbol;
                 symR.t = SymbolOrRegisterType::SYMBOL;
                 symR.val = *it;
-                symR.location_offset = (uint32_t)findResult.symbol->getAddress();
+                symR.immediate_value = (uint32_t)findResult.symbol->getAddress();
                 syms.push_back(symR);
                 continue;
             } else {
@@ -534,7 +534,7 @@ generatedInstruction Instruction::getInstruction() {
     if(op>=Operations::LB && op<=Operations::SD) {
         uint8_t dest = syms.at(0).registerId;
         uint8_t offsetFrom = syms.at(1).registerId; // defaults to the zero register
-        uint32_t offset = syms.at(1).location_offset;
+        uint32_t offset = syms.at(1).immediate_value;
         result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, dest, offsetFrom, offset);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());

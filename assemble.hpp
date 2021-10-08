@@ -59,7 +59,6 @@ struct SymbolOrRegister {
     Symbol * symbol = nullptr;
     Register * reg = nullptr; 
     uint registerId = 0;
-    uint32_t location_offset;
     uint32_t immediate_value;
 };
 
