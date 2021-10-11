@@ -226,6 +226,9 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "HALT") {
                 op = Operations::HALT;
             }
+            if(cmd=="PRINT") {
+                op = Operations::PRINT;
+            }
 
 
             // three register operations
@@ -603,6 +606,19 @@ generatedInstruction Instruction::getInstruction() {
         val.values.push_back(result.read<unsigned long>());
         return val;
     }
+
+    if(op==Operations::PRINT) {
+        // a print command has three paramaters. A print type.
+        // it is ordered like: print, type (8), offsetFrom(8), offset(32)
+        // the offset points to an ascii string in memory.
+        uint8_t type = syms.at(0).immediate_value;
+        uint8_t offsetFrom = syms.at(1).registerId; // defaults to the zero register
+        uint32_t offset = syms.at(1).immediate_value;
+        result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, type, offsetFrom, offset);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
     
     throw "OP NOT IMPLEMENTED";
 }
@@ -653,6 +669,7 @@ void Program::firstStep() {
                 continue;
             }
             trim(*part);
+            boost::to_upper(*part);
             if(! part->empty()) {
                 if(*part==".BYTE") {
                     current_pointer+=64;

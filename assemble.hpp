@@ -147,6 +147,7 @@ enum class Operations: uint16_t{
     //Extra special
     // things I have just added.
     HALT,
+    PRINT,
     //TODO add floating point operations.
 };
 

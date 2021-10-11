@@ -109,5 +109,21 @@ BOOST_AUTO_TEST_CASE(loop_test) {
     a.getReg()->getRegister(PC)->write<unsigned long>(0);
     a.loop();
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<unsigned long>()==350);
+}
+
+BOOST_AUTO_TEST_CASE(print_test) {
+    Program program = Program("PRINT 0, str\nHALT\n PRINT 0, strb\n HALT\n\rstr: .asciz \"abc123\"\nstrb: .asciz \"def456\"");
+    alu a;
+    Memory *mem = a.getMem();
+    program.toMemory(mem);
+    a.getReg()->getRegister(PC)->write<unsigned long>(0);
+    AluStepResult res = a.step();
+    BOOST_ASSERT(res.printStr==true);
+    BOOST_ASSERT(res.printStrValue=="abc123");
+    res = a.step();
+    BOOST_ASSERT(res.printStr==false);
+    res = a.step();
+    BOOST_ASSERT(res.printStr==true);
+    BOOST_ASSERT(res.printStrValue=="def456");
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
