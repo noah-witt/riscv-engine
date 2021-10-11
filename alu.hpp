@@ -27,6 +27,6 @@ class alu {
         Memory *getMem();
         Registers *getReg();
         AluStepResult step();
-        void loop();
+        void loop(int maxSteps=10000);
 };
 

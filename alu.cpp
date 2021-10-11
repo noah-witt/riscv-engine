@@ -13,6 +13,14 @@ Registers *alu::getReg() {
     return &this->reg;
 }
 
+void alu::loop(int maxSteps) {
+    for(int i=0;i<maxSteps;i++) {
+        AluStepResult temp = this->step();
+        //FIXME do something with the text or prompt etc
+        if(temp.halt) break;
+    }
+}
+
 AluStepResult alu::step() {
     AluStepResult result;
     unsigned long pc = this->reg.getRegister(PC)->read<unsigned long>();
