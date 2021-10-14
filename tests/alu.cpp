@@ -129,7 +129,6 @@ BOOST_AUTO_TEST_CASE(print_test) {
     res = a.step();
     BOOST_ASSERT(res.printStr==true);
     BOOST_ASSERT(res.printStrValue=="string test for c. abc 123 ");
-    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
 
 
@@ -160,5 +159,15 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     BOOST_LOG_TRIVIAL(debug) << "starting loop two testing branch";
     a.loop();
     BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==991);
+    // sectD tests
+    a.getReg()->getRegister(PC)->write<unsigned long>(320);
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==2001);
+    a.getReg()->getRegister(PC)->write<unsigned long>(384);
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==200);
+    a.getReg()->getRegister(PC)->write<unsigned long>(448);
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==200);
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

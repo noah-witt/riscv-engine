@@ -5,6 +5,9 @@ JAL zero, sectA
 JAL zero, sectB
 JAL zero, sectC
 JAL zero, setC_d
+JAL zero, sectD_lt
+JAL zero, sectD_eq
+JAL zero, sectD_gt
 HALT
 
 #this section is testing basic running.
@@ -42,3 +45,27 @@ setC_d:
     ADDI t1, zero, 45
     JAL zero, sectC_a
     HALT
+
+sectD:
+sectD_lt: 
+    ADDI t0, zero, 795
+    ADDI t1, zero, 995
+    JAL, zero, sectD_go
+sectD_eq:
+    ADDI t0, zero, 1025
+    ADDI t1, zero, 1025
+    JAL, zero, sectD_go
+    HALT
+sectD_gt:
+    ADDI t0, zero, 1095
+    ADDI t1, zero, 1005
+    JAL, zero, sectD_go
+    HALT
+sectD_go:
+    BLT t0, t1, sectD_j
+    ADDI a3, zero, 200
+    HALT
+sectD_j:
+    ADDI a3, zero, 2001
+    HALT
+sectD_a: .asciiz "abc123"
