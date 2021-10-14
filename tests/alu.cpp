@@ -152,5 +152,13 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     BOOST_ASSERT(a.getReg()->getRegister(10)->read<int>()==800);
     BOOST_ASSERT(a.getReg()->getRegister(11)->read<int>()==-800);
     // FIXME todo add branching instructions.
+    a.getReg()->getRegister(PC)->write<unsigned long>(192);
+    BOOST_LOG_TRIVIAL(debug) << "starting loop two";
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==990);
+    a.getReg()->getRegister(PC)->write<unsigned long>(256);
+    BOOST_LOG_TRIVIAL(debug) << "starting loop two testing branch";
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==991);
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

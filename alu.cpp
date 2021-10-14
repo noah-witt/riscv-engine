@@ -176,42 +176,42 @@ AluStepResult alu::step() {
             case(Operations::BEQ):
                 if(dest->read<unsigned long>()==input1->read<unsigned long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BNE):
                 if(dest->read<unsigned long>()!=input1->read<unsigned long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BLT):
                 if(dest->read<long>()<input1->read<long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BGE):
                 if(dest->read<long>()>=input1->read<long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BLTU):
                 if(dest->read<ulong>()<input1->read<ulong>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BGEU):
                 if(dest->read<ulong>()>=input1->read<ulong>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                    this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    this->reg.getRegister(PC)->write<ulong>(input2.read<int>()-INSTRUCTION_LENGTH);
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
