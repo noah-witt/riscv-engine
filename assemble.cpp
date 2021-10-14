@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
@@ -25,7 +26,7 @@
 char AssembleConstants::registerNameSeperator = ';';
 uint AssembleConstants::registerCount = 64;
 // BIG list of registers registers with two names are seperated by a ';'
-std::string AssembleConstants::registerNames[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0;fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "fs0", "fs1", "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "Fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
+std::string AssembleConstants::registerNames[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0;fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6", "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7", "fs0", "fs1", "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
 
 std::vector<std::vector<std::string>> AssembleConstants::getNamesAsList() {
     std::vector<std::vector<std::string>> result;
@@ -147,8 +148,12 @@ generatedInstruction Instruction::getInstruction() {
     std::vector<std::string> split = splitStringRemoveEmpty(this->value, delinators);
     // NOW MAKE SURE THE SYMBOLS.
     std::vector<std::string>::iterator it = split.begin();
+    //if the line is a comment just continue
+    if((*it).at(0)=='#'||(*it).size()==0) {
+        // empty generated instruction because this is a comment
+        return generatedInstruction();
+    }
     for(;it<split.end();it++) {
-        BOOST_LOG_TRIVIAL(debug) << "processing part of line " << *it;
         if (it->at(0) == '.') {
             // FIXME handle things that start with .
             if(it != split.begin()) {
@@ -161,9 +166,11 @@ generatedInstruction Instruction::getInstruction() {
             boost::to_upper(opType);
             generatedInstruction result;
             Register reg;
-            if(opType==".ASCIZ") {
+            BOOST_LOG_TRIVIAL(debug) << "identifying the mem op type. :"<<opType;
+            if(opType==".ASCIIZ") {
                 std::vector<std::string> quote;
                 quote.push_back("\"");
+                BOOST_LOG_TRIVIAL(debug) << "asciiz line";
                 std::vector<std::string> quotedString = splitStringRemoveEmpty(this->value, quote);
                 for(uint at=0; at<quotedString.at(1).length();at++) {
                     reg.write<char>(quotedString.at(1).at(at));
@@ -408,6 +415,9 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "SD") {
                 op = Operations::SD;
             }
+            if(cmd == "JAL") {
+                op = Operations::JAL;
+            }
 
             // one register than immediate
             if(cmd == "LUI") {
@@ -501,7 +511,7 @@ generatedInstruction Instruction::getInstruction() {
             }
         }
     }
-    BOOST_LOG_TRIVIAL(debug) << "get instruction process each part";
+    BOOST_LOG_TRIVIAL(debug) << "get instruction process each part sym count "<<syms.size() << " op: "<<(uint16_t)op;
     Register result = Register();
     // 3 register param options.
     if(op>=Operations::ADD && op <=Operations::REMUW) {
@@ -534,7 +544,7 @@ generatedInstruction Instruction::getInstruction() {
      * the mode dictates if we reference off of stackpointer for example.
      */
     // 1 reg then offset location
-    if(op>=Operations::LB && op<=Operations::SD) {
+    if(op>=Operations::LB && op<=Operations::JAL) {
         uint8_t dest = syms.at(0).registerId;
         uint8_t offsetFrom = syms.at(1).registerId; // defaults to the zero register
         uint32_t offset = syms.at(1).immediate_value;
@@ -648,6 +658,13 @@ Program::Program(std::string value) {
     this->sym = SymbolTable();
 }
 
+Program::Program(std::ifstream& in) {
+    std::string content( (std::istreambuf_iterator<char>(in) ),
+                       (std::istreambuf_iterator<char>()    ) );
+    this->value = content;
+    this->sym = SymbolTable();
+}
+
 void Program::firstStep() {
     // TODO free the old symbol table and setup a new one
     uint64_t current_pointer = 0;
@@ -662,6 +679,8 @@ void Program::firstStep() {
         std::vector<std::string> lineDelinator = std::vector<std::string>();
         lineDelinator.push_back(" ");
         std::vector<std::string> parts = splitStringRemoveEmpty(*line, lineDelinator);
+        //if the line is a comment just continue
+        if(parts.size()>0 && parts[0].at(0)=='#') continue;
         for(std::vector<std::string>::iterator part = parts.begin(); part<parts.end(); part++) {
             if(strEndsIn(*part, ":")) {
                 std::string name = part->substr(0, part->size()-1);
@@ -687,7 +706,7 @@ void Program::firstStep() {
                     current_pointer+=64;
                     break;
                 }
-                if(*part==".ASCIZ") {
+                if(*part==".ASCIIZ") {
                     //this command calculates the number of characters between the quote marks and then adds one for the null terminate.
                     std::vector<std::string> quote;
                     quote.push_back("\"");

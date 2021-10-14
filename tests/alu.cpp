@@ -4,12 +4,13 @@
 #include "../assemble.hpp"
 #include "../alu.hpp"
 #include <iostream>
+#include <fstream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 
 BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
-    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200\n.word 500\n.asciz \"abc123\"");
+    Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200\n.word 500\n.asciiz \"abc123\"");
     alu a;
     Memory *mem = a.getMem();
     program.toMemory(mem);
@@ -112,7 +113,7 @@ BOOST_AUTO_TEST_CASE(loop_test) {
 }
 
 BOOST_AUTO_TEST_CASE(print_test) {
-    Program program = Program("PRINT 0, str\nHALT\n PRINT 0, strb\n HALT\n\rstr: .asciz \"abc123\"\nstrb: .asciz \"def456\"");
+    Program program = Program("PRINT 0, str\n # abc 123\n HALT\n PRINT 0, strb\n PRINT 0, strc \nHALT\n\rstr: .asciiz \"abc123\"\nstrb: .asciiz \"def456\"\n.dword 0\n.dword 100\nstrc: .asciiz \"string test for c. abc 123 \"");
     alu a;
     Memory *mem = a.getMem();
     program.toMemory(mem);
@@ -125,5 +126,26 @@ BOOST_AUTO_TEST_CASE(print_test) {
     res = a.step();
     BOOST_ASSERT(res.printStr==true);
     BOOST_ASSERT(res.printStrValue=="def456");
+    res = a.step();
+    BOOST_ASSERT(res.printStr==true);
+    BOOST_ASSERT(res.printStrValue=="string test for c. abc 123 ");
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+}
+
+
+BOOST_AUTO_TEST_CASE(jump_tests) {
+    // first validate that from a file works ok
+    std::ifstream ifs("./tests/test_alu_a.S");
+    Program program = Program(ifs);
+    alu a;
+    Memory *mem = a.getMem();
+    program.toMemory(mem);
+    //first jump is at 64
+    a.getReg()->getRegister(PC)->write<unsigned long>(64);
+    BOOST_LOG_TRIVIAL(debug) << "Now starting loop";
+    a.loop(10);
+    BOOST_ASSERT(a.getReg()->getRegister(7)->read<int>()==700);
+    // now do section b
+    // TODO implement calls for section b
+     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

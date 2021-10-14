@@ -20,6 +20,7 @@ BOOST_AUTO_TEST_CASE(find_delinator_test) {
 BOOST_AUTO_TEST_CASE(split_string_basic_test) {
     std::vector<std::string> delinator;
     delinator.push_back(" ");
+    delinator.push_back("\t");
     delinator.push_back(",");
     std::vector<std::string> result = splitString("a123 b123, c123 d123,e123,f123", delinator);
     BOOST_ASSERT(result.size() == 7);
@@ -35,6 +36,7 @@ BOOST_AUTO_TEST_CASE(split_string_basic_test) {
 BOOST_AUTO_TEST_CASE(split_string_remove_empty_test) {
     std::vector<std::string> delinator;
     delinator.push_back(" ");
+    delinator.push_back("\t");
     delinator.push_back(",");
     std::vector<std::string> result = splitStringRemoveEmpty("a123 b123, c123 d123,e123,f123", delinator);
     BOOST_ASSERT(result.size() == 6);

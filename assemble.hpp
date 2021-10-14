@@ -221,6 +221,7 @@ class Program {
         void firstStep();
     public:
         Program(std::string value);
+        Program(std::ifstream& in);
         /**
          * load a program to memory.
          * @param mem the memory

@@ -171,41 +171,48 @@ AluStepResult alu::step() {
                 // an instruction that performs two operations.
                 dest->write<long>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
                 this->reg.getRegister(PC)->write<ulong>(input1->read<int>()+input2.read<int>());
+                pc=this->reg.getRegister(PC)->read<ulong>();
                 break;
             case(Operations::BEQ):
                 if(dest->read<unsigned long>()==input1->read<unsigned long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BNE):
                 if(dest->read<unsigned long>()!=input1->read<unsigned long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BLT):
                 if(dest->read<long>()<input1->read<long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BGE):
                 if(dest->read<long>()>=input1->read<long>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BLTU):
                 if(dest->read<ulong>()<input1->read<ulong>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             case(Operations::BGEU):
                 if(dest->read<ulong>()>=input1->read<ulong>()) {
                     //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
                     this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+input2.read<int>()-INSTRUCTION_LENGTH);
+                    pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
             //TODO implement these ops.
@@ -214,7 +221,7 @@ AluStepResult alu::step() {
                 throw "NOT IMPLEMENTED";
                 break;
         }
-    } else if(op>=Operations::LB && op<=Operations::SD) {
+    } else if(op>=Operations::LB && op<=Operations::JAL) {
         // These are memory operatins that have to operate on the memory that is available.
         // JAL is not a memory operation
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint8_t, uint8_t, int32_t>();
@@ -264,7 +271,8 @@ AluStepResult alu::step() {
                 target->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
                 long offsetForInst = *((int32_t*) ops[3]);
                 //-INSTRUCTION_LENGTH because the instruction length is added for all commands.
-                this->reg.getRegister(PC)->write<ulong>(this->reg.getRegister(PC)->read<ulong>()+offsetForInst-INSTRUCTION_LENGTH);
+                this->reg.getRegister(PC)->write<ulong>(offsetForInst-INSTRUCTION_LENGTH);
+                pc=offsetForInst-INSTRUCTION_LENGTH;
                 break;
             }
             default:
