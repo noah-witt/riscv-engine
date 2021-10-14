@@ -748,7 +748,12 @@ void Program::toMemory(Memory* memoryInput) {
             // by comparing the current key and the current pointer address.
         }
         if(parts.size()==1) {
-            operation = parts[0];
+            // if it contains the : we should set it to empty else we need to set it to parts[0]
+            if(line->find(':')==std::string::npos) {
+                operation = parts[0];
+            } else {
+                operation = "";
+            }
         }
         //remove leading and trailing whitespace.
         trim(operation);

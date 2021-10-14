@@ -146,6 +146,11 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     a.loop(10);
     BOOST_ASSERT(a.getReg()->getRegister(7)->read<int>()==700);
     // now do section b
-    // TODO implement calls for section b
-     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+    a.getReg()->getRegister(PC)->write<unsigned long>(128);
+    BOOST_LOG_TRIVIAL(debug) << "starting loop two";
+    a.loop();
+    BOOST_ASSERT(a.getReg()->getRegister(10)->read<int>()==800);
+    BOOST_ASSERT(a.getReg()->getRegister(11)->read<int>()==-800);
+    // FIXME todo add branching instructions.
+    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
