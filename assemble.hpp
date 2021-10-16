@@ -58,8 +58,8 @@ struct SymbolOrRegister {
     std::string val;
     Symbol * symbol = nullptr;
     Register * reg = nullptr; 
-    uint registerId = 0;
-    uint32_t immediate_value;
+    uint registerId = 0; // the zero register
+    uint32_t immediate_value = 0;
 };
 
 struct SymbolTableFindResult {
@@ -148,6 +148,10 @@ enum class Operations: uint16_t{
     // things I have just added.
     HALT,
     PRINT,
+    INPUTI,
+    INPUTB,
+    INPUTS,
+    INPUTF,
     //TODO add floating point operations.
 };
 

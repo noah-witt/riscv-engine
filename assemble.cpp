@@ -236,6 +236,18 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd=="PRINT") {
                 op = Operations::PRINT;
             }
+            if(cmd=="INPUTI"){
+                op = Operations::INPUTI;
+            }
+            if(cmd=="INPUTB"){
+                op = Operations::INPUTB;
+            }
+            if(cmd=="INPUTS"){
+                op = Operations::INPUTS;
+            }
+            if(cmd=="INPUTF"){
+                op = Operations::INPUTF;
+            }
 
 
             // three register operations
@@ -625,6 +637,16 @@ generatedInstruction Instruction::getInstruction() {
         uint8_t offsetFrom = syms.at(1).registerId; // defaults to the zero register
         uint32_t offset = syms.at(1).immediate_value;
         result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, type, offsetFrom, offset);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
+
+    if(op>=Operations::INPUTI && op<=Operations::INPUTF) {
+        // an input instruction contains the memory location that the input should be written in as an immediate value offset from some reg
+        // takes one param like "INPUTF 32412" where 3412 is the memory location that the data is going to be written.
+        // it can also be a register id. the immediate value is read as an offset from the register provided.
+        result.writeInstruction<uint16_t, uint8_t, int32_t, uint8_t>((uint16_t) op,  syms.at(0).registerId,  syms.at(0).immediate_value, 0);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
         return val;

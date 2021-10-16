@@ -2,6 +2,8 @@
 #include "./registers.hpp"
 #include "./assemble.hpp"
 #include "./registers.t.hpp"
+#include "./util.hpp"
+#include <boost/algorithm/string.hpp>
 #include "memory"
 #include "algorithm"
 
@@ -14,9 +16,45 @@ Registers *alu::getReg() {
 }
 
 void alu::loop(int maxSteps) {
+    this->loop(std::cin, std::cout, maxSteps);
+}
+
+void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
     for(int i=0;i<maxSteps;i++) {
         AluStepResult temp = this->step();
-        //FIXME do something with the text or prompt etc
+        if(temp.printStr) {
+            out<<temp.printStrValue;
+        }
+        if(temp.inputRequest) {
+            if(temp.inputRequestType==inputRequestTypes::STR) {
+                std::string data;
+                std::getline(in, data);
+                BOOST_LOG_TRIVIAL(debug) <<"loading str to memory: '"<< data<<"' at: "<<temp.inputLocation;
+                for(int i=0;i<data.size();i++) this->getMem()->write<long>(temp.inputLocation+i*64, data.at(i));
+                // write the null char termination
+                this->getMem()->write<long>(temp.inputLocation+data.size()*64, '\0');
+            }
+            else if(temp.inputRequestType==inputRequestTypes::INT) {
+                long data;
+                in >> data;
+                this->getMem()->write<long>(temp.inputLocation, data);
+            }
+            else if(temp.inputRequestType==inputRequestTypes::FLOAT) {
+                double data;
+                in >> data;
+                this->getMem()->write<double>(temp.inputLocation, data);
+            }
+            else if(temp.inputRequestType==inputRequestTypes::BOOL) {
+                std::string data;
+                in >> data;
+                trim(data);
+                boost::to_upper(data);
+                bool processed = data.at(0)=='Y' || data.at(0)=='T';
+                this->getMem()->write<bool>(temp.inputLocation, processed);
+            } else {
+                BOOST_LOG_TRIVIAL(debug) << "unable to do input";
+            }
+        }
         if(temp.halt) break;
     }
 }
@@ -314,8 +352,23 @@ AluStepResult alu::step() {
     // TODO add more custom operations.
     // print etc
     // request input
+    else if(op>=Operations::INPUTI && op<=Operations::INPUTF) {
+        std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint8_t, int32_t, uint8_t>();
+        // based on the input provided setup the input.
+        result.inputRequest = true;
+        if(op==Operations::INPUTI) result.inputRequestType = inputRequestTypes::INT;
+        if(op==Operations::INPUTF) result.inputRequestType = inputRequestTypes::FLOAT;
+        if(op==Operations::INPUTB) result.inputRequestType = inputRequestTypes::BOOL;
+        if(op==Operations::INPUTS) result.inputRequestType = inputRequestTypes::STR;
+        // calculate the location by taking the reg in [1] and adding it to the value in [2]
+        long loc = this->reg.getRegister(*((uint8_t*) ops[1]))->read<long>();
+        loc+=*((int32_t*) ops[2]);
+        result.inputLocation = loc;
+    }
     else {
-        throw "operation section code not implemented";
+        int i = (uint16_t)op;
+        BOOST_LOG_TRIVIAL(debug) << "op code "<<i;
+        throw "operation section code not implemented ";
     }
     pc+=INSTRUCTION_LENGTH;
     this->reg.getRegister(PC)->write<unsigned long>(pc);

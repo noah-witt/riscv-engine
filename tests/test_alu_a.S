@@ -8,6 +8,7 @@ JAL zero, setC_d
 JAL zero, sectD_lt
 JAL zero, sectD_eq
 JAL zero, sectD_gt
+JAL zero, sectE
 HALT
 
 #this section is testing basic running.
@@ -69,3 +70,13 @@ sectD_j:
     ADDI a3, zero, 2001
     HALT
 sectD_a: .asciiz "abc123"
+
+
+# this section marks where some more complicated scripts are tested
+
+sectE:
+    PRINT 0 sectE_a
+    INPUTS sectE_a
+    PRINT 0 sectE_a
+    HALT
+sectE_a: .asciiz "demo output abc123"

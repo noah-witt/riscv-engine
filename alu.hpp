@@ -2,6 +2,8 @@
 #include "registers.hpp"
 #include "memory.h"
 #include "string"
+#include <iostream>
+#include <climits>
 #define INSTRUCTION_LENGTH 64
 
 enum class inputRequestTypes {
@@ -15,8 +17,8 @@ struct AluStepResult {
     bool printStr = false;
     std::string printStrValue;
     bool inputRequest = false;
-    std::string inputRequestMsg;
     inputRequestTypes inputRequestType;
+    unsigned long inputLocation = ULONG_MAX;
 };
 
 class alu {
@@ -28,5 +30,6 @@ class alu {
         Registers *getReg();
         AluStepResult step();
         void loop(int maxSteps=10000);
+        void loop(std::istream &in, std::ostream &out, int maxSteps=10000);
 };
 

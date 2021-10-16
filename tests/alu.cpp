@@ -4,6 +4,9 @@
 #include "../assemble.hpp"
 #include "../alu.hpp"
 #include <iostream>
+#include <ostream>
+#include <istream>
+#include <sstream>
 #include <fstream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
@@ -131,7 +134,7 @@ BOOST_AUTO_TEST_CASE(print_test) {
     BOOST_ASSERT(res.printStrValue=="string test for c. abc 123 ");
 }
 
-
+// this section reads from a file, tests branch, and jump instructions.
 BOOST_AUTO_TEST_CASE(jump_tests) {
     // first validate that from a file works ok
     std::ifstream ifs("./tests/test_alu_a.S");
@@ -150,7 +153,7 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     a.loop();
     BOOST_ASSERT(a.getReg()->getRegister(10)->read<int>()==800);
     BOOST_ASSERT(a.getReg()->getRegister(11)->read<int>()==-800);
-    // FIXME todo add branching instructions.
+    // test branching instructions.
     a.getReg()->getRegister(PC)->write<unsigned long>(192);
     BOOST_LOG_TRIVIAL(debug) << "starting loop two";
     a.loop();
@@ -169,5 +172,15 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     a.getReg()->getRegister(PC)->write<unsigned long>(448);
     a.loop();
     BOOST_ASSERT(a.getReg()->getRegister(13)->read<int>()==200);
+    // section e is input testing
+    std::string e_input_data = "input example\n";
+    std::stringstream e_input(e_input_data);
+    std::stringstream e_output;
+    a.getReg()->getRegister(PC)->write<unsigned long>(512);
+    a.loop(e_input, e_output);
+    std::string res = e_output.str();
+    BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code: "<< res;
+    BOOST_ASSERT(res=="demo output abc123input example");
+    // TODO test bool. num etc.
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
