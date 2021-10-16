@@ -79,4 +79,10 @@ sectE:
     INPUTS sectE_a
     PRINT 0 sectE_a
     HALT
+    LD t0, sectE_b
+    INPUTI sectE_b
+    HALT
+    LD t0, sectE_b
+    HALT
 sectE_a: .asciiz "demo output abc123"
+sectE_b: .dword 150 

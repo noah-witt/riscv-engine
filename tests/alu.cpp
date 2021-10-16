@@ -181,6 +181,12 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     std::string res = e_output.str();
     BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code: "<< res;
     BOOST_ASSERT(res=="demo output abc123input example");
-    // TODO test bool. num etc.
+    std::string e_input_data_2 = "997\n";
+    std::stringstream e_input_2(e_input_data_2);
+    std::stringstream e_output_2;
+    a.loop(e_input_2, e_output_2);
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==150);
+    a.loop(e_input_2, e_output_2);
+    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==997);
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
