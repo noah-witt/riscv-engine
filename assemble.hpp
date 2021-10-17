@@ -152,6 +152,7 @@ enum class Operations: uint16_t{
     INPUTB,
     INPUTS,
     INPUTF,
+    DEBUG,
     //TODO add floating point operations.
 };
 

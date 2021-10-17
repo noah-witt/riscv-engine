@@ -37,6 +37,7 @@ void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
             else if(temp.inputRequestType==inputRequestTypes::INT) {
                 long data;
                 in >> data;
+                BOOST_LOG_TRIVIAL(debug) <<"writing a long: '"<< data<<"' at: "<<temp.inputLocation;
                 this->getMem()->write<long>(temp.inputLocation, data);
             }
             else if(temp.inputRequestType==inputRequestTypes::FLOAT) {
@@ -175,7 +176,7 @@ AluStepResult alu::step() {
         // this results in the operating being similar to their non immediate version.
         switch(op) {
             case(Operations::ADDI):
-                dest->write<int>(input1->read<int>()+input2.read<int>());
+                dest->write<long>(input1->read<int>()+input2.read<int>());
                 break;
             case(Operations::SLTI):
                 //FIXME implement
@@ -188,7 +189,7 @@ AluStepResult alu::step() {
                 throw "NOT IMPLEMENTED";
             case(Operations::XORI):
                 //FIXME implement
-                dest->write<uint>(input1->read<uint>() ^ input2.read<uint>());
+                dest->write<ulong>(input1->read<uint>() ^ input2.read<uint>());
                 break;
             case(Operations::SRAI):
                 //FIXME implement
@@ -364,6 +365,11 @@ AluStepResult alu::step() {
         long loc = this->reg.getRegister(*((uint8_t*) ops[1]))->read<long>();
         loc+=*((int32_t*) ops[2]);
         result.inputLocation = loc;
+    }
+    else if(op==Operations::DEBUG) {
+        std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint16_t, int8_t, uint8_t>();
+        long regV = this->reg.getRegister(*((uint16_t*) ops[1]))->read<long>();
+        BOOST_LOG_TRIVIAL(debug) << "program requested debug print out value in register: "<<regV<<" registerID printed: "<<*((uint16_t*) ops[1])<<" pc:"<<pc;
     }
     else {
         int i = (uint16_t)op;

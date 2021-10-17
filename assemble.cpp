@@ -119,17 +119,21 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
 }
 
 long decodeValue(const std::string &in) {
+    BOOST_LOG_TRIVIAL(debug) <<"decoding: "<< in;
     //first check if it starts with 0x
     if(in.size()>2 && in.at(0)=='0' && in.at(1)=='x') {
+        BOOST_LOG_TRIVIAL(debug) << "decoding as hex";
         in.substr(2);
         char * p;
         return std::strtol(in.substr(2).c_str(), &p, 16);
     }
     // ascii character
-    if(in.size()==1) {
-        return (long)in.at(0);
+    if(in.size()==3&&in.at(0)=='\''&&in.at(2)=='\'') {
+        BOOST_LOG_TRIVIAL(debug) <<"decoding as char";
+        return (long)in.at(1);
     }
     //decimal int
+    BOOST_LOG_TRIVIAL(debug) <<"decoding using stol";
     long result =  std::stol(in);
     return result;
 }
@@ -247,6 +251,9 @@ generatedInstruction Instruction::getInstruction() {
             }
             if(cmd=="INPUTF"){
                 op = Operations::INPUTF;
+            }
+            if(cmd=="DEBUG") {
+                op = Operations::DEBUG;
             }
 
 
@@ -651,6 +658,12 @@ generatedInstruction Instruction::getInstruction() {
         val.values.push_back(result.read<unsigned long>());
         return val;
     }
+    if(op==Operations::DEBUG) {
+        result.writeInstruction<uint16_t, uint16_t, int8_t, uint8_t>((uint16_t) op,  syms.at(0).registerId,0, 0);
+        generatedInstruction val;
+        val.values.push_back(result.read<unsigned long>());
+        return val;
+    }
     
     throw "OP NOT IMPLEMENTED";
 }
@@ -753,6 +766,7 @@ void Program::toMemory(Memory* memoryInput) {
     delinators.push_back("\r");
     std::vector<std::string> lines = splitStringRemoveEmpty(this->value, delinators);
     for(std::vector<std::string>::iterator line = lines.begin(); line!=lines.end(); line++) {
+        BOOST_LOG_TRIVIAL(debug) <<"starting to process line "<<*line;
         // this is each line.
         // TODO Process each line dropping the :
         std::vector<std::string> partDelinators = std::vector<std::string>();
@@ -794,13 +808,14 @@ void Program::toMemory(Memory* memoryInput) {
                 BOOST_LOG_TRIVIAL(debug) << "advancing current pointer and continuing";
                 current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
             }
+            BOOST_LOG_TRIVIAL(debug) <<"done writing parts";
         } catch (std::exception e) {
             BOOST_LOG_TRIVIAL(debug) << "error in to memory "<< e.what();
-            memoryInput->read<int>(0); //FIXME read test FIXME remove
             // TODO some sort of logging to record this.
             // It probably is nothing though because it could just be a non command.
             throw e; //FIXME remove this line
         }
+        BOOST_LOG_TRIVIAL(debug) <<"going to the next line";
     }
     // the memory image should be written.
 }

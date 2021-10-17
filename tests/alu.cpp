@@ -181,12 +181,30 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     std::string res = e_output.str();
     BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code: "<< res;
     BOOST_ASSERT(res=="demo output abc123input example");
-    std::string e_input_data_2 = "997\n";
+    std::string e_input_data_2 = "997\n22.23";
     std::stringstream e_input_2(e_input_data_2);
     std::stringstream e_output_2;
     a.loop(e_input_2, e_output_2);
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==150);
     a.loop(e_input_2, e_output_2);
     BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==997);
+    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+}
+
+BOOST_AUTO_TEST_CASE(even_odd_test) {
+    // first validate that from a file works ok
+    std::ifstream ifs("./tests/test_alu_b.S");
+    Program program = Program(ifs);
+    alu a;
+    Memory *mem = a.getMem();
+    program.toMemory(mem);
+    a.getReg()->getRegister(PC)->write<unsigned long>(0);
+    std::string input_data = "2\n5\n6\n7\n-1\n";
+    std::stringstream input(input_data);
+    std::stringstream output;
+    a.loop(input, output, 150);
+    std::string res = output.str();
+    BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code: "<< res;
+    BOOST_ASSERT(res=="Enter a number of -1 if done even\nEnter a number of -1 if done odd\nEnter a number of -1 if done even\n Enter a number of -1 if done odd\n Enter a number of -1 if done bye");
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
