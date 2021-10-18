@@ -428,7 +428,7 @@ generatedInstruction Instruction::getInstruction() {
             if(cmd == "SB") {
                 op = Operations::SB;
             }
-            if(cmd == "SH") {
+            if(cmd == "SW") {
                 op = Operations::SW;
             }
             if(cmd == "SD") {

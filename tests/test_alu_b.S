@@ -1,5 +1,5 @@
 JAL zero, main
-
+JAL zero, f_a_test
 
 # the return address is stored in ra
 # a0 is the inst
@@ -47,3 +47,37 @@ newline_str:
     .word 0
 
 
+
+# fizzbuzz
+# a0 is the n for input
+fizzbuzz:
+    BEQ a0, zero, f_halt
+    ADDI t0, zero, 3
+    REM t0, a0, t0
+    BNE t0, zero, noFizz
+    PRINT 0, fizz_str
+noFizz:
+    ADDI t0, zero, 5
+    REM t0, a0, t0 
+    BNE t0, zero, noBuzz
+    PRINT 0, buzz_str
+noBuzz:
+    print 0, space
+    SW a0, f_temp_val
+    PRINT 1 f_temp_val
+    print 0 tab
+    ADDI a0, a0, -1
+    JAL zero, fizzbuzz
+fizz_str: .asciiz "Fizz"
+buzz_str: .asciiz "Buzz"
+f_temp_val: .dword 0
+space: .asciiz " "
+tab: .asciiz "   "
+f_halt:
+    HALT
+
+# fizz a test
+f_a_test:
+    ADDI a0, zero, 15
+    DEBUG a0
+    JAL zero, fizzbuzz

@@ -206,5 +206,12 @@ BOOST_AUTO_TEST_CASE(even_odd_test) {
     std::string res = output.str();
     BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code:"<< res;
     BOOST_ASSERT(res=="Enter a number of -1 if done even\nEnter a number of -1 if done odd\nEnter a number of -1 if done even\nEnter a number of -1 if done odd\nEnter a number of -1 if done bye");
+    a.getReg()->getRegister(PC)->write<unsigned long>(64);
+    std::stringstream input_2("");
+    std::stringstream output_2;
+    a.loop(input_2, output_2);
+    res = output_2.str();
+    BOOST_LOG_TRIVIAL(debug) <<"test 2:"<< res;
+    BOOST_ASSERT(res=="FizzBuzz 15    14    13   Fizz 12    11   Buzz 10   Fizz 9    8    7   Fizz 6   Buzz 5    4   Fizz 3    2    1   ");
     BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }

@@ -348,7 +348,12 @@ AluStepResult alu::step() {
         result.printStr = true;
         ulong loc = this->reg.getRegister(*((uint8_t*) ops[2]))->read<long>();
         loc+=*((int32_t*) ops[3]);
-        result.printStrValue = this->mem.stringFromMemory(loc);
+        if(*((uint8_t*) ops[1])==1) {
+            // 1 is the number print cmd
+            result.printStrValue = std::to_string(this->mem.read<long>(loc).payload);
+        } else {
+            result.printStrValue = this->mem.stringFromMemory(loc);
+        }
     }
     // TODO add more custom operations.
     // print etc
