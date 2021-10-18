@@ -278,7 +278,7 @@ AluStepResult alu::step() {
                 target->write<short>(this->mem.read<short>(memLocation).payload);
                 break;
             case(Operations::LW):
-                target->write<int>(this->mem.read<int>(memLocation).payload);
+                target->write<long>(this->mem.read<int>(memLocation).payload);
                 break;
             case(Operations::LWU):
                 target->write<unsigned int>(this->mem.read<unsigned int>(memLocation).payload);
@@ -369,7 +369,7 @@ AluStepResult alu::step() {
     else if(op==Operations::DEBUG) {
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint16_t, int8_t, uint8_t>();
         long regV = this->reg.getRegister(*((uint16_t*) ops[1]))->read<long>();
-        BOOST_LOG_TRIVIAL(debug) << "program requested debug print out value in register: "<<regV<<" registerID printed: "<<*((uint16_t*) ops[1])<<" pc:"<<pc;
+        BOOST_LOG_TRIVIAL(debug) << "program requested debug print out. value in register: "<<regV<<" registerID printed: "<<*((uint16_t*) ops[1])<<" pc:"<<pc;
     }
     else {
         int i = (uint16_t)op;
