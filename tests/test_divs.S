@@ -9,7 +9,6 @@ main:
     LD t0, temp_input
     LUI t1, 0
     BLT t0, t1, exit # if t0 < t1 we jump to the exit
-    # TODO print the number and formatting
     PRINT 0, nl
     PRINT 0, intro_str
     PRINT 0, c_str
