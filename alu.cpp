@@ -209,8 +209,8 @@ AluStepResult alu::step() {
             case(Operations::JALR):
                 // an instruction that performs two operations.
                 dest->write<long>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
-                this->reg.getRegister(PC)->write<ulong>(input1->read<int>()+input2.read<int>());
-                pc=this->reg.getRegister(PC)->read<ulong>();
+                this->reg.getRegister(PC)->write<ulong>(input1->read<long>()+input2.read<long>());
+                pc=this->reg.getRegister(PC)->read<ulong>()-INSTRUCTION_LENGTH;
                 break;
             case(Operations::BEQ):
                 if(dest->read<unsigned long>()==input1->read<unsigned long>()) {
