@@ -21,6 +21,5 @@ BOOST_AUTO_TEST_CASE(basic_start_test) {
     start("./tests/test_start_a.S", 10000, a_input, a_output);
     std::string result = a_output.str();
     BOOST_LOG_TRIVIAL(debug) <<"test:"<< result;
-    BOOST_ASSERT(result=="105 775 ABC");
-    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
+    BOOST_ASSERT(result=="105 775 ABC 3 976 3 ");
 }

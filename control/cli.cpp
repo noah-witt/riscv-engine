@@ -18,20 +18,22 @@
 
 int main(int argc, char** argv) {
     boost::program_options::options_description desc("Options");
+    std::string help = "Select the file with the \"--input\" option.\nUse the \"-v\" option to print debug output.\nUse the \"--maxInst\" option to specify the maximum number of instructions to execute (default 100000).\n";
     desc.add_options() 
         ("help", "Print help")
         ("input", boost::program_options::value<std::string>(), "the input file name")
         ("v", "debug output")
         ("vv", "print some info then quit without running the program")
-        ("maxInst", "the max number of instructions to run");
+        ("maxInst", boost::program_options::value<int>(),  "the max number of instructions to run");
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
     if(vm.count("help")) {
-        std::cout << "FIXME help msg";
+        std::cout << help;
         return 0;
     }
     if(!vm.count("input")) {
-        std::cout << "file name is required";
+        std::cout << "file name is required\n\n";
+        std::cout << help;
         return 0;
     }
     std::string inputFileName = vm["input"].as<std::string>();
@@ -51,4 +53,5 @@ int main(int argc, char** argv) {
         return 0;
     }
     start(inputFileName, maxSteps);
+    std::cout<<"\n";
 }

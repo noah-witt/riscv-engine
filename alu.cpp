@@ -20,7 +20,8 @@ void alu::loop(int maxSteps) {
 }
 
 void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
-    for(int i=0;i<maxSteps;i++) {
+    int i=0;
+    for(;i<maxSteps;i++) {
         AluStepResult temp = this->step();
         if(temp.printStr) {
             out<<temp.printStrValue;
@@ -57,6 +58,9 @@ void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
             }
         }
         if(temp.halt) break;
+    }
+    if(i==maxSteps) {
+        BOOST_LOG_TRIVIAL(warning) << "reached maximum number of instructions allowed.";
     }
 }
 

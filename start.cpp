@@ -11,6 +11,7 @@
 
 #include "./start.hpp"
 #include "./assemble.hpp"
+#include <boost/log/trivial.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -27,6 +28,10 @@ int start(std::string fName, int maxSteps) {
 
 int start(std::string fName, int maxSteps, std::istream &in, std::ostream &out) {
     std::ifstream ifs(fName);
+    if(ifs.fail()) {
+        BOOST_LOG_TRIVIAL(warning) << "file read error";
+        return 1;
+    }
     Program program = Program(ifs);
     alu a;
     Memory *mem = a.getMem();

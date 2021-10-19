@@ -181,14 +181,6 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
     std::string res = e_output.str();
     BOOST_LOG_TRIVIAL(debug) <<"the output produced by the code: "<< res;
     BOOST_ASSERT(res=="demo output abc123input example");
-    std::string e_input_data_2 = "997\n22.23";
-    std::stringstream e_input_2(e_input_data_2);
-    std::stringstream e_output_2;
-    a.loop(e_input_2, e_output_2);
-    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==150);
-    a.loop(e_input_2, e_output_2);
-    BOOST_ASSERT(a.getReg()->getRegister(5)->read<int>()==997);
-    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
 
 BOOST_AUTO_TEST_CASE(even_odd_test) {
@@ -213,5 +205,4 @@ BOOST_AUTO_TEST_CASE(even_odd_test) {
     res = output_2.str();
     BOOST_LOG_TRIVIAL(debug) <<"test 2:"<< res;
     BOOST_ASSERT(res=="FizzBuzz 15    14    13   Fizz 12    11   Buzz 10   Fizz 9    8    7   Fizz 6   Buzz 5    4   Fizz 3    2    1   ");
-    BOOST_ASSERT(false==true); // a temp expression to force this to fail at the end.
 }
