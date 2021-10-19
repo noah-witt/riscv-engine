@@ -140,8 +140,6 @@ long decodeValue(const std::string &in) {
 
 generatedInstruction Instruction::getInstruction() {
     BOOST_LOG_TRIVIAL(debug) << "at get instruction";
-    // TODO identify labels
-    // TODO identify pseudo ops like .dword etc.
     // First step is to split the instruction in to its constituent parts.
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back(",");
@@ -149,11 +147,12 @@ generatedInstruction Instruction::getInstruction() {
     Operations op;
     std::vector<SymbolOrRegister> syms;
     BOOST_LOG_TRIVIAL(debug) << "prcessing line " << this->value;
-    std::vector<std::string> split = splitStringRemoveEmpty(this->value, delinators);
+    // dump everything after the '#' and then split
+    std::vector<std::string> split = splitStringRemoveEmpty(this->value.substr(0, this->value.find('#')), delinators);
     // NOW MAKE SURE THE SYMBOLS.
     std::vector<std::string>::iterator it = split.begin();
     //if the line is a comment just continue
-    if((*it).at(0)=='#'||(*it).size()==0) {
+    if(it==split.end()||(*it).at(0)=='#'||(*it).size()==0) {
         // empty generated instruction because this is a comment
         return generatedInstruction();
     }
@@ -668,7 +667,6 @@ generatedInstruction Instruction::getInstruction() {
     throw "OP NOT IMPLEMENTED";
 }
 
-// FIXME implement step 1
 // STEP 1 is identifying symbols and getting addressed for them
 // We will do this by figuring out when the `symName:` part is refering to and then recording the address of that command.
 // once we have that address it will be usable in load/store ops.
@@ -677,7 +675,7 @@ generatedInstruction Instruction::getInstruction() {
 // xyz: .dword
 // xyz: .sword
 
-/** FIXME ref after. So we need to build the symbol table first.
+/** ref after. So we need to build the symbol table first.
  * start current address pointer at 0
  * for each line {
  *  blank skip
@@ -713,7 +711,8 @@ void Program::firstStep() {
         // IDENTIFY IF THERE IS A SYMBOL DEC
         std::vector<std::string> lineDelinator = std::vector<std::string>();
         lineDelinator.push_back(" ");
-        std::vector<std::string> parts = splitStringRemoveEmpty(*line, lineDelinator);
+        // strip everything after the #
+        std::vector<std::string> parts = splitStringRemoveEmpty(line->substr(0, line->find('#')), lineDelinator);
         //if the line is a comment just continue
         if(parts.size()>0 && parts[0].at(0)=='#') continue;
         for(std::vector<std::string>::iterator part = parts.begin(); part<parts.end(); part++) {

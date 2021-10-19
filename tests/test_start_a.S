@@ -1,7 +1,7 @@
 # this is a simple program that tests many parts of the code
 
 # test some basic math
-LW t0, startVal
+LW t0, startVal # load the starting value in to memory
 ADDI t0, t0, 10
 # t0 = 205
 ADDI t1, zero, -100
@@ -44,7 +44,7 @@ PRINT 0, space
 JAL ra, lt_test
 PRINT 0, space
 PRINT 1, (64)sp
-PRINT 0, space
+PRINT 0, space # print out a space; this is trailing so the tests need to be written carefully
 
 HALT
 
@@ -56,7 +56,7 @@ second_val: .dword 775
 startVal: .dword 195
 resultVal: .dword 0
 space: .asciiz " "
-abc_str: .asciiz "abc"
+abc_str: .asciiz "abc" # a string to print out
 bca_str: .asciiz "bca
 
 
