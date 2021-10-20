@@ -23,19 +23,19 @@ template<typename a, typename b, typename c, typename d>
 std::array<void*,4> Register::readInstruction() {
     std::array<void*,4> result;
     void * at = (void *)this->value;
-    if(! std::is_same<a, void>::value) {
+    if constexpr(! std::is_same<a, void>::value) {
         result[0] = (a *)(at);
         at=(void *)(((a *)at)+1);
     }
-    if(! std::is_same<b, void>::value) {
+    if constexpr(! std::is_same<b, void>::value) {
         result[1] = (b *)(at);
         at=(void *)(((b *)at)+1);
     }
-    if(! std::is_same<c, void>::value) {
+    if constexpr(! std::is_same<c, void>::value) {
         result[2] = (c *)(at);
         at=(void *)(((c *)at)+1);
     }
-    if(! std::is_same<d, void>::value) {
+    if constexpr(! std::is_same<d, void>::value) {
         result[3] = (d *)(at);
         at=(void *)(((d *)at)+1);
     }
