@@ -33,6 +33,7 @@ work_odd:
     JAL ra, work
     ADDI sp, sp, 8 # set the stack pointer back
     LD ra, sp # load the ra
+    JAL zero, work_return
 work_even:
     LUI t0, 2
     DIV a0, a0, t0
