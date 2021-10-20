@@ -62,3 +62,14 @@ Scope of this project will include an assembler, and the ability to execute the 
 
 #  Implementation differences
  - Bit patterns are not the same as on real hardware.
+ - Some commands have been added that allow for easy input and output
+
+# Added commands
+
+Command | Description | Example
+---- | ---- | ---- 
+`HALT` | stop execution | `HALT`
+`PRINT 0, {memoryAddress}` | Print out a null terminated string stored at `{memoryAddress}` | `PRINT 0, welcome_str`
+`PRINT 1,  {memoryAddress}` | Print out an integer that is stored at `{memoryAddress}` | `PRINT 1, out_val`
+`INPUTI, {memoryAddress}` | Read an integer from standard in and store it at `{memoryAddress}` | `INPUTI in_val`
+`INPUTS, {memoryAddress}` | Read a string from standard in and store it at `{memoryAddress}` with a null at the end | `INPUTS in_str`
