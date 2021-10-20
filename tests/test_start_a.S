@@ -21,13 +21,13 @@ PRINT 0, space
 ADDI t0, sp, 0
 LUI t1, 0
 SW t1, t0 
-ADDI t0, t0, -64
+ADDI t0, t0, -8
 LUI t1, 67
 SW t1, t0 
-ADDI t0, t0, -64
+ADDI t0, t0, -8
 LUI t1, 66  
 SW t1, t0 
-ADDI t0, t0, -64
+ADDI t0, t0, -8
 LUI t1, 65
 SW t1, t0 
 PRINT 0, t0
@@ -39,11 +39,11 @@ DEBUG t1
 DIV t0, t0, t1
 SD t0, sp
 PRINT 1, sp
-ADDI sp, sp, -64
+ADDI sp, sp, -8
 PRINT 0, space
 JAL ra, lt_test
 PRINT 0, space
-PRINT 1, (64)sp
+PRINT 1, (8)sp
 PRINT 0, space # print out a space; this is trailing so the tests need to be written carefully
 
 HALT
@@ -74,9 +74,9 @@ lt_test:
     LUI a0, 150
     BLT a1, a1, end_dump_out
     BLT a1, a0, end_dump_out
-    ADDI sp, sp, -64
+    ADDI sp, sp, -8
     LUI a0, 976
     SD a0, sp
     PRINT 1, sp
-    ADDI sp, sp 64
+    ADDI sp, sp 8
     JALR zero, ra, 0

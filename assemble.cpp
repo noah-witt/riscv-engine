@@ -13,6 +13,7 @@
 #include "./assemble.hpp"
 #include "./registers.hpp"
 #include "./registers.t.hpp"
+#include "./alu.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -718,26 +719,26 @@ void Program::firstStep() {
         for(std::vector<std::string>::iterator part = parts.begin(); part<parts.end(); part++) {
             if(strEndsIn(*part, ":")) {
                 std::string name = part->substr(0, part->size()-1);
-                this->sym.insert(name, current_pointer, 64);
+                this->sym.insert(name, current_pointer, INSTRUCTION_LENGTH);
                 continue;
             }
             trim(*part);
             boost::to_upper(*part);
             if(! part->empty()) {
                 if(*part==".BYTE") {
-                    current_pointer+=64;
+                    current_pointer+=INSTRUCTION_LENGTH;
                     break;
                 }
                 if(*part==".HALF") {
-                    current_pointer+=64;
+                    current_pointer+=INSTRUCTION_LENGTH;
                     break;
                 }
                 if(*part==".WORD") {
-                    current_pointer+=64;
+                    current_pointer+=INSTRUCTION_LENGTH;
                     break;
                 }
                 if(*part==".DWORD") {
-                    current_pointer+=64;
+                    current_pointer+=INSTRUCTION_LENGTH;
                     break;
                 }
                 if(*part==".ASCIIZ") {
@@ -746,10 +747,10 @@ void Program::firstStep() {
                     quote.push_back("\"");
                     std::vector<std::string> quoteParts = splitStringRemoveEmpty(*line,quote);
                     int bytes = quoteParts.at(1).size()+1;
-                    current_pointer+=bytes*64;
+                    current_pointer+=bytes*INSTRUCTION_LENGTH;
                     break;
                 }
-                current_pointer+=64;
+                current_pointer+=INSTRUCTION_LENGTH;
                 break;
             }
         }
@@ -805,7 +806,7 @@ void Program::toMemory(Memory* memoryInput) {
                 BOOST_LOG_TRIVIAL(debug) << "writing instruction to memory at "<<current_pointer<<"; with value: "<< *val <<" in " << memoryInput;
                 memoryInput->write<unsigned long>(current_pointer, *val);
                 BOOST_LOG_TRIVIAL(debug) << "advancing current pointer and continuing";
-                current_pointer+=64; // FIXME handle lengths that are different than 64 bits.
+                current_pointer+=INSTRUCTION_LENGTH;
             }
             BOOST_LOG_TRIVIAL(debug) <<"done writing parts";
         } catch (std::exception e) {

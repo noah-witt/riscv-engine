@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE(command_test_one) {
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 0);
     program.toMemory(&mem);
     BOOST_ASSERT(mem.read<unsigned long>(0).payload == 1970350607106048);
-    BOOST_ASSERT(mem.read<unsigned long>(64).payload == 1970350607106048);
-    BOOST_ASSERT(mem.read<unsigned long>(128).payload == 0);
-    BOOST_ASSERT(mem.read<unsigned long>(192).payload == 0);
+    BOOST_ASSERT(mem.read<unsigned long>(8).payload == 1970350607106048);
+    BOOST_ASSERT(mem.read<unsigned long>(8*2).payload == 0);
+    BOOST_ASSERT(mem.read<unsigned long>(8*3).payload == 0);
 }
 
 BOOST_AUTO_TEST_CASE(command_test_two) {
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(labeled_use_test) {
     BOOST_ASSERT((*(uint8_t*)(parts[1]))==5);
     BOOST_ASSERT((*(uint8_t*)(parts[2]))==0);
     BOOST_LOG_TRIVIAL(debug) << "step "<<(int)(*(int32_t*)(parts[3]));
-    BOOST_ASSERT((*(int32_t*)(parts[3]))==128);
+    BOOST_ASSERT((*(int32_t*)(parts[3]))==INSTRUCTION_LENGTH*2);
 }
 
 BOOST_AUTO_TEST_CASE(labeled_use_in_arithmetic) {
@@ -85,5 +85,5 @@ BOOST_AUTO_TEST_CASE(labeled_use_in_arithmetic) {
     BOOST_ASSERT((*(uint16_t*)(parts[0]))==(uint16_t)Operations::ADDI);
     BOOST_ASSERT((*(uint8_t*)(parts[1]))==5);
     BOOST_ASSERT((*(uint8_t*)(parts[2]))==5);
-    BOOST_ASSERT((*(int32_t*)(parts[3]))==128);
+    BOOST_ASSERT((*(int32_t*)(parts[3]))==INSTRUCTION_LENGTH*2);
 }

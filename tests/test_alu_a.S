@@ -75,11 +75,11 @@ sectD_a: .asciiz "abc123"
 # this section marks where some more complicated scripts are tested
 
 sectE:
-    PRINT 0 sectE_a
-    INPUTS sectE_a
-    PRINT 0 sectE_a
-    HALT
-sectE_a: .asciiz "demo output abc123"
+    PRINT 0, sectE_a # 480
+    INPUTS sectE_a # 488
+    PRINT 0 sectE_a # 496
+    HALT # 504
+sectE_a: .asciiz "demo output abc123" # starts 512
 sectE_b: .dword 150 
 
 sectF:

@@ -2,9 +2,9 @@
 PRINT 0, welcome # print a welcome message
 INPUTI sp # take input and store at the sp location
 LD a0, sp # load the input intiger in to a0
-ADDI sp, sp -64 # move the stack pointer for the function call
+ADDI sp, sp -8 # move the stack pointer for the function call
 JAL ra, work # call the work fucntion
-ADDI sp, sp 64 # move the stack pointer back after the function call
+ADDI sp, sp 8 # move the stack pointer back after the function call
 PRINT 0, newline # print a new line
 HALT
 
@@ -29,18 +29,18 @@ work_odd:
     ADDI a0, a0, 1 # a0=a0+1
     # store the return address before recursively calling work
     SD ra, sp # store the return address 
-    ADDI sp, sp, -64 # move the stack pointer for the recursive call
+    ADDI sp, sp, -8 # move the stack pointer for the recursive call
     JAL ra, work
-    ADDI sp, sp, 64 # set the stack pointer back
+    ADDI sp, sp, 8 # set the stack pointer back
     LD ra, sp # load the ra
 work_even:
     LUI t0, 2
     DIV a0, a0, t0
     # store the return address before recursively calling work
     SD ra, sp # store the return address 
-    ADDI sp, sp, -64 # move the stack pointer for the recursive call
+    ADDI sp, sp, -8 # move the stack pointer for the recursive call
     JAL ra, work
-    ADDI sp, sp, 64 # set the stack pointer back
+    ADDI sp, sp, 8 # set the stack pointer back
     LD ra, sp # load the ra
 work_return:
     JALR zero, ra, 0 # return from this function call

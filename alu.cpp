@@ -31,9 +31,9 @@ void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
                 std::string data;
                 std::getline(in, data);
                 BOOST_LOG_TRIVIAL(debug) <<"loading str to memory: '"<< data<<"' at: "<<temp.inputLocation;
-                for(int i=0;i<data.size();i++) this->getMem()->write<long>(temp.inputLocation+i*64, data.at(i));
+                for(int i=0;i<data.size();i++) this->getMem()->write<long>(temp.inputLocation+i*INSTRUCTION_LENGTH, data.at(i));
                 // write the null char termination
-                this->getMem()->write<long>(temp.inputLocation+data.size()*64, '\0');
+                this->getMem()->write<long>(temp.inputLocation+data.size()*INSTRUCTION_LENGTH, '\0');
             }
             else if(temp.inputRequestType==inputRequestTypes::INT) {
                 long data;
@@ -346,9 +346,6 @@ AluStepResult alu::step() {
     }
     else if(op==Operations::PRINT) {
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint8_t, uint8_t, int32_t>();
-        if(*((uint8_t*) ops[1])!=0) {
-            // 0 is the only supported print mode.
-        }
         result.printStr = true;
         ulong loc = this->reg.getRegister(*((uint8_t*) ops[2]))->read<long>();
         loc+=*((int32_t*) ops[3]);

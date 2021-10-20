@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./memory.hpp"
+#include "./alu.hpp"
 #include "string"
 #include <boost/log/trivial.hpp>
 
@@ -87,9 +88,10 @@ template<int MAX_CHARS>
 std::string Memory::stringFromMemory(unsigned long start) {
     std::string result;
     for(int i=0;i<MAX_CHARS;i++) {
-        char c = this->read<char>(start+(i*64)).payload;
+        char c = this->read<char>(start+(i*INSTRUCTION_LENGTH)).payload;
         if(c=='\0') break;
         result+=c;
     }
+    BOOST_LOG_TRIVIAL(debug) << "loaded string \""<<result<<"\" at: "<<start<< " with length: "<<result.length();
     return result;
 }

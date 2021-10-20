@@ -4,7 +4,7 @@
 #include "string"
 #include <iostream>
 #include <climits>
-#define INSTRUCTION_LENGTH 64
+#define INSTRUCTION_LENGTH 8
 
 enum class inputRequestTypes {
     BOOL,
