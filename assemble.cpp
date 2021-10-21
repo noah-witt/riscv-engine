@@ -32,12 +32,11 @@ std::string AssembleConstants::registerNames[] = {"zero", "ra", "sp", "gp", "tp"
 
 std::vector<std::vector<std::string>> AssembleConstants::getNamesAsList() {
     std::vector<std::vector<std::string>> result;
+    std::string sep;
+    sep+=AssembleConstants::registerNameSeperator;
+    std::vector<std::string> in;
+    in.push_back(sep);
     for(uint i=0; i<AssembleConstants::registerCount; i++) {
-        std::string sep;
-        sep+=AssembleConstants::registerNameSeperator;
-        std::vector<std::string> in;
-        in.push_back(sep);
-        //BOOST_LOG_TRIVIAL(debug) << "generating list "<<sep<<" "<<i<< " "<<AssembleConstants::registerNames[i];
         std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
         result.push_back(split);
     }

@@ -48,15 +48,23 @@ std::array<long, 4> Register::readInstructionNormalized() {
     std::array<long, 4> result;
     if constexpr(! std::is_same<a, void>::value) {
         result[0] = *((a *)parts[0]);
+    } else {
+        result[0] = -1;
     }
     if constexpr(! std::is_same<b, void>::value) {
         result[1] = *((b *)parts[1]);
+    } else {
+        result[1] = -1;
     }
     if constexpr(! std::is_same<c, void>::value) {
         result[2] = *((c *)parts[2]);
+    } else {
+        result[2] = -1;
     }
     if constexpr(! std::is_same<d, void>::value) {
         result[3] = *((d *)parts[3]);
+    } else {
+        result[3] = -1;
     }
     return result;
 }

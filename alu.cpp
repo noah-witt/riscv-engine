@@ -34,7 +34,7 @@ long regSymStrToAddr(SymbolTable& s, Registers& r, std::string str) {
 
 std::string valToString(long addr, SymbolTable &syms) {
     std::string reg = "";
-    if(addr>=0&&addr<=REGISTERS_END) {
+    if(addr>=0&&addr<REGISTERS_END) {
         try {
             reg = AssembleConstants::getStr(addr);
         } catch(char const* e) {}
@@ -61,13 +61,21 @@ std::string valToString(long addr, SymbolTable &syms) {
     return std::to_string(addr);
 }
 
+std::string opHeader(int length = 40) {
+    std::string val;
+    std::array<std::string, 4> part = {"op code", "param 0", "param 1", "param 2"};
+    for(std::array<std::string, 4>::iterator i = part.begin(); i<part.end(); i++) 
+        val += *i+std::string(length-i->size(), ' ');
+    return val;
+}
+
 std::string valToStringFixed(long addr, SymbolTable& syms, bool justSpace=false, int length = 40) {
     std::string val = std::to_string(addr);
     if(!justSpace) {
         val = valToString(addr, syms);
     }
     int spaces = length-val.size();
-    if(spaces<0) spaces=0;
+    if(spaces<=0) spaces=1;
     return val+std::string(spaces, ' ');
 }
 
@@ -91,7 +99,16 @@ void readParts(Register& val, SymbolTable &syms) {
         found = true;
         items = val.readInstructionNormalized<uint16_t, uint8_t, int32_t, void>();
     }
+    if(op==65) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t, uint8_t, uint8_t, int32_t>();
+    }
+    if(op>=66&&op<=69) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t, uint8_t, int32_t, void>();
+    }
     if(found) {
+        std::cout<<opHeader()<<std::endl;
         std::cout<<valToStringFixed(items[0], syms, true)<<valToStringFixed(items[1], syms)<<valToStringFixed(items[2], syms)<<valToStringFixed(items[3], syms)<<std::endl;
         return;
     }
