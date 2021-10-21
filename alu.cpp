@@ -10,7 +10,7 @@
 
 
 debugCtlResult debugDialog(alu &a) {
-    std::string helpMsg = "readReg {register}\t\t\tprints the selected register\nreadMem {address}\t\t\tprints the selected memory\ncontinue\t\t\t\trun until HALT\nstep\t\t\t\t\texecute one instruction\nstepCount {numberOfSteps}\t\texecute the provided number of steps\nexit\t\t\t\t\texit\n";
+    std::string helpMsg = "readReg {register}\t\t\tprints the selected register\nreadMem {address}\t\t\tprints the selected memory\ncontinue\t\t\t\trun until HALT\nstep\t\t\t\t\texecute one instruction\nstepCount {numberOfSteps}\t\texecute the provided number of steps\ntable\t\t\t\t\tprint the symbol table\nexit\t\t\t\t\texit\n";
     long pc = a.getReg()->getRegister(PC)->read<unsigned long>();
     std::cout << "\n Debugging at program counter "<<pc<<".\n"<<std::endl;
     std::cout << helpMsg<<std::endl;
@@ -51,6 +51,14 @@ debugCtlResult debugDialog(alu &a) {
             int opCode = *((uint16_t*)reg.readInstruction<uint16_t>()[0]);
             std::cout<<"Value: "<<a.getMem()->read<long>(address).payload<<" at "<<address<<" if this is an instruction it has opCode "<<opCode<<std::endl;
         }
+        else if(cmd=="table") {
+            std::cout << "printing the symbol table" <<std::endl;
+            for(std::unordered_map<std::string, Symbol>::iterator i = a.syms->begin(); i!=a.syms->end(); i++) {
+                constexpr int rowOffset = 25;
+                int spaceCount = rowOffset-i->first.size();
+                std::cout<<i->first<<std::string( spaceCount, ' ' )<<i->second.getAddress()<<std::endl;
+            }
+        }
         else if(cmd=="help") {
             std::cout << helpMsg<<std::endl;
         }
@@ -71,6 +79,10 @@ Memory *alu::getMem() {
 
 Registers *alu::getReg() {
     return &this->reg;
+}
+
+void alu::setSymTable(SymbolTable* syms) {
+    this->syms = syms;
 }
 
 void alu::loop(int maxSteps, bool debug) {

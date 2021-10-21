@@ -76,7 +76,8 @@
         "variant": "cpp",
         "any": "cpp",
         "numbers": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "climits": "cpp"
     },
     "cSpell.words": [
         "ADDIW",

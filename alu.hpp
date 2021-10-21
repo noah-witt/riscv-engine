@@ -1,10 +1,11 @@
 #pragma once
+#define INSTRUCTION_LENGTH 8
+#include "symbol.hpp"
 #include "registers.hpp"
 #include "memory.h"
 #include "string"
 #include <iostream>
 #include <climits>
-#define INSTRUCTION_LENGTH 8
 
 struct debugCtlResult {
     int stepCount=0;
@@ -34,6 +35,8 @@ class alu {
         Memory *getMem();
         Registers *getReg();
         AluStepResult step();
+        void setSymTable(SymbolTable* syms);
+        SymbolTable * syms;
         void loop(int maxSteps=10000, bool debug = false);
         void loop(std::istream &in, std::ostream &out, int maxSteps=10000, bool debug = false);
 };

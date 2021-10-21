@@ -39,7 +39,8 @@ int start(std::string fName, int maxSteps, std::istream &in, std::ostream &out, 
     Program program = Program(ifs);
     alu a;
     Memory *mem = a.getMem();
-    program.toMemory(mem);
+    SymbolTable* syms = program.toMemory(mem);
+    a.setSymTable(syms);
     a.getReg()->getRegister(PC)->write<unsigned long>(0);
     // next setup stack pointer which is 2 to the top of memory
     a.getReg()->getRegister(2)->write<long>(MAXMEMORY-INSTRUCTION_LENGTH);

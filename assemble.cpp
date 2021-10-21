@@ -22,6 +22,7 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/algorithm/string.hpp>
+#include "symbol.hpp"
 
 
 char AssembleConstants::registerNameSeperator = ';';
@@ -125,6 +126,14 @@ SymbolTableFindResult SymbolTable::find(std::string symbol) {
 Symbol SymbolTable::remove(std::string symbol){
     std::unordered_map<std::string, Symbol>::iterator item = this->table.find(symbol);
     return item->second;
+}
+
+std::unordered_map<std::string, Symbol>::iterator SymbolTable::begin() {
+    return this->table.begin();
+}
+
+std::unordered_map<std::string, Symbol>::iterator SymbolTable::end() {
+    return this->table.end();
 }
 
 Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
@@ -771,7 +780,7 @@ void Program::firstStep() {
     }
 }
 
-void Program::toMemory(Memory* memoryInput) {
+SymbolTable* Program::toMemory(Memory* memoryInput) {
     BOOST_LOG_TRIVIAL(debug) << "at start of to memory";
     this->firstStep();
     uint64_t current_pointer = 0;
@@ -832,6 +841,7 @@ void Program::toMemory(Memory* memoryInput) {
         BOOST_LOG_TRIVIAL(debug) <<"going to the next line";
     }
     // the memory image should be written.
+    return &this->sym;
 }
 
 
