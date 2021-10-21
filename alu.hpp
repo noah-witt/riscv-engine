@@ -6,6 +6,11 @@
 #include <climits>
 #define INSTRUCTION_LENGTH 8
 
+struct debugCtlResult {
+    int stepCount=0;
+    bool exit = false;
+};
+
 enum class inputRequestTypes {
     BOOL,
     INT,
@@ -29,7 +34,7 @@ class alu {
         Memory *getMem();
         Registers *getReg();
         AluStepResult step();
-        void loop(int maxSteps=10000);
-        void loop(std::istream &in, std::ostream &out, int maxSteps=10000);
+        void loop(int maxSteps=10000, bool debug = false);
+        void loop(std::istream &in, std::ostream &out, int maxSteps=10000, bool debug = false);
 };
 

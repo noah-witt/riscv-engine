@@ -12,7 +12,11 @@
 #include "./start.hpp"
 #include "./assemble.hpp"
 #include <boost/log/trivial.hpp>
+#include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <vector>
+#include "./util.hpp"
+#include "./assemble.hpp"
 #include <iostream>
 
 /**
@@ -22,11 +26,11 @@
  * @param maxSteps 
  * @return int 
  */
-int start(std::string fName, int maxSteps) {
-    return start(fName, maxSteps, std::cin, std::cout);
+int start(std::string fName, int maxSteps, bool debugMode) {
+    return start(fName, maxSteps, std::cin, std::cout, debugMode);
 }
 
-int start(std::string fName, int maxSteps, std::istream &in, std::ostream &out) {
+int start(std::string fName, int maxSteps, std::istream &in, std::ostream &out, bool debugMode) {
     std::ifstream ifs(fName);
     if(ifs.fail()) {
         BOOST_LOG_TRIVIAL(warning) << "file read error";
@@ -39,6 +43,6 @@ int start(std::string fName, int maxSteps, std::istream &in, std::ostream &out) 
     a.getReg()->getRegister(PC)->write<unsigned long>(0);
     // next setup stack pointer which is 2 to the top of memory
     a.getReg()->getRegister(2)->write<long>(MAXMEMORY-INSTRUCTION_LENGTH);
-    a.loop(in, out, maxSteps);
+    a.loop(in, out, maxSteps, debugMode);
     return 0;
 }

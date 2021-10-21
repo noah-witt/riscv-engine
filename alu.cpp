@@ -7,6 +7,64 @@
 #include "memory"
 #include "algorithm"
 
+
+
+debugCtlResult debugDialog(alu &a) {
+    std::string helpMsg = "readReg {register}\t\t\tprints the selected register\nreadMem {address}\t\t\tprints the selected memory\ncontinue\t\t\t\trun until HALT\nstep\t\t\t\t\texecute one instruction\nstepCount {numberOfSteps}\t\texecute the provided number of steps\nexit\t\t\t\t\texit\n";
+    long pc = a.getReg()->getRegister(PC)->read<unsigned long>();
+    std::cout << "\n Debugging at program counter "<<pc<<".\n"<<std::endl;
+    std::cout << helpMsg<<std::endl;
+    std::string cmd;
+    debugCtlResult result;
+    while(true) {
+        std::cout <<">";
+        std::cin >> cmd;
+        boost::to_lower(cmd);
+        trim(cmd);
+        if(cmd=="continue") {
+            result.stepCount = 10000;
+            return result;
+        }
+        else if(cmd=="step") {
+            result.stepCount = 1;
+            return result;
+        }
+        else if(cmd=="stepcount") {
+            std::cin >> result.stepCount;
+            return result;
+        }
+        else if(cmd=="readreg") {
+            std::string regSelectionName;
+            std::cin >> regSelectionName;
+            try {
+                int reg = AssembleConstants::getID(regSelectionName);
+                std::cout<<"Value: "<<a.getReg()->getRegister(reg)->read<long>()<<" in "<<AssembleConstants::getStr(reg)<<"\n";
+            } catch(int i){
+                std::cout << "error getting register"<<std::endl;
+            }
+        }
+        else if(cmd=="readmem"){
+            long address;
+            std::cin >> address;
+            Register reg;
+            reg.write<long>(a.getMem()->read<long>(address).payload);
+            int opCode = *((uint16_t*)reg.readInstruction<uint16_t>()[0]);
+            std::cout<<"Value: "<<a.getMem()->read<long>(address).payload<<" at "<<address<<" if this is an instruction it has opCode "<<opCode<<std::endl;
+        }
+        else if(cmd=="help") {
+            std::cout << helpMsg<<std::endl;
+        }
+        else if(cmd=="exit" || cmd=="quit") {
+            result.exit = true;
+            return result;
+        } else {
+            std::cout << "command not identified. "<<cmd<<std::endl;
+            std::cout << helpMsg<<std::endl;
+        }
+        std::cout<<std::endl;
+    }
+}
+
 Memory *alu::getMem() {
     return &this->mem;
 }
@@ -15,11 +73,11 @@ Registers *alu::getReg() {
     return &this->reg;
 }
 
-void alu::loop(int maxSteps) {
-    this->loop(std::cin, std::cout, maxSteps);
+void alu::loop(int maxSteps, bool debug) {
+    this->loop(std::cin, std::cout, maxSteps, debug);
 }
 
-void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
+void alu::loop(std::istream &in, std::ostream &out, int maxSteps, bool debug) {
     int i=0;
     for(;i<maxSteps;i++) {
         AluStepResult temp = this->step();
@@ -59,8 +117,14 @@ void alu::loop(std::istream &in, std::ostream &out, int maxSteps) {
         }
         if(temp.halt) break;
     }
-    if(i==maxSteps) {
+    if(i==maxSteps&&!debug) {
         BOOST_LOG_TRIVIAL(warning) << "reached maximum number of instructions allowed.";
+    }
+    if(debug) {
+        debugCtlResult temp = debugDialog(*this);
+        if(!temp.exit) {
+            this->loop(in, out, temp.stepCount, debug);
+        }
     }
 }
 

@@ -39,15 +39,30 @@ std::vector<std::vector<std::string>> AssembleConstants::getNamesAsList() {
         //BOOST_LOG_TRIVIAL(debug) << "generating list "<<sep<<" "<<i<< " "<<AssembleConstants::registerNames[i];
         std::vector<std::string> split = splitStringRemoveEmpty(AssembleConstants::registerNames[i], in);
         result.push_back(split);
-        // FIXME this is what is preventing the issue.
-        // works at 39
-        // fails at 40
-        // it changes sometimes
-        //if(i>10) {
-        //    return result;
-        //}
     }
     return result;
+}
+
+int AssembleConstants::getID(std::string name) {
+    boost::to_lower(name);
+    trim(name);
+    std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
+    std::vector<std::vector<std::string>>::iterator opts = names.begin();
+    bool regNameFound = false;
+    for(int reg=0; reg < names.size(); reg++) {
+        for(std::vector<std::string>::iterator str = opts->begin(); !regNameFound && str != opts->end(); str++) {
+            if(*str == name) {
+                return reg;
+            }
+        }
+        opts++;
+    }
+    throw "reg not found";
+}
+
+std::string AssembleConstants::getStr(int i) {
+    std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
+    return names[i][0];
 }
 
 Symbol::Symbol(std::string symbol, unsigned long address, unsigned int size) {
@@ -116,7 +131,6 @@ Instruction::Instruction(std::string value, SymbolTable* sym, ulong a) {
     this->value = value;
     this->sym = sym;
     this->address = a;
-    // TODO DETECT AND LOAD SYMBOLS.
 }
 
 long decodeValue(const std::string &in) {
