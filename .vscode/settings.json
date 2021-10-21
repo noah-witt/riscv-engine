@@ -77,7 +77,9 @@
         "any": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "climits": "cpp"
+        "climits": "cpp",
+        "csetjmp": "cpp",
+        "codecvt": "cpp"
     },
     "cSpell.words": [
         "ADDIW",

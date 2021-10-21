@@ -16,16 +16,25 @@ long regSymStrToAddr(SymbolTable& s, Registers& r, std::string str) {
         return std::stol(str);
     }
     trim(str);
+    long offset = 0;
+    if(str.find('(')!=std::string::npos&&str.find(')')!=std::string::npos&&str.find('(')<str.find(')')) {
+        //str is the part not in parens
+        // like (8)sp
+        int pLength = str.find(')')-str.find('(')-1;
+        offset = std::stol(str.substr(str.find('(')+1, pLength));
+        str = str.substr(str.find(')')+1);
+        trim(str);
+    }
     try {
         int regId = AssembleConstants::getID(str);
         Register *reg = r.getRegister(regId);
-        return reg->read<long>();
+        return reg->read<long>()+offset;
     } catch(char const *e) {
 
     }
     try {
         SymbolTableFindResult sym= s.find(str);
-        return sym.symbol->getAddress();
+        return sym.symbol->getAddress()+offset;
     } catch(char const *e) {
         std::cout<<"error with symbol "<<str<<std::endl;
     }
