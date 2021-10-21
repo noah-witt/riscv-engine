@@ -42,6 +42,25 @@ std::array<void*,4> Register::readInstruction() {
     return result;
 }
 
+template<typename a, typename b, typename c, typename d>
+std::array<long, 4> Register::readInstructionNormalized() {
+    std::array<void*,4> parts = this->readInstruction<a,b,c,d>();
+    std::array<long, 4> result;
+    if constexpr(! std::is_same<a, void>::value) {
+        result[0] = *((a *)parts[0]);
+    }
+    if constexpr(! std::is_same<b, void>::value) {
+        result[1] = *((b *)parts[1]);
+    }
+    if constexpr(! std::is_same<c, void>::value) {
+        result[2] = *((c *)parts[2]);
+    }
+    if constexpr(! std::is_same<d, void>::value) {
+        result[3] = *((d *)parts[3]);
+    }
+    return result;
+}
+
 template<typename resultType, int startOffsetBytes, bool neg>
 resultType Register::read() {
     uint8_t * byteptr = (uint8_t *) this->value;

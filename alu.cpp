@@ -6,11 +6,101 @@
 #include <boost/algorithm/string.hpp>
 #include "memory"
 #include "algorithm"
+#include "array"
 
+
+
+long regSymStrToAddr(SymbolTable& s, Registers& r, std::string str) {
+    if(str.find_first_not_of("0123456789") == std::string::npos) {
+        // just a number
+        return std::stol(str);
+    }
+    trim(str);
+    try {
+        int regId = AssembleConstants::getID(str);
+        Register *reg = r.getRegister(regId);
+        return reg->read<long>();
+    } catch(char const *e) {
+
+    }
+    try {
+        SymbolTableFindResult sym= s.find(str);
+        return sym.symbol->getAddress();
+    } catch(char const *e) {
+        std::cout<<"error with symbol "<<str<<std::endl;
+    }
+    return 0;
+}
+
+std::string valToString(long addr, SymbolTable &syms) {
+    std::string reg = "";
+    if(addr>=0&&addr<=REGISTERS_END) {
+        try {
+            reg = AssembleConstants::getStr(addr);
+        } catch(char const* e) {}
+    }
+    std::string sym = "";
+    try {
+        for(std::unordered_map<std::string, Symbol>::iterator i = syms.begin(); i!=syms.end();i++) {
+            if(i->second.getAddress()==addr) {
+                sym=i->first;
+                break;
+            }
+        }
+    }catch(char const* e) {}
+
+    if(!reg.empty()&&!sym.empty()) {
+        return std::to_string(addr)+" (possibly refers to "+reg+" or "+sym+")";
+    }
+    if(!reg.empty()) {
+        return std::to_string(addr)+" (possibly refers to "+reg+")";
+    }
+    if(!sym.empty()) {
+        return std::to_string(addr)+" (possibly refers to "+sym+")";
+    }
+    return std::to_string(addr);
+}
+
+std::string valToStringFixed(long addr, SymbolTable& syms, bool justSpace=false, int length = 40) {
+    std::string val = std::to_string(addr);
+    if(!justSpace) {
+        val = valToString(addr, syms);
+    }
+    int spaces = length-val.size();
+    if(spaces<0) spaces=0;
+    return val+std::string(spaces, ' ');
+}
+
+void readParts(Register& val, SymbolTable &syms) {
+    long op = val.readInstructionNormalized()[0];
+    bool found = false;
+    std::array<long, 4UL> items;
+    if(op>=0&&op<=27) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t,uint16_t,uint16_t,uint16_t>();
+    }
+    if(op>=28&&op<=44) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t, uint8_t, uint8_t, int32_t>();
+    }
+    if(op>=45&&op<=56) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t, uint8_t, uint8_t, int32_t>();
+    }
+    if(op==57||op==58) {
+        found = true;
+        items = val.readInstructionNormalized<uint16_t, uint8_t, int32_t, void>();
+    }
+    if(found) {
+        std::cout<<valToStringFixed(items[0], syms, true)<<valToStringFixed(items[1], syms)<<valToStringFixed(items[2], syms)<<valToStringFixed(items[3], syms)<<std::endl;
+        return;
+    }
+    std::cout << "unsupported instruction"<<std::endl;
+}
 
 
 debugCtlResult debugDialog(alu &a) {
-    std::string helpMsg = "readReg {register}\t\t\tprints the selected register\nreadMem {address}\t\t\tprints the selected memory\ncontinue\t\t\t\trun until HALT\nstep\t\t\t\t\texecute one instruction\nstepCount {numberOfSteps}\t\texecute the provided number of steps\ntable\t\t\t\t\tprint the symbol table\nexit\t\t\t\t\texit\n";
+    std::string helpMsg = "readReg {register}\t\t\tprints the selected register\nreadMem {address}\t\t\tprints the selected memory\nreadInst {address}\t\t\tprint the instruction info at the specified address\ncontinue\t\t\t\trun until HALT\nstep\t\t\t\t\texecute one instruction\nstepCount {numberOfSteps}\t\texecute the provided number of steps\ntable\t\t\t\t\tprint the symbol table\nexit\t\t\t\t\texit\n";
     long pc = a.getReg()->getRegister(PC)->read<unsigned long>();
     std::cout << "\n Debugging at program counter "<<pc<<".\n"<<std::endl;
     std::cout << helpMsg<<std::endl;
@@ -44,12 +134,25 @@ debugCtlResult debugDialog(alu &a) {
             }
         }
         else if(cmd=="readmem"){
-            long address;
-            std::cin >> address;
+            std::string specified;
+            std::cin >> specified;
+            int address = regSymStrToAddr(*a.syms, *a.getReg(), specified);
             Register reg;
             reg.write<long>(a.getMem()->read<long>(address).payload);
             int opCode = *((uint16_t*)reg.readInstruction<uint16_t>()[0]);
             std::cout<<"Value: "<<a.getMem()->read<long>(address).payload<<" at "<<address<<" if this is an instruction it has opCode "<<opCode<<std::endl;
+        }
+        else if(cmd=="readinst") {
+            // readinst you read the instruction.
+            // then prompt for the next three bit types
+            // then print the parts
+            std::string specified;
+            std::cin >> specified;
+            int address = regSymStrToAddr(*a.syms, *a.getReg(), specified);
+            std::cout<<"reading instruction at "<<address<<std::endl;
+            Register reg;
+            reg.write<unsigned long>(a.getMem()->read<unsigned long>(address).payload);
+            readParts(reg, *(a.syms));
         }
         else if(cmd=="table") {
             std::cout << "printing the symbol table" <<std::endl;

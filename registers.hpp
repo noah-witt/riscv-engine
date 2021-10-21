@@ -27,6 +27,9 @@ class Register {
         template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
         std::array<void*,4> readInstruction();
 
+        template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
+        std::array<long, 4> readInstructionNormalized();
+
         template<typename resultType, int startOffsetBytes = 0, bool neg = false>
         resultType read();
 
