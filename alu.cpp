@@ -156,8 +156,7 @@ debugCtlResult debugDialog(alu &a) {
             int address = regSymStrToAddr(*a.syms, *a.getReg(), specified);
             Register reg;
             reg.write<long>(a.getMem()->read<long>(address).payload);
-            int opCode = *((uint16_t*)reg.readInstruction<uint16_t>()[0]);
-            std::cout<<"Value: "<<a.getMem()->read<long>(address).payload<<" at "<<address<<" if this is an instruction it has opCode "<<opCode<<std::endl;
+            std::cout<<"Value: "<<a.getMem()->read<long>(address).payload<<" at "<<address<<std::endl;
         }
         else if(cmd=="readinst") {
             // readinst you read the instruction.
