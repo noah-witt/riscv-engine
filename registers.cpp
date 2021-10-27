@@ -21,9 +21,6 @@ Register::Register() {
     this->isMutable = true;
 }
 
-Register::~Register() {
-    //free(this->value);
-}
 
 
 zeroRegister::zeroRegister() {
@@ -48,9 +45,6 @@ Registers::Registers() {
     BOOST_LOG_TRIVIAL(debug) << "done creating registers "<<this;
 }
 
-Registers::~Registers() {
-    this->registers.~unordered_map();
-}
 
 Register *Registers::getRegister(unsigned int x) {
     std::unordered_map<unsigned int, Register>::iterator items = this->registers.find(x);

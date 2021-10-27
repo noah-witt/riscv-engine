@@ -10,13 +10,18 @@ build-job:
   stage: build
   script:
     - make dist
+  artifacts:
+    when: always
+    paths:
+      - riscv_dist.run
   
-test-job1:
+test-job:
   stage: test
   script:
     - make ci
-
-test-job2:
-  stage: test
-  script:
-    - make test
+  artifacts:
+    when: always
+    paths:
+      - test_report.xml
+    reports:
+      junit: test_report.xml

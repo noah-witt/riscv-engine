@@ -15,7 +15,6 @@ class Symbol {
     public:
         Symbol();
         Symbol(std::string symbol, unsigned long address, unsigned int size);
-        ~Symbol();
         unsigned long getAddress();
         unsigned int getSize();
         std::string getSymbol();

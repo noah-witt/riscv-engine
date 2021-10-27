@@ -1,10 +1,8 @@
-#define BOOST_TEST_MODULE memory_test
-//#include <boost/test/unit_test.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "../memory.hpp"
 #include "../memory.t.hpp"
 
-
+BOOST_AUTO_TEST_SUITE(memory)
 BOOST_AUTO_TEST_CASE(first_write_test) {
 	Memory a = Memory();
 	a.writeByte(0,0xa);
@@ -15,7 +13,7 @@ BOOST_AUTO_TEST_CASE(first_write_test) {
 
 BOOST_AUTO_TEST_CASE(write_random_byte_test) {
 	//handle byte writes and reads.
-	for(int i =0; i< 100; i++) {
+	for(int i =0; i< 10; i++) {
 		Memory a = Memory();
 		unsigned char num = rand()%UCHAR_MAX;
 		unsigned long address = rand()%MAXMEMORY;
@@ -29,7 +27,7 @@ BOOST_AUTO_TEST_CASE(write_random_byte_test) {
 BOOST_AUTO_TEST_CASE(write_random_int_test) {
 	//handle int writes and reads.
 	Memory a = Memory();
-	for(int i =0; i< 100; i++) {
+	for(int i =0; i< 10; i++) {
 		unsigned int num = rand()%UINT_MAX;
 		unsigned long address = rand()%MAXMEMORY;
 		//printf("%p\t%X\n", address, num);
@@ -112,4 +110,6 @@ BOOST_AUTO_TEST_CASE(write_full_int_test) {
 		BOOST_CHECK_EQUAL(num, a.read<unsigned int>(i).payload);
 	}
 }*/
+
+BOOST_AUTO_TEST_SUITE_END()
 

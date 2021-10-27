@@ -1,12 +1,11 @@
-#define BOOST_TEST_MODULE assembler_test
-
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "../assemble.hpp"
 #include <iostream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 
+BOOST_AUTO_TEST_SUITE(Assembler)
 
 BOOST_AUTO_TEST_CASE(symbol_table_test) {
     SymbolTable s = SymbolTable();
@@ -87,3 +86,4 @@ BOOST_AUTO_TEST_CASE(labeled_use_in_arithmetic) {
     BOOST_ASSERT((*(uint8_t*)(parts[2]))==5);
     BOOST_ASSERT((*(int32_t*)(parts[3]))==INSTRUCTION_LENGTH*2);
 }
+BOOST_AUTO_TEST_SUITE_END()

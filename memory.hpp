@@ -51,12 +51,6 @@ public:
     page(unsigned long address);
 
     /**
-     * @brief Destroy the page object
-     * 
-     */
-    ~page();
-
-    /**
      * @brief Read a byte.
      * 
      * @param address the address to read
@@ -117,7 +111,6 @@ private:
     page * getPage(unsigned long address);
 public:
     Memory();
-    ~Memory();
 
     /**
      * @brief Read a byte.

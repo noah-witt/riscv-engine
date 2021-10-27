@@ -18,7 +18,6 @@ class Register {
         unsigned long *value;
     public:
         Register();
-        ~Register();
         
         template<typename a = uint16_t, typename b = void, typename c = void, typename d = void>
         void writeInstruction(const a& va, const b& vb, const c& vc, const d& vd);
@@ -55,6 +54,5 @@ class Registers {
         std::unordered_map<unsigned int, Register> registers;
     public:
         Registers();
-        ~Registers();
         Register *getRegister(unsigned int);
 };

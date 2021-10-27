@@ -77,9 +77,6 @@ Symbol::Symbol() {
     this->referenceLocation = 0;
 }
 
-Symbol::~Symbol() {
-    // TODO implement
-}
 
 
 unsigned int Symbol::getSize() {

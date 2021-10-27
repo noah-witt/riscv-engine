@@ -1,6 +1,4 @@
-#define BOOST_TEST_MODULE alu_test
-
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "../assemble.hpp"
 #include "../alu.hpp"
 #include <iostream>
@@ -12,6 +10,7 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 
+BOOST_AUTO_TEST_SUITE(alu_tests)
 BOOST_AUTO_TEST_CASE(alu_step_basic_test) {
     Program program = Program("ADD t0, t1, t2\nSUB t0, t1, t2\nMUL t0, t1, t2\n HALT\n\rADDI t0, t1, 100\nADDI t0, t1, -50\nLUI t1, 150\nADDI t0, t1, -50\nADDI t0, t0, 200\n.word 500\n.asciiz \"abc123\"");
     alu a;
@@ -137,7 +136,7 @@ BOOST_AUTO_TEST_CASE(print_test) {
 // this section reads from a file, tests branch, and jump instructions.
 BOOST_AUTO_TEST_CASE(jump_tests) {
     // first validate that from a file works ok
-    std::ifstream ifs("./tests/test_alu_a.S");
+    std::ifstream ifs("./test_files/test_alu_a.S");
     Program program = Program(ifs);
     alu a;
     Memory *mem = a.getMem();
@@ -185,7 +184,7 @@ BOOST_AUTO_TEST_CASE(jump_tests) {
 
 BOOST_AUTO_TEST_CASE(even_odd_test) {
     // first validate that from a file works ok
-    std::ifstream ifs("./tests/test_alu_b.S");
+    std::ifstream ifs("./test_files/test_alu_b.S");
     Program program = Program(ifs);
     alu a;
     Memory *mem = a.getMem();
@@ -206,3 +205,5 @@ BOOST_AUTO_TEST_CASE(even_odd_test) {
     BOOST_LOG_TRIVIAL(debug) <<"test 2:"<< res;
     BOOST_ASSERT(res=="FizzBuzz 15    14    13   Fizz 12    11   Buzz 10   Fizz 9    8    7   Fizz 6   Buzz 5    4   Fizz 3    2    1   ");
 }
+
+BOOST_AUTO_TEST_SUITE_END()

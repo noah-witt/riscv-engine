@@ -9,17 +9,19 @@
  * 
  */
 
-#define BOOST_TEST_MODULE start_test
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/log/trivial.hpp>
 #include "../start.hpp"
 
+BOOST_AUTO_TEST_SUITE(start_test)
 BOOST_AUTO_TEST_CASE(basic_start_test) {
     std::string a_input_data = "";
     std::stringstream a_input(a_input_data);
     std::stringstream a_output;
-    start("./tests/test_start_a.S", 10000, a_input, a_output);
+    start("./test_files/test_start_a.S", 10000, a_input, a_output);
     std::string result = a_output.str();
     BOOST_LOG_TRIVIAL(debug) <<"test:"<< result;
     BOOST_ASSERT(result=="105 775 ABC 3 976 3 ");
 }
+
+BOOST_AUTO_TEST_SUITE_END()

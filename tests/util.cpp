@@ -1,12 +1,12 @@
-#define BOOST_TEST_MODULE util_test
-#include <boost/test/included/unit_test.hpp>
+
+#include <boost/test/unit_test.hpp>
 #include "../util.hpp"
 #include <iostream>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 
-
+BOOST_AUTO_TEST_SUITE(util_test)
 BOOST_AUTO_TEST_CASE(find_delinator_test) {
     std::vector<std::string> del;
     del.push_back(";");
@@ -54,3 +54,4 @@ BOOST_AUTO_TEST_CASE(isNumber_test) {
     BOOST_ASSERT(isNumber("s-s") == false);
     BOOST_ASSERT(isNumber("asd") == false);
 }
+BOOST_AUTO_TEST_SUITE_END()

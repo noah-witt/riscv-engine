@@ -27,11 +27,6 @@ page::page(unsigned long addressInput) {
     this->data = (unsigned char *)calloc(PAGESIZE,sizeof(unsigned char));
 }
 
-page::~page() {
-    BOOST_LOG_TRIVIAL(debug) << "destructing page "<< this;
-    free(this->data);
-}
-
 readResult<unsigned char> page::readByte(unsigned long address) {
     readResult<unsigned char> result;
     if(!safeToRead(address)) {
@@ -80,17 +75,6 @@ Memory::Memory() {
     BOOST_LOG_TRIVIAL(debug) << "constructing memory " << this;
     for(int i=0; i<RANGECOUNT; i++) {
         this->pages[i] = nullptr;
-    }
-}
-
-Memory::~Memory() {
-    BOOST_LOG_TRIVIAL(debug) << "destructing memory "<< this;
-    unsigned long pageCount = MAXMEMORY/PAGESIZE;
-    for(int i=0; i<pageCount; i++) {
-        if(this->pages[i]!=nullptr) {
-            this->pages[i]->~page();
-            free(this->pages[i]);
-        }
     }
 }
 

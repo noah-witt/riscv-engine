@@ -1,6 +1,4 @@
-#define BOOST_TEST_MODULE register_test
-//#include <boost/test/unit_test.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "../memory.hpp"
 #include "../memory.t.hpp"
 #include "../registers.hpp"
@@ -9,6 +7,7 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
 
+BOOST_AUTO_TEST_SUITE(registers)
 BOOST_AUTO_TEST_CASE(int_write_test) {
 	Register a = Register();
 	a.write<unsigned int>(0xa);
@@ -41,4 +40,5 @@ BOOST_AUTO_TEST_CASE(zero_reg_test) {
     a.write(0x1123);
     BOOST_ASSERT(0 == a.read<unsigned long>());
 }
+BOOST_AUTO_TEST_SUITE_END()
 

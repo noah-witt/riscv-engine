@@ -9,12 +9,12 @@ run:
 	./riscv_dist.run
 
 test:
-	@echo "testing"
-	bash ./tests/test.sh start.cpp start
-	bash ./tests/test.sh alu.cpp alu
-	bash ./tests/test.sh util.cpp util
-	bash ./tests/test.sh assembler.cpp assembler
-	bash ./tests/test.sh memory.cpp	memorys
-	bash ./tests/test.sh registers.cpp registers
+	g++ -std=c++20 -lboost_log -lboost_unit_test_framework -DBOOST_LOG_DYN_LINK -pthread -g ./*.cpp ./tests/*.cpp -o test.run
+	./test.run
+
 ci:
-	bash ./tests/test.sh * all
+	g++ -std=c++20 -lboost_log -lboost_unit_test_framework -DBOOST_LOG_DYN_LINK -pthread -g ./*.cpp ./tests/*.cpp -o test.run
+	./test.run --report_format=XML --report_sink=./test_report.xml --report_level=detailed --log_level=all
+
+build_tests:
+	g++ -std=c++20 -lboost_log -lboost_unit_test_framework -DBOOST_LOG_DYN_LINK -pthread -g ./*.cpp ./tests/*.cpp -o test.run
