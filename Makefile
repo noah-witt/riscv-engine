@@ -18,3 +18,6 @@ ci:
 
 build_tests:
 	g++ -std=c++20 -lboost_log -lboost_unit_test_framework -DBOOST_LOG_DYN_LINK -pthread -g ./*.cpp ./tests/*.cpp -o test.run
+
+build_tests_optimal:
+	g++ -std=c++20 -lboost_log -lboost_unit_test_framework -DBOOST_LOG_DYN_LINK -pthread -g ./*.cpp ./tests/*.cpp -O3 -march=native -o test_optimized.run
