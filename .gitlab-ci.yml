@@ -1,9 +1,9 @@
 default:
   image: archlinux:latest
   before_script:
-    - pacman -Syu 
-    - pacman -S gcc
-    - pacman -S boost
+    - pacman --noconfirm -Syu 
+    - pacman --noconfirm -S gcc
+    - pacman --noconfirm -S boost
 
 build-job:
   stage: build
