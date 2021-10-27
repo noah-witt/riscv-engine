@@ -108,4 +108,5 @@ template std::array<void*, 4ul> Register::readInstruction<unsigned short, void, 
 template std::array<void*, 4ul> Register::readInstruction<unsigned short, unsigned short, unsigned short, unsigned short>();
 template int Register::read<int, 0, false>();
 template void Register::write<int, 0, false>(int const&);
+template void Register::write<long, 0, false>(long const&);
 template void Register::writeInstruction<unsigned short, unsigned char, unsigned char, int>(unsigned short const&, unsigned char const&, unsigned char const&, int const&);
