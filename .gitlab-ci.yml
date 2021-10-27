@@ -1,8 +1,8 @@
 default:
-  image: ubuntu:rolling
+  image: archlinux:latest
   before_script:
     - apt-get update
-    - apt-get install -y apt-utils build-essential sudo git libboost-all-dev
+    - RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata apt-utils build-essential sudo git libboost-all-dev
 
 build-job:
   stage: build
