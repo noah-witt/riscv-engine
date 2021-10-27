@@ -1,8 +1,9 @@
 default:
-  image: ubuntu:latest
+  image: arch:latest
   before_script:
-    - apt-get update
-    - DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata apt-utils build-essential sudo git libboost-all-dev
+    - pacman -Syu 
+    - pacman -S gcc
+    - pacman -S boost
 
 build-job:
   stage: build
