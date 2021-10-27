@@ -22,6 +22,6 @@ test-job:
   artifacts:
     when: always
     paths:
-      - test_report.xml
+      - ./test_report.xml
     reports:
-      junit: test_report.xml
+      junit: ./test_report.xml
