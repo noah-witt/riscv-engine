@@ -1,0 +1,17 @@
+default:
+  image: ubuntu:rolling
+
+build-job:
+  stage: build
+  script:
+    - make dist
+  
+test-job1:
+  stage: test
+  script:
+    - make ci
+
+test-job2:
+  stage: test
+  script:
+    - make test
