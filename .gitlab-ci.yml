@@ -1,5 +1,5 @@
 default:
-  image: arch:latest
+  image: archlinux:latest
   before_script:
     - pacman -Syu 
     - pacman -S gcc
