@@ -2,7 +2,7 @@ default:
   image: ubuntu:rolling
   before_script:
     - apt-get update
-    - apt-get install -y apt-utils build-essential sudo git
+    - apt-get install -y apt-utils build-essential sudo git libboost-all-dev
 
 build-job:
   stage: build
