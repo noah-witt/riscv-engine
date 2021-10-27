@@ -284,59 +284,59 @@ AluStepResult alu::step() {
         Register *input2 = this->reg.getRegister(*((uint16_t*) ops[3]));
         switch(op) {
             case(Operations::ADD):
-                dest->write<int>(input1->read<int>()+input2->read<int>());
+                dest->write<long>(input1->read<int>()+input2->read<int>());
                 break;
             case(Operations::SUB):
-                dest->write<int>(input1->read<int>()-input2->read<int>());
+                dest->write<long>(input1->read<int>()-input2->read<int>());
                 break;
             case(Operations::MUL):
-                dest->write<int>(input1->read<int>()*input2->read<int>());
+                dest->write<long>(input1->read<int>()*input2->read<int>());
                 break;
             case(Operations::MULH):
-                dest->write<int16_t>(input1->read<int16_t>()*input2->read<int16_t>());
+                dest->write<long>(input1->read<int16_t>()*input2->read<int16_t>());
                 break;
             case(Operations::MULHSU):
-                dest->write<int16_t>(input1->read<int16_t>()*input2->read<uint16_t>());
+                dest->write<long>(input1->read<int16_t>()*input2->read<uint16_t>());
                 break;
             case(Operations::MULHU):
-                dest->write<uint16_t>(input1->read<uint16_t>()*input2->read<uint16_t>());
+                dest->write<unsigned long>(input1->read<uint16_t>()*input2->read<uint16_t>());
                 break;
             case(Operations::DIV):
-                dest->write<int>(input1->read<int>()/input2->read<int>());
+                dest->write<long>(input1->read<int>()/input2->read<int>());
                 break;
             case(Operations::DIVU):
-                dest->write<uint>(input1->read<uint>()*input2->read<uint>());
+                dest->write<unsigned long>(input1->read<uint>()*input2->read<uint>());
                 break;
             case(Operations::REM):
-                dest->write<int>(input1->read<int>()%input2->read<int>());
+                dest->write<long>(input1->read<int>()%input2->read<int>());
                 break;
             case(Operations::REMU):
-                dest->write<uint>(input1->read<uint>()%input2->read<uint>());
+                dest->write<unsigned long>(input1->read<uint>()%input2->read<uint>());
                 break;
             case(Operations::AND):
-                dest->write<uint>(input1->read<uint>() & input2->read<uint>());
+                dest->write<unsigned long>(input1->read<uint>() & input2->read<uint>());
                 break;
             case(Operations::OR):
-                dest->write<uint>(input1->read<uint>() | input2->read<uint>());
+                dest->write<unsigned long>(input1->read<uint>() | input2->read<uint>());
                 break;
             case(Operations::XOR):
-                dest->write<uint>(input1->read<uint>() ^ input2->read<uint>());
+                dest->write<unsigned long>(input1->read<uint>() ^ input2->read<uint>());
                 break;
             case(Operations::SLL):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()<<input2->read<int>());
+                break;
             case(Operations::SLT):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()<input2->read<int>());
+                break;
             case(Operations::SLTU):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<unsigned long>(input1->read<unsigned int>()<<input2->read<unsigned int>());
+                break;
             case(Operations::SRL):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()>>input2->read<int>());
+                break;
             case(Operations::SRA):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()>>input2->read<int>());
+                break;
             // 64 bit operations
             case(Operations::ADDW):
                 dest->write<long>(input1->read<long>()+input2->read<long>());
@@ -345,14 +345,14 @@ AluStepResult alu::step() {
                 dest->write<long>(input1->read<long>()-input2->read<long>());
                 break;
             case(Operations::SLLW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()<<input2->read<long>());
+                break;
             case(Operations::SRLW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()>>input2->read<long>());
+                break;
             case(Operations::SRAW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()<<input2->read<long>());
+                break;
             case(Operations::MULW):
                 dest->write<long>(input1->read<long>()*input2->read<long>());
                 break;
@@ -368,9 +368,7 @@ AluStepResult alu::step() {
             case(Operations::REMUW):
                 dest->write<ulong>(input1->read<ulong>()%input2->read<ulong>());
                 break;
-            // TODO more calculations.
             default:
-                //TODO some sort of exception
                 throw "NOT IMPLEMENTED";
                 break;
         }
@@ -387,33 +385,32 @@ AluStepResult alu::step() {
                 dest->write<long>(input1->read<int>()+input2.read<int>());
                 break;
             case(Operations::SLTI):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()<input2.read<int>());
+                break;
             case(Operations::SLLI):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()<<input2.read<int>());
+                break;
             case(Operations::SRLI):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()>>input2.read<int>());
+                break;
             case(Operations::XORI):
-                //FIXME implement
                 dest->write<ulong>(input1->read<uint>() ^ input2.read<uint>());
                 break;
             case(Operations::SRAI):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<int>()>>input2.read<int>());
+                break;
             case(Operations::ADDIW):
-                dest->write<long>(input1->read<long>()+input2.read<int>());
+                dest->write<long>(input1->read<long>()+input2.read<long>());
                 break;
             case(Operations::SLLIW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()<<input2.read<long>());
+                break;
             case(Operations::SRLIW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()>>input2.read<long>());
+                break;
             case(Operations::SRAIW):
-                //FIXME implement
-                throw "NOT IMPLEMENTED";
+                dest->write<long>(input1->read<long>()>>input2.read<long>());
+                break;
             case(Operations::JALR):
                 // an instruction that performs two operations.
                 dest->write<long>(this->reg.getRegister(PC)->read<ulong>()+INSTRUCTION_LENGTH);
@@ -462,9 +459,7 @@ AluStepResult alu::step() {
                     pc=this->reg.getRegister(PC)->read<ulong>();
                 }
                 break;
-            //TODO implement these ops.
             default:
-                //TODO some sort of exception
                 throw "NOT IMPLEMENTED";
                 break;
         }
