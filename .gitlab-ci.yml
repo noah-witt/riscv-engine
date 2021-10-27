@@ -1,5 +1,5 @@
 default:
-  image: archlinux:latest
+  image: ubuntu:latest
   before_script:
     - apt-get update
     - RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata apt-utils build-essential sudo git libboost-all-dev
