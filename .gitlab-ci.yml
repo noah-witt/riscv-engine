@@ -1,5 +1,8 @@
 default:
   image: ubuntu:rolling
+  before_script:
+    - apt-get update
+    - apt-get install -y apt-utils build-essential sudo git
 
 build-job:
   stage: build
