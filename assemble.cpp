@@ -227,7 +227,6 @@ generatedInstruction Instruction::getInstruction() {
                 return result;
             }
             throw "unknown pseudo operation.";
-            //TODO this only breaks from the part of the line so we need to set some flag to stop the loop from continuing.
             break; // the whole line is handled here if it starts with ..
         }
         if (it == split.begin()) {
@@ -565,11 +564,9 @@ generatedInstruction Instruction::getInstruction() {
     }
     // 2 reg and then immediate
     if(op>=Operations::ADDI && op <= Operations::BGEU) {
-        // TODO change to 32 bit im value.
         uint8_t dest = syms.at(0).registerId;
         uint8_t op0 = syms.at(1).registerId;
         uint32_t im = syms.at(2).immediate_value;
-        // TODO FIX ME too many bits
         result.writeInstruction<uint16_t, uint8_t, uint8_t, int32_t>((uint16_t) op, dest, op0, im);
         generatedInstruction val;
         val.values.push_back(result.read<unsigned long>());
@@ -592,7 +589,7 @@ generatedInstruction Instruction::getInstruction() {
         return val;
     }
 
-    // TODO one register and immediate
+    // one register and immediate
     if(op>=Operations::LUI && op<=Operations::AUIPC) {
         //load an immediate value in a register
         uint8_t dest = syms.at(0).registerId;
@@ -620,7 +617,7 @@ generatedInstruction Instruction::getInstruction() {
         val.values.push_back(result.read<unsigned long>());
         return val;
     }
-    // TODO fix more special.
+
     if(op==Operations::NOT) {
         uint16_t a = syms.at(0).registerId;
         uint16_t b = syms.at(1).registerId;
@@ -719,7 +716,6 @@ Program::Program(std::ifstream& in) {
 }
 
 void Program::firstStep() {
-    // TODO free the old symbol table and setup a new one
     uint64_t current_pointer = 0;
     std::vector<std::string> delinators = std::vector<std::string>();
     delinators.push_back("\n");
@@ -787,7 +783,6 @@ SymbolTable* Program::toMemory(Memory* memoryInput) {
     for(std::vector<std::string>::iterator line = lines.begin(); line!=lines.end(); line++) {
         BOOST_LOG_TRIVIAL(debug) <<"starting to process line "<<*line;
         // this is each line.
-        // TODO Process each line dropping the :
         std::vector<std::string> partDelinators = std::vector<std::string>();
         partDelinators.push_back(":");
         std::vector<std::string> parts = splitStringRemoveEmpty(*line, partDelinators);
@@ -830,7 +825,6 @@ SymbolTable* Program::toMemory(Memory* memoryInput) {
             BOOST_LOG_TRIVIAL(debug) <<"done writing parts";
         } catch (std::exception e) {
             BOOST_LOG_TRIVIAL(debug) << "error in to memory "<< e.what();
-            // TODO some sort of logging to record this.
             // It probably is nothing though because it could just be a non command.
             throw e; //FIXME remove this line
         }

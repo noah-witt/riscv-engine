@@ -172,5 +172,4 @@ class Program {
          * @param mem the memory
          */
         SymbolTable* toMemory(Memory* mem);
-        // TODO some sort of operation to load a command in to memory.
 };

@@ -49,7 +49,6 @@ class zeroRegister: public Register {
 };
 
 class Registers {
-    // TODO  store all the registers and 
     protected:
         std::unordered_map<unsigned int, Register> registers;
     public:

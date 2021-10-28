@@ -274,9 +274,7 @@ AluStepResult alu::step() {
     BOOST_LOG_TRIVIAL(debug) << "stepping with memory " << &this->mem << ", and pc " << pc;
     Register operation;
     operation.write<unsigned long>(this->mem.read<unsigned long>(pc).payload);
-    // TODO read at location and then execute
     Operations op = (Operations)(*((uint16_t *)operation.readInstruction<uint16_t>()[0]));
-    // TODO increment pc unless special op.
     if(op>=Operations::ADD && op <=Operations::REMUW) {
         std::array<void *, 4> ops = operation.readInstruction<uint16_t, uint16_t, uint16_t, uint16_t>();
         Register *dest = this->reg.getRegister(*((uint16_t*) ops[1]));
@@ -555,7 +553,6 @@ AluStepResult alu::step() {
             result.printStrValue = this->mem.stringFromMemory(loc);
         }
     }
-    // TODO add more custom operations.
     // print etc
     // request input
     else if(op>=Operations::INPUTI && op<=Operations::INPUTF) {
