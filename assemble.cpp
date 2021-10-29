@@ -178,7 +178,6 @@ generatedInstruction Instruction::getInstruction() {
     }
     for(;it<split.end();it++) {
         if (it->at(0) == '.') {
-            // FIXME handle things that start with .
             if(it != split.begin()) {
                 // dot not at the first line.
                 throw "key that begins with . other than at first of a line for pseudo op.";
@@ -464,9 +463,7 @@ generatedInstruction Instruction::getInstruction() {
                 op = Operations::AUIPC;
             }
 
-            // FIXME add more.
         } else if(it->find('(') != std::string::npos && it->find(')') != std::string::npos) {
-            // FIXME untested
             //identify memory refs 123(sp) or -64(sp) or other register name
             std::vector<std::string> openAndClose;
             openAndClose.push_back("(");
@@ -478,7 +475,6 @@ generatedInstruction Instruction::getInstruction() {
             }
             // get the offset part
             uint32_t offset = std::stoi(itemParts[0]);
-            //FIXME allow named things
             // get the register part.
             int regOffsetFrom = -1;
             std::vector<std::vector<std::string>> names = AssembleConstants::getNamesAsList();
@@ -506,8 +502,6 @@ generatedInstruction Instruction::getInstruction() {
             symR.immediate_value = offset;
             syms.push_back(symR);
         } else if(isNumber(*it)) {
-            // FIXME immediate value
-            // FIXME UNTESTED
             uint32_t immediate = std::stoi(*it);
             SymbolOrRegister symR;
             symR.t = SymbolOrRegisterType::IMMEDIATE_VALUE;
@@ -794,7 +788,6 @@ SymbolTable* Program::toMemory(Memory* memoryInput) {
         if(parts.size()==2) {
             // discard the first part.
             operation = parts[1];
-            // FIXME make sure this matches the map...
             // by comparing the current key and the current pointer address.
         }
         if(parts.size()==1) {
@@ -826,7 +819,7 @@ SymbolTable* Program::toMemory(Memory* memoryInput) {
         } catch (std::exception e) {
             BOOST_LOG_TRIVIAL(debug) << "error in to memory "<< e.what();
             // It probably is nothing though because it could just be a non command.
-            throw e; //FIXME remove this line
+            throw e;
         }
         BOOST_LOG_TRIVIAL(debug) <<"going to the next line";
     }

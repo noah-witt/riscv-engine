@@ -94,7 +94,6 @@ void Register::writeLower(const inputType& in) {
 
 template<typename resultType>
 resultType Register::readLower() {
-    BOOST_LOG_TRIVIAL(debug) << REGISTER_WIDTH_BYTES-sizeof(resultType); //FIXME remove
     return this->read<resultType, REGISTER_WIDTH_BYTES-sizeof(resultType)>();
 }
 
