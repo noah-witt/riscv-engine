@@ -38,13 +38,13 @@ BOOST_AUTO_TEST_CASE(write_random_int_test) {
 }
 
 BOOST_AUTO_TEST_CASE(verify_bounds_checking) {
-	Memory a = Memory();/*
+	Memory a = Memory();
 	a.read<int>(MAXMEMORY).valid;
 	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY).valid, false);
 	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY+100).valid, false);
 	BOOST_CHECK_EQUAL(a.read<int>(0).valid, true);
 	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY-sizeof(int)).valid, true);
-	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY/2).valid, true);*/
+	BOOST_CHECK_EQUAL(a.read<int>(MAXMEMORY/2).valid, true);
 }
 
 BOOST_AUTO_TEST_CASE(verify_byte_op) {
@@ -90,26 +90,22 @@ BOOST_AUTO_TEST_CASE(verify_op_on_split) {
 	BOOST_CHECK_EQUAL(a.read<long>((2*PAGESIZE)-(sizeof(int))+1).valid, true);
 }
 
-/*
+
 BOOST_AUTO_TEST_CASE(write_full_int_test) {
 	//fully write the first 3 pages and then the last 3 pages.
 	Memory a = Memory();
-	for(int i =0; i< 3*PAGESIZE; i++) {
+	for(int i =0; i< 3*PAGESIZE; i+=sizeof(int)) {
 		unsigned int num = rand()%UINT_MAX;
-		//printf("%p\t%X\n", address, num);
 		a.write<unsigned int>(i,num);
-		//a.write<int>(address, num);
 		BOOST_CHECK_EQUAL(num, a.read<unsigned int>(i).payload);
 	}
 
-	for(int i =MAXMEMORY-(3*PAGESIZE); i<MAXMEMORY; i++) {
+	for(int i =MAXMEMORY-(3*PAGESIZE); i<MAXMEMORY-sizeof(int); i+=sizeof(int)) {
 		unsigned int num = rand()%UINT_MAX;
-		//printf("%p\t%X\n", address, num);
 		a.write<unsigned int>(i,num);
-		//a.write<int>(address, num);
 		BOOST_CHECK_EQUAL(num, a.read<unsigned int>(i).payload);
 	}
-}*/
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
