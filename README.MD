@@ -1,6 +1,18 @@
 RISC-V is an open-source instruction set architecture. It allows anyone to implement or use it without paying a royalty. This is in contrast with the two most popular alternatives, x86, and ARM. In both ARM and x86, significant royalties must be paid to the designers to implement the architecture. This program provides a robust and straightforward environment to assemble and execute RISC-V assembly code. It implements the vast majority of the userspace RISC-V instruction set, including the multiplication extensions. There are also some additions to enable easier input and output. 
 
-To use the program, you must first write some basic RISC-V assembly. Here is an example of RISC-V assembly.
+
+# how to use
+
+This source produces a single binary. The software is executed from the command line. Several example assembly files are provided in the `examples` folder. 
+
+In order to execute the software run `./riscv.run --input ./examples/factors.S` you can also add the `--d` option if you want to use the debugger. `--help` will print help.
+
+
+# how to build 
+There are two build versions available. First, there is a machine specific build that can be built using `make build`. Second, there is a generic build that can be built using `make dist`.
+
+
+# example assembly
 ```
 # this program takes input from a user and prints the integer divisors of it.
 
