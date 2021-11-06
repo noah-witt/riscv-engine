@@ -25,3 +25,17 @@ test-job:
       - ./test_report.xml
     reports:
       junit: ./test_report.xml
+
+test-job2:
+  stage: test
+  image: ubuntu:rolling
+  before_script:
+    - apt-get update && apt-get install build-essential libboost-all-dev -y
+  script:
+    - make ci
+  artifacts:
+    when: always
+    paths:
+      - ./test_report.xml
+    reports:
+      junit: ./test_report.xml
