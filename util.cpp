@@ -5,7 +5,6 @@
 #include <cctype>
 #include <locale>
 #include <iostream>
-#include <ranges>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/expressions.hpp>
@@ -84,6 +83,10 @@ std::string &trim(std::string &s) {
 
 bool isNumber(const std::string& s)
 {
-    return std::ranges::all_of(s.begin(), s.end(),
-                  [](char c){ return std::isdigit(c) != 0 || c=='-'; });
+    for(std::string::const_iterator it = s.begin(); it != s.end(); ++it)
+    {
+        if(*it=='-') continue;
+        if(!std::isdigit(*it)) return false;
+    }
+    return true;
 }
