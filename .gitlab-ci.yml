@@ -14,7 +14,8 @@ build-job:
     when: always
     paths:
       - riscv_dist.run
-  
+
+# test arch linux
 test-job:
   stage: test
   script:
@@ -26,11 +27,29 @@ test-job:
     reports:
       junit: ./test_report.xml
 
+# test latest ubuntu
 test-job2:
   stage: test
   image: ubuntu:rolling
   before_script:
-    - apt-get update && apt-get install build-essential libboost-all-dev -y
+    - apt-get update
+    - DEBIAN_FRONTEND="noninteractive" apt-get install build-essential libboost-all-dev -y
+  script:
+    - make ci
+  artifacts:
+    when: always
+    paths:
+      - ./test_report.xml
+    reports:
+      junit: ./test_report.xml
+
+# test LTS ubuntu
+test-job3:
+  stage: test
+  image: ubuntu:latest
+  before_script:
+    - apt-get update
+    - DEBIAN_FRONTEND="noninteractive" apt-get install build-essential libboost-all-dev -y
   script:
     - make ci
   artifacts:
